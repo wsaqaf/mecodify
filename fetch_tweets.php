@@ -1076,8 +1076,7 @@ function answer2($location) { if ($location=="NULL") return ""; return $location
 function get_hd()
 {
 	if ($_SERVER['HTTPS']) return "https://";
-	if (strtolower($_SERVER['HTTP_HOST'])!="localhost") return $_SERVER['REQUEST_SCHEME']."://";
-	return "";
+	return $_SERVER['REQUEST_SCHEME']."://";
 }
 ?>
 
