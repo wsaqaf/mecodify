@@ -1,6 +1,6 @@
 <?php
 
-//echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; //exit;
+echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; //exit;
 //print_r($_POST); exit;
 error_reporting(E_ALL);
 
@@ -310,10 +310,9 @@ function toggle_login($preserve)
 
 function get_from_db($email,$menu,$case)
   {
-      global $link; global $login_str; global $super_members; global $admin_email;
+      global $link; global $login_str; global $admin_email;
 if (!$case) { echo "Please select a case first"; return; }
-      if (!in_array($_SESSION['email'],$super_members)) 
-	{ $cond=" AND is_mecodem_case<>1 ";  } else $cond="";
+      $cond="";
 
       if ($email)
         {
@@ -412,6 +411,7 @@ function edit_from_db($email,$menu,$case)
       else die("Error in query: ". $link->error.": $query");
       $template=$submit_case_form;
       $row = $result->fetch_assoc();
+      $template=str_replace("Add a new case","Edit case",$template);
       $template=str_replace("'case_id'>","'case_id' value='${row['id']}' readonly><i> <font size=-2>The id cannot be changed. You can add a new case with a new id</font></i>",$template);
       $template=str_replace("'case_name'>","'case_name' value='".htmlspecialchars($row['name'])."'>",$template);
 //      $template=str_replace("'case_platform'>","'case_name' value='".platform($row['platform'])."' disabled><i> <font size=-2>The platform cannot be changed. You can add a new case with a new platform</font></i>",$template);
@@ -428,11 +428,11 @@ e changed. You can add a new case with a different search method</font></i>",$te
       $template=str_replace("'case_details_url'>","'case_details_url' value='".htmlentities($row['details_url'])."'>",$template);
       if (ischecked($row['private']))
 	{
-	  $template=str_replace('<option value="0">Public</option><option value="1">','<option value="0">Public</option><option value="1" selected>',$template);
+	  $template=str_replace('<option value="1">Private</option><option value="0">Public</option></select>','<option value="1" selected>Private</option><option value="0">Public</option></select>',$template);
 	}
       else 
 	{
-	  $template=str_replace('<option value="0">Public</option><option value="1">','<option value="0" selected>Public</option><option value="1">',$template);
+	  $template=str_replace('<option value="1">Private</option><option value="0">Public</option></select>','<option value="1">Private</option><option value="0" selected>Public</option></select>',$template);
 	}
       $template=str_replace("'case_private'>","'case_private' value=".ischecked($row['private']).">",$template);
       $template=str_replace("value='Submit case' onclick=case_proc('submit_case');>","value='Save changes' onclick=case_proc('resubmit_case');>",$template);

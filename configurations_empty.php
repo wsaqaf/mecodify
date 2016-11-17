@@ -38,8 +38,6 @@ require_once('twitter-api-php-master/TwitterAPIExchange.php');
 $website_url=rtrim($website_url,"/");
 connect_mysql();
 
-$super_members=array(); //a list of emails that you want to give extra priviliges to
-
 get_cases();
 
 function connect_mysql()
@@ -89,7 +87,7 @@ function connect_mysql()
 
 function get_cases()
   {
-    global $cases; global $link; global $super_members; global $cond;
+    global $cases; global $link; global $cond;
 
     $query= "SELECT * from cases $cond";
 
