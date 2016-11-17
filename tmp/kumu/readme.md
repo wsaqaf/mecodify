@@ -1,0 +1,1 @@
+This is the apache-writable folder where CSV files importable to the Kumu visualization platform (http://kumu.io). Each case has two files, one for the elements (*_users.csv) and connections (*_tweets*.csv, *_mentions*.csv, *_replies*.csv). See the Kumu manual on how to import and use the platform here: http://docs.kumu.io/guides/import.html

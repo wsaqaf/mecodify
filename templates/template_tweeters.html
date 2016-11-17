@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+	<head>
+ <link rel="shortcut icon" href="/favicon.ico" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>Mecodify</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/template.css" type="text/css" />
+	<link rel="stylesheet" href="css/tweeters.css" type="text/css" />
+
+		<script type='text/javascript' src='js/jquery.min.js'></script>
+		<script src="js/highcharts.js"></script>
+		<script src="js/data.js"></script>
+		<script src="js/drilldown.js"></script>
+		<script src="js/d3.v3.js"></script>
+		<script src="js/tweeters.js"></script>
+
+		<meta name="msapplication-TileColor" content="#2b5797">
+	</head>
+
+	<body style="background-color:#FFFFFF">
+		<div id="menu">
+			<nav class="navbar navbar-default" role="navigation">
+				<div class="container">
+					<div class="navbar-header">
+						<a href="<!--url-->" title="<!--title-->">
+							<img src="images/logo.png" alt="<!--title-->" /></a>
+					</div>
+				</div>
+			</nav>
+		</div>
+								<div id="hs-component">
+						<div class="container">
+				<div id="wrap" class="sidebar-wrapper">
+	<div id="comp-menu" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 hidden-xs">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-9"></div>
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 cont">
+			<h2 class="demo-name"><!--title--></h2>
+			<div class="btn-group theme">
+
+																					<a class="btn btn-theme" href="?id=tweets">The Tweets</a>
+																																				<a class="btn btn-theme disabled" href="?id=tweeters">The Tweeters</a>
+												</div>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-9 sidebar" id="login_status" style=' min-height: 500px;'>
+		<span class="login_status"></span>
+		<span id="left_menu" style='display:none;'>
+		<ul class="nav nav-sidebar" >
+						<li class="">
+							<div> Cases</div>
+												<li class="" >
+													<span class="cases_block">
+<!--cases-->
+													</span>
+								</li>
+							</li>
+				<li class="">
+						<div class="show_hide2">Influence Charts</div>
+							<li class="" >
+								<div class="slidingDiv2" style="display: block; font-size:12px; font-weight:normal;">
+									Select how many records to show: <select  style='color:black; background-color:white' id='limit' name='limit'>
+										<option value='5'>5</option>
+										<option value='10' selected>10</option>
+										<option value='25'>25</option>
+										<option value='50'>50</option>
+                                                                                <option value='100'>100</option>
+                                                                                <option value='200'>200</option>
+									</select><br><br>
+                                                                                <input type="radio" id="tweets" name="overview" value="1" checked /> Highest in number of tweets<br>
+
+										<input type="radio" id="retweets" name="overview" value="1"  /> Highest in number of retweets by others<br>
+										<input type="radio" id="responders" name="overview" value="1"  /> Highest in number of responses received<br>
+										<input type="radio" id="followers" name="overview" value="1"  /> Highest in number of followers<br>
+                                                                                <input type="radio" id="mention" name="overview" value="1"  /> Highest in number of mentions (active)<br>
+                                                                                <input type="radio" id="all_mentions" name="overview" value="1"  /> Highest in number of mentions (all)<br>
+										<input type="radio" id="quotes" name="overview" value="1"  /> Highest in number of quoted tweets*<br>
+										<input type="radio" id="responses" name="overview" value="1"  /> Highest in number of responses sent to others<br>
+										<br><i>* Quoted tweets in full (a Twitter feature)</i>
+								</div>
+							</li>
+				</li>
+				<li class="">
+						<div class="show_hide3">Other options</div>
+						<div class="slidingDiv3" style="display: block; font-size:12px; font-weight:normal;">
+														Limit to tweeters in location(s):<br><input type="input" id="location" placeholder="location1, location2, ..." name="location" value="" style="color:#4F471F !important;"><br>
+														Limit to tweeters using lanuages(s):<br><input type="input" id="language" placeholder="en, es, ar, ..." name="language" value="" style="color:#4F471F !important;"><br>
+														Bio containing any of those words:<br><input type="input" id="bio" placeholder="sports, media, music, ..." name="bio" value="" style="color:#4F471F !important;">
+						</div>
+				</li>
+
+				<li class="">
+					<div class="table"><div class="tr"><div class="td">
+					<center><a class="btn2" href="#" onclick="visualize('');">Show Chart</a>
+					</center></div></div></div>
+		</li>
+		<hr color="white">
+				<li class="">
+					<div class="show_hide4">Network visualisation (experimental)</div>
+						<div class="slidingDiv4" style="display: block; font-size:12px; font-weight:normal;">
+							<b>Type of networking relationship to visualise</b><br><br>
+							<input type="radio" id="responses2" name="network_type" value="responses2"  checked /> Responses<br>
+							<input type="radio" id="mentions" name="network_type" value="mentions" /> Mentions<br>
+
+							Threshold connection strength level:
+							<select id='level' name='level' style='color:black; background-color:white'>
+								<option value='1'>1</option>
+								<option value='2' selected>2</option>
+								<option value='3'>3</option>
+								<option value='4'>4</option>
+								<option value='5'>5</option>
+							</select><br><br>
+		<!--							Only include tweeters with at least this many followers:
+							<input type="input" id="minimum_followers" name="minimum_followers" value="">-->
+							<div class="table"><div class="tr"><div class="td">
+							<center><a class="btn2" href="#" onclick="visualize('network_type');">Show Network</a>
+							</center></div></div></div>
+<br><hr><br><big>Data for <a href="https://kumu.io" target=_blank>Kumu</a> integration:</big><br>
+<i>Kumu is a data visualization platform that helps organize complex information into interactive relationship maps.</i><br>
+<br><span id="kumu_users"></span><br>
+<span id="kumu_responses"></span><br>
+<span id="kumu_mentions"></span><br>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+							<br>
+
+						</div>
+				</li>
+					</ul>
+	</div>
+</span>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-9 sidebar-fill"></div>
+	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 sidebar-eq demo">
+		<a id="sidebar-close" class="btn-default visible-xs">&laquo; Hide Menu</a>
+		<div class="chart-container">
+			<div id="loading" style="display:none;"><br> Loading charts... <img src="images/ajax-loader.gif"><br></div>
+			<div id="followers" style="display:none;"></div>
+			<span id="chartcontainer"> </span>
+</div>
+	</div>
+	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 sidebar-eq-fill"></div>
+	<div class="clearfix"></div>
+</div>
+
+			</div>
+					</div>
+
+	</body>
+</html>

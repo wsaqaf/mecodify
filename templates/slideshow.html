@@ -1,0 +1,205 @@
+<html>
+  <head>
+    <title><!--case--></title>
+<link rel="stylesheet" href="../css/devsite-cyan.css">
+    <script src="../js/jquery.min.js"></script>
+<p style="display: none; height: 0; width: 0">Slideshow for <!--case--></p>
+
+<style type="text/css">
+     #tweet {
+       display:block;
+       position:fixed;
+       width:600px;
+       height:100%;
+       top:0;
+       left:0;
+       padding-top:140px;
+       overflow:auto;
+       background-color:#f0f0f0;
+      }
+
+ #tweet iframe {
+   border: none !important;
+   box-shadow: none !important;
+ }
+html {
+       overflow-y: scroll;
+}
+ </style>
+
+<script type="text/javascript" src="../js/widgets.js"></script>
+
+<script type="text/javascript" src="../js/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {packages:['corechart']});
+    google.charts.setOnLoadCallback(drawExample3);
+
+var max=0;
+
+function drawExample3() {
+  var options = {
+    width: 800,
+    height: 600,
+//    pointSize: 5,
+    vAxis: {minValue:0},
+    animation: {
+      duration: 500,
+      easing: 'in'
+    },
+     curveType: 'function',
+ legend:{position:'none'},
+//  hAxis: { format: 'M/d HH:MM:SS' },
+    series:
+       {
+         0: { pointShape: 'circle',  pointSize: 5 },
+         1: { pointShape: 'circle', pointSize: 15 },
+       },
+tooltip: { trigger: 'selection', isHtml: true }
+  };
+
+  var chart = new google.visualization.LineChart(
+      document.getElementById('example3-visualization'));
+  var data = new google.visualization.DataTable();
+  data.addColumn('datetime', 'Date & Time');
+  data.addColumn('number', 'Other');
+  data.addColumn('number', 'Current');
+  data.addColumn({type:'string', 'role': 'annotation'});
+  data.addColumn({type:'string', 'role': 'annotation'});
+
+var data_set=new Array("");
+var status=new Array("");
+
+<!--dataset-->
+
+var dateFormat = new google.visualization.DateFormat({formatType: 'long'});
+//dateFormat.format(data_set, 0);
+
+var index1=0;
+  var nextbutton = document.getElementById('next_tweet');
+  var previousbutton = document.getElementById('previous_tweet');
+  function drawChart() {
+    nextbutton.disabled = true;
+    previousbutton.disabled =true;
+    google.visualization.events.addListener(chart, 'ready',
+        function() {
+          nextbutton.disabled = false;
+	  previousbutton.disabled = false;
+        });
+    chart.draw(data, options);
+  }
+  nextbutton.onclick = function() {
+if (!data_set[index1]) { nextbutton.disabled = true; return; }
+    if (index1>0 && data_set[index1-1]) 
+	{
+	  var temp1=data_set[index1-1]; temp1[2]=null; temp1[3]=''; temp1[4]='';
+//alert("t1:"+temp1);
+	  data.removeRow(index1-1);
+	  data.insertRows(index1-1, [temp1]);
+        }
+    if (data_set[index1]) 
+        {
+          var temp2=data_set[index1]; temp2[2]=data_set[index1][1];
+	  temp2[3]=data_set[index1][0]+" ";
+	  temp2[4]=data_set[index1][1]+" tweets";
+	  if (index1<max) data.removeRow(index1);
+          data.insertRows(index1, [temp2]);
+        }
+
+//if (data.getNumberOfRows() > 3) {
+//data.removeRow(data.getNumberOfRows()-1);
+//    }
+
+//    if (data_set[index1-3]) { data.removeRow(0); }
+
+    $("#tweet_content").html('<div class="tweet" id="'+status[index1]+'"></div>');
+    $("#counter").html(' '+(index1+1)+' ');
+    var tweets = jQuery(".tweet");
+    jQuery(tweets).each( function( t, tweet ) {
+      var id = jQuery(this).attr('id');
+      twttr.widgets.createTweet(
+        id, tweet,
+        {
+          conversation : 'none',    // or all
+          cards        : 'visible',  // or visible
+          linkColor    : '#cc0000', // default is blue
+          theme        : 'light'    // or dark
+        });
+      });
+    index1++;
+if (index1>max) max=index1;
+    drawChart();
+  }
+
+  previousbutton.onclick = function() {
+    // Generating a random x, y pair and inserting it so rows are sorted.
+if (!data_set[index1-2]) { previousbutton.disabled = true; return; }
+    if (data_set[index1-1])
+        {
+          var temp1=data_set[index1-1]; temp1[2]=null;
+		 temp1[3]=''; temp1[4]='';
+//alert("t1:"+temp1);
+          data.removeRow(index1-1);
+          data.insertRows(index1-1, [temp1]);
+        }
+    if (index1-1>0 && data_set[index1-2] && data_set[index1])
+        {
+          var temp2=data_set[index1-2]; temp2[2]=data_set[index1-2][1];
+          temp2[3]=data_set[index1][0]+" ";
+          temp2[4]=data_set[index1][1]+" tweets";
+ //alert("t2:"+temp2);
+          data.removeRow(index1-2);
+          data.insertRows(index1-2, [temp2]);
+          chart.setSelection([{row:index1-2, column:1}]);
+        }
+
+    $("#tweet_content").html('<div class="tweet" id="'+status[index1-1]+'"></div>');
+    $("#counter").html(' '+(index1-1)+' ');
+    var tweets = jQuery(".tweet");
+    jQuery(tweets).each( function( t, tweet ) {
+      var id = jQuery(this).attr('id');
+      twttr.widgets.createTweet(
+        id, tweet,
+        {
+          conversation : 'none',    // or all
+          cards        : 'visible',  // or visible
+          linkColor    : '#cc0000', // default is blue
+          theme        : 'light'    // or dark
+        });
+      });
+    drawChart();
+    index1--;
+  }
+
+google.visualization.events.addListener(chart, 'select', function () {
+    var selection = chart.getSelection();
+//    alert("Index: "+selection[0].row);
+   if (selection[0].row !==undefined)
+    {
+      $("#tweet_content").html('<div class="tweet" id="'+status[selection[0].row]+'"></div>');
+      var tweets = jQuery(".tweet");
+      jQuery(tweets).each( function( t, tweet ) 
+       {
+         var id = jQuery(this).attr('id');
+         twttr.widgets.createTweet(
+           id, tweet,
+            {
+              conversation : 'none',    // or all
+              cards        : 'visible',  // or visible
+              linkColor    : '#cc0000', // default is blue
+              theme        : 'light'    // or dark
+            });
+       });
+     }
+}); 
+
+  drawChart();
+}
+</script>
+</head>
+<body>
+<!--title-->
+<table><tr><td><button id="previous_tweet"> Previous Tweet</button> <span id="counter"></span> <button id="next_tweet"> Next Tweet</button></td><td></td></tr><td style="width:900px"><div id="example3-visualization"></div></td>
+<td style="width:600px"><span id="tweet_content"></span></td></tr></table>
+<!--block end-->
+</body>
+</html>
