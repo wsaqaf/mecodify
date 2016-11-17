@@ -393,9 +393,9 @@ $name=$name." (other sources)";// echo "($condition)";
 
         if ($_GET['last_graph_hash'] && $stackgraph)
           {
-            if (file_exists("cache/".$_GET['last_graph_hash'].".htm"))
+            if (file_exists("tmp/cache/".$_GET['last_graph_hash'].".htm"))
               {
-                $template=file_get_contents("cache/".$_GET['last_graph_hash'].".htm");
+                $template=file_get_contents("tmp/cache/".$_GET['last_graph_hash'].".htm");
               }
             else {
                   $template=file_get_contents("templates/template.htm");
@@ -456,7 +456,7 @@ if ($flags)
         $template=str_replace("<!--url-->",$url,$template);
         $template2=str_replace("<!--url-->",$url,$template2);
 //echo "($hashkey)"; exit;
-        file_put_contents("cache/$hashkey.htm",$template2);
+        file_put_contents("tmp/cache/$hashkey.htm",$template2);
         echo $template."<form><input type='hidden' id='last_graph_hash' value='$hashkey'></form>";
  }
 else
@@ -466,10 +466,10 @@ else
 
         $hashkey2=base_convert(md5($main_url), 16, 10);
 
-        if (file_exists("cache/$table$hashkey2.tab"))
+        if (file_exists("tmp/cache/$table$hashkey2.tab"))
           {
 echo "Using cached table<br>";
-            $file_updated=gmdate("Y-m-d H:i:s", filemtime("cache/$table$hashkey2.tab"));
+            $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table$hashkey2.tab"));
 
             if ($result=$link->query("SELECT last_process_updated FROM cases WHERE id='$table'")) 
 		{ 
@@ -478,11 +478,11 @@ echo "Using cached table<br>";
 		   if ($row[0]<$file_updated)
 			{
 			  //echo "<span style='text-align:right; text-size:10pt;'>Note: * Cached table</span><br>";
-			  if (file_exists("cache/$table$hashkey2-slides.html")) 
+			  if (file_exists("tmp/cache/$table$hashkey2-slides.html")) 
 			     { 
-	  			echo "<center><a href=\"cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
+	  			echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
 			     }
-			  echo file_get_contents("cache/$table$hashkey2.tab");
+			  echo file_get_contents("tmp/cache/$table$hashkey2.tab");
 			  exit;
 			}
 		}
@@ -979,13 +979,13 @@ if ($debug && $_SESSION['email']==$admin_email) { echo "qry:$qry - retweets: $to
     $slide_file=str_replace("<!--case-->",$cases[$table]['name'],$slide_file);
     $slide_file=str_replace("<!--title-->"," Search query: <b>".$cases[$table]['query']."</b>",$slide_file);
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
-    file_put_contents("cache/$table$hashkey2-slides.html",$slide_file);
-    if (file_exists("cache/$table$hashkey2-slides.html"))
+    file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
+    if (file_exists("tmp/cache/$table$hashkey2-slides.html"))
        {
-                                echo "<center><a href=\"cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
+                                echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
        }
     echo $part1_data;
-    file_put_contents("cache/$table$hashkey2.tab",$part1_data);
+    file_put_contents("tmp/cache/$table$hashkey2.tab",$part1_data);
 }
 
 function get_cloud($table)
