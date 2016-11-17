@@ -35,7 +35,7 @@ if ($result = $link->query($query))
          {
            $search_meth="web_search";
          }
-      $cmd='php '.$search_meth.'.php '.$_GET['id'].' >> log/'.$_GET['id'].'-'.$search_meth.'.log &';
+      $cmd='php '.$search_meth.'.php '.$_GET['id'].' >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
      }
 
 //echo "(s:".$last_process_started.",u:".$last_process_updated.",c:".$row['last_process_completed'].")"; 
