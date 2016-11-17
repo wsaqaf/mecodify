@@ -117,7 +117,7 @@ From the command prompt, you can change ownership of the folders recursively usi
 ```sh
 sudo chown -R _www ./tmp
 ```
-obviously, the name of the webserver account could be different (e.g., apache, nobody, www...). So make sure you apply the correct credentials.
+obviously, the name of the webserver account could be different (e.g., apache, www-data, nobody, www...). So make sure you apply the correct credentials.
 
 ### 6- Read the user manual, start experimenting:
 You will need to check and confirm if all is working. The first step to do so is by reading the [manual](manual.md). If you succeed in creating an account and a case, then you have succeeded in your installation. If not, then you will need to go back to see where there may be a problem. Check the below troubleshooting tips and if all fails, you can reach out to us on [admin@mecodify.org](mailto:admin@mecodify.org) for help.

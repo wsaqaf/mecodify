@@ -677,10 +677,11 @@ if ($tops)
       $url=preg_replace('/\&top_links=[\d]/','',$url);
       $url=preg_replace('/\&shared=[\d]/','',$url);
       $url=preg_replace('/\&retweeted=[\d]/','',$url);
-      $url=preg_replace('/\&image=.+?\&/','',$url);
-      $url=preg_replace('/\&video=.+?\&/','',$url);
-      $url=preg_replace('/\&link=.+?\&/','',$url);
+      $url=preg_replace('/\&image[2]?=.*?\&/','&',$url);
+      $url=preg_replace('/\&video=.*?\&/','&',$url);
+      $url=preg_replace('/\&link=.*?\&/','&',$url);
       $url=preg_replace('/\&response_to=[\d]+/','',$url);
+      $url=preg_replace('/\&\&/','&',$url);
 
 //echo "[qry:$query]<br>";
 if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
@@ -713,19 +714,21 @@ if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
             {
 if ($debug && $_SESSION['email']==$admin_email) { echo "(${row[0]},${row[1]})<br>\n"; }
 	      $temp_list=explode(" ",$row[1]); $links="";
-	      foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."')><img src='$temp_link' height=250></a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a><br> <br>"; }
+	      foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."&')><img src='$temp_link' height=250></a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a><br> <br>"; }
               $data=$data."$links</td><td><center>${row[2]}</center></td></tr>\n";
             }
           elseif ($top_videos)
             {
-	      $temp_list=explode(" ",$row[1]); $links="";
-              foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&video=".rawurlencode($temp_link)."&image2=".rawurlencode($temp_link)."')>".image_exists($temp_link)."${row[0]} <a href='${row[3]}' target=_blank><img src='images/link.gif'></a>"; }
+	      if ($row[1]) { $img=1; $temp_list=explode(" ",$row[1]); }
+	      else { $img=0; $temp_list=explode(" ",$row[0]); } 
+	      $links="";
+              foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&video=".rawurlencode($temp_link)."&image2=".rawurlencode($temp_link)."&')>".image_exists($img,$temp_link)."${row[0]}</a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a>"; }
               $data=$data."$links</td><td><center>${row[2]}</center></td></tr>\n";
             }
           else
             {
 	      $temp_list=explode(" ",$row[0]); $links="";
-              foreach ($temp_list as $temp_link) { $links=$links."<a <a href='#' onclick=javascript:GetDetails('$url&link=".rawurlencode($temp_link)."')>$temp_link'</a> <a href='${row[2]}' target=_blank><img src='images/link.gif'></a>"; }
+              foreach ($temp_list as $temp_link) { $links=$links."<a <a href='#' onclick=javascript:GetDetails('$url&link=".rawurlencode($temp_link)."&')>$temp_link</a> <a href='${row[2]}' target=_blank><img src='images/link.gif'></a>"; }
               $data=$data."$links</td><td><center>${row[1]}</center></td></tr>\n";
             }
           $cnt++;
@@ -828,10 +831,11 @@ if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
                 $url=preg_replace('/&top_links=[\d]/','',$url);
                 $url=preg_replace('/&shared=[\d]/','',$url);
                 $url=preg_replace('/&retweeted=[\d]/','',$url);
-                $url=preg_replace('/&image=.+?/','',$url);
-                $url=preg_replace('/&video=.+?/','',$url);
-                $url=preg_replace('/&link=.+?/','',$url);
+                $url=preg_replace('/&image[2]?=.+?\&/','&',$url);
+                $url=preg_replace('/&video=.+?\&/','&',$url);
+                $url=preg_replace('/&link=.+?\&/','&',$url);
                 $url=preg_replace('/\&response_to=[\d]+/','',$url);
+	        $url=preg_replace('/\&\&/','&',$url);
 
 //echo "<hr>after: $url<hr>";
 
@@ -1008,8 +1012,9 @@ function arrowdir($oppasc,$col)
 	  }
 	return "";
  }
-function image_exists($url)
+function image_exists($img,$url)
   {
+    if (!$img) return "";
     $images=explode(" ",$url);
     $url=$images[0];
     if ($url) return "<img src='$url'>";
