@@ -174,7 +174,7 @@ This setting is useful in covering only a particular period of time and in displ
 - **Start Date: dd/mm/yyyy** This is the date you wish to start with. If it is blank, Mecodify will assume that you wish to start from beginning.
 - **Start Time: hh:mm** This is the time on the date provided at which you wish to start with. If it is blank, Mecodify will assume that you wish to start from 00:00.
 - **End Date: dd/mm/yyyy** This is the date you wish to end with. If it is blank, Mecodify will assume that you wish to end with at the maximum limit.
-- **End Time: hh:mm** This is the time on the date provided at which you wish to end with. If it is blank, Mecodify will assume that you wish to end at 23:59.
+- **End Time: hh:mm** This is the time on the date provided at which you wish to end with. If it is blank, Mecodify will assume that you wish to end at 00:00.
 - **Graph timeseries unit:** While the default unit of the graph's timeline (x axis) is hours, you can change it to days, or go lower to hours, minutes and even seconds. Selecting 'seconds' will probably take longer to plot but will provide the ability to zoom into the most detailed segments of the graph to see how tweets developed over short periods of times. This is helpful, for example, to investigate who was the first to start a particular hashtag and how it developed over a short period of time.
 
 #### Language
