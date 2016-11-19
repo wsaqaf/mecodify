@@ -414,7 +414,7 @@ $link->close();
 
 foreach ($flags_data['flags'] as $pd) 
    {
-	if ($pd['date_and_time']>$to || $pd['date_and_time']<$from) continue;
+	if (($to && $pd['date_and_time']>$to) || ($from && $pd['date_and_time']<$from)) continue;
 	$flags=$flags." { x : ".strtotime($pd['date_and_time'])."000 , title : '${pd['title']}' , text : '${pd['description']}' },\n";
    }
 
