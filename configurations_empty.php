@@ -33,6 +33,7 @@ $twitter_api_settings=array( // you need at least one set, there is no max!
 $platforms=array('1'=>'Twitter'); //Facebook and Youtube and other sources to be added in the future
 $search_methods=array('Twitter'=>array('0'=>'Search API','1'=>'Streaming API','2'=>'Web Search')); //Streaming API not activated yet
 
+$website_title=$website_title." (powered by Mecodify v".trim(file_get_contents("ver.no")).")";
 require_once('twitter-api-php-master/TwitterAPIExchange.php');
 
 $website_url=rtrim($website_url,"/");
