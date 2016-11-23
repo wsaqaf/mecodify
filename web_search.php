@@ -254,14 +254,34 @@ echo "$url\n---\n";
           $json=url_get_contents($url);
           $html1=json_decode($json);
           $html=stripslashes($html1->items_html);
-//echo $html; exit;
-          if (strpos($html,"<")===false)
+
+          if (strpos($json,"\"has_more_items\":false"))
             {
-              note("no more tweets\n");
-$list_count=1; $start_from=1; //comment this line to use the JSON rather than html method for fetching new pages.             
-return;
+                  note("no more tweets\n");
+                  $list_count=1; $start_from=1; //comment this line to use the JSON rather than html method for fetching new pages.
+                  return;
             }
 //echo "\n---$html---\n"; exit;
+          if (strpos($json,"\"has_more_items\"")===false)
+            {
+                note("Empty returned value. Network error possible... Retrying!");
+                $json=url_get_contents($url);
+                $html1=json_decode($json);
+                $html=stripslashes($html1->items_html);
+                if (strpos($json,"\"has_more_items\":false"))
+                 {
+                  note("no more tweets\n");
+                  $list_count=1; $start_from=1; //comment this line to use the JSON rather than html method for fetching new pages.
+                  return;
+                 }
+                if (strpos($json,"\"has_more_items\"")===false)
+                    {
+                         note("Problem persists. Aborting!");
+                         echo "Network problem while fetching records!";
+                         exit;
+                    }
+            }
+
           $html=preg_replace('/[[:blank:]]+/',' ',$html);
           $html=preg_replace('/\t+/',"\t",$html);
           $html=preg_replace('/\n+/',"\n",$html);
