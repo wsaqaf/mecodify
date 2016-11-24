@@ -136,7 +136,7 @@ if ($_SESSION['authenticated'] == true)
                      "query"=>"The search query used to identify relevant results (e.g., #SONA2015 OR #SONA or \"SONA 2015\" or \"2015 State of the Union Address\").<br>Click <a href='http://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519' target=_blank>here</a> for tips. If you need help to construct a proper query, contact $admin_email.",
                      "top_only"=>"This search criteria gets a snapshot or overview by only fetching the top results based on Twitter's algorithm, which would be a small sample of the whole dataset. Uncheck if you want to get all the data, which will take much longer to fetch and process.",
                      "from"=>"The start date (inclusive) of the search. If no value is provided, the start date will default to the day Twitter was created (2006-03-21)",
-                     "to"=>"The end date (inclusive) of the search. If no value is provided, the end date will default to today",
+                     "to"=>"The end date of the search (exclusive). If no value is provided, the end date will default to today",
                      "details"=>"This is a helpful field to provide a background about this particular case and why you think it is important to study",
                      "details_url"=>"This is an optional link to a story, wikipedia entry, or any source you think would be helpful to provide more background about the case",
                      "flags"=>"This is a JSON set of flagged times and days where you want to mark on the timeline. The below example shows how three flags can be added. You can insert as many flags as you want but please follow the given format:<br><hr>
