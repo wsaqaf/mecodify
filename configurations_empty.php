@@ -62,6 +62,8 @@ function connect_mysql()
       if (!$result->num_rows)
 	{
         $sql = file_get_contents('templates/template_tables.sql');
+        $sql=str_replace("<USR>",$mysql_user,$sql);
+        $sql=str_replace("<SRVR>",$mysql_server,$sql);
         $query_array = explode(';', $sql);
         $ii = 0;
         if( $link->multi_query( $sql ) )
@@ -108,4 +110,5 @@ function get_cases()
         $cases[$row['id']]['creator']=$row['creator'];
       }
   }
+
 ?>

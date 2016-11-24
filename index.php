@@ -1,5 +1,7 @@
 <?php
 
+check_ver();
+
 include_once('configurations.php');
 
 if (!$_GET['id']) $id="tweets";
@@ -61,6 +63,7 @@ function tops($top_only)
    if ($top_only) return "";
    return "+ ";
  }
+
 function isyours($creator,$email)
     {
 	global $admin_email;
