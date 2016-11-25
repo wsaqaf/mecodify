@@ -613,6 +613,10 @@ if (!case_query) { alert('The case query cannot be blank'); return false; }
 			if (window.focus) {newwindow.focus()}
 			return false; }
 
+function showkumu()
+          {
+	    return;
+          }
 
 	  function GetDetails(url,user_name,clear_text,branch)
 	  {
