@@ -111,6 +111,7 @@ while ($row=$result->fetch_assoc())
      $hash_cloud=$hash_cloud." ".$row['hashtags'];
   }
 //              }
+	    file_put_contents("tmp/cache/$table-hashcloud.txt",$hash_cloud);
             $cloud = new PTagCloud(100);
             $cloud->addTagsFromText($hash_cloud);
             $cloud->setWidth("900px");
