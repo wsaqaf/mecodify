@@ -917,7 +917,19 @@ if ($_GET['hashtag_cloud']) $hashtag_cloud=$hashtag_cloud." ".$row['hashtags'];
             }
 if ($retweets)
 	{
-	   $qry="SELECT sum(retweets) from $table $condition AND is_protected_or_deleted is null and date_time is not null";
+	    $cnd=$condition;
+            if ($point>1)
+            {
+              if ($drill_level=="days")
+                $cnd="$cnd and $table.tweet_date='$point' ";
+              elseif ($drill_level=="hours")
+                $cnd="$cnd and DATE_FORMAT($table.date_time,'%Y-%m-%d %H:00:00')='$point' ";
+              elseif ($drill_level=="minutes")
+                $cnd="$cnd and DATE_FORMAT($table.date_time,'%Y-%m-%d %H:%i:00')='$point' ";
+              elseif ($drill_level=="seconds")
+                $cnd="$cnd and $table.date_time='$point' ";
+            }
+	   $qry="SELECT sum(retweets) from $table $cnd AND is_protected_or_deleted is null and date_time is not null";
 	   if ($result = $link->query($qry))
 	     { $row=$result->fetch_array(); $total_retweets=$row[0]; }
 if ($debug && $_SESSION['email']==$admin_email) { echo "qry:$qry - retweets: $total_retweets <br>\n"; }
@@ -965,22 +977,15 @@ if ($debug && $_SESSION['email']==$admin_email) { echo "qry:$qry - retweets: $to
                 {
 		   if ($point==1 && !$_GET['any_hashtags'] && !$_GET['from_accounts'] && $_GET['types']!="some"
 				 && !$_GET['language'] && !$_GET['sources'] && !$_GET['startdate'] && !$_GET['enddate']) 
-		     { 
-			$hashtag_cloud=get_cloud($table);
-	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud</center>";
-	                $part1_data=$part1_data."<center><small><a href='tmp/cache/$table-hashcloud.txt' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
-
-		     }
+		     { $hashtag_cloud=get_cloud($table); }
 		   else
 		     {
-                        file_put_contents("tmp/cache/$table$hashkey2-hashcloud.txt",$hashtag_cloud);
    	                $cloud = new PTagCloud(50);
         	        $cloud->addTagsFromText($hashtag_cloud);
               	        $cloud->setWidth("900px");
-			$hashtag_cloud2=$cloud->emitCloud();
-	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud2</center>";
-                   	$part1_data=$part1_data."<center><small><a href='tmp/cache/$table$hashkey2-hashcloud.txt' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
+			$hashtag_cloud=$cloud->emitCloud();
                      }
+                   $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud</center><br>";
                 }
               $part1_data=$part1_data.$data;
             }
@@ -994,10 +999,10 @@ if ($debug && $_SESSION['email']==$admin_email) { echo "qry:$qry - retweets: $to
     $slide_file=str_replace("<!--case-->",$cases[$table]['name'],$slide_file);
     $slide_file=str_replace("<!--title-->"," Search query: <b>".$cases[$table]['query']."</b>",$slide_file);
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
-    file_put_contents("tmp/cache/$table$hashkey2-slides.txt",$slide_file);
+    file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
     if (file_exists("tmp/cache/$table$hashkey2-slides.html"))
        {
-        echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
+                                echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
        }
     echo $part1_data;
     file_put_contents("tmp/cache/$table$hashkey2.tab",$part1_data);
