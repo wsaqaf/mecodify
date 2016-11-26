@@ -1,0 +1,99 @@
+
+        <script type='text/javascript'>//<![CDATA[
+
+function update_series_urls(){ series_urls['7cb5ec']='fetch_tweets.php?demo=1&table=mecodem_demo&drill_level=hours&retweets=retweets&hashtag_cloud=1';  }
+
+function addZero(i){if(i<10){i="0"+i;}return i;}
+
+            function jps_makeTimestamp( dateobj )
+            {
+            	var date = new Date( dateobj );
+            	var yyyy = date.getUTCFullYear();
+                var mm = addZero(date.getUTCMonth() + 1);
+                var dd = addZero(date.getUTCDate());
+                var hh = addZero(date.getUTCHours());
+                var min = addZero(date.getUTCMinutes());
+                var ss = addZero(date.getUTCSeconds());
+
+            	var mysqlDateTime = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss;
+
+                return mysqlDateTime;
+            }
+      $(function () {
+          $('#container').highcharts({
+            chart: {
+              zoomType: 'x',
+              type: 'areaspline',
+            },
+            rangeSelector: {
+                selected: 2
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                },
+                title: {
+                    text: 'Date & Time'
+                }
+            },
+              yAxis: {
+                  title: {
+                      text: '# of tweets'
+                  },
+                  min: 0,
+                  plotLines: [{
+                      value: 0,
+                      width: 1,
+                      color: 'silver'
+                  }],
+              },
+              rangeSelector: {
+                  enabled: false
+              },
+              title: {
+                  text: 'Activity of tweets'
+              },
+              subtitle: {
+                  text: 'Detail level: hours (click and drag to zoom, hover for details)'
+              },
+              tooltip: {
+                        xDateFormat: '%Y-%m-%d %H:00',
+                        valueDecimals: 0,
+                        crosshairs: [true, true],
+                        shared: true
+                        },
+              plotOptions: {
+                  spline: {
+                      marker: {
+                          enabled: true
+                      }
+                  },
+                  colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1', '#4572A7', '#AA4643', '#89A54E', '#80699B', '#3D96AE', '#DB843D', '#92A8CD', '#A47D7C', '#B5CA92'],
+                  series: {
+                    pointStart: 1479988800000,
+                    pointInterval: 3600 * 1000,
+                      cursor: 'pointer',
+                      point:
+                      {
+                          events:
+                          {
+                             click: function ()
+                                    {
+                                      var s=this.series.color; s=s.substr(1);
+                                      GetDetails(series_urls[s]+'&point='+this.x);
+                                    }
+                          }
+                      },
+                      fillOpacity: 0.2,
+                      animation: { duration: 1000 }
+                  }
+              },
+              series: [
+                { color: '#7cb5ec', name: 'Total #  of tweets+retweets', data: [ [1479304800000,3],[1479312000000,1],[1479376800000,8],[1479380400000,4],[1479384000000,3],[1479391200000,4],[1479394800000,1],[1479402000000,2],[1479416400000,1],[1479423600000,1],[1479452400000,1],[1479456000000,64],[1479459600000,77],[1479463200000,30],[1479466800000,9],[1479470400000,8],[1479474000000,7],[1479481200000,2],[1479484800000,1],[1479488400000,3],[1479502800000,2],[1479542400000,3],[1479546000000,1],[1479585600000,1],[1479708000000,1],[1479758400000,1],[1479808800000,6],[1479812400000,1],[1479891600000,11],[1479895200000,6],[1479898800000,6],[1479916800000,3],[1479920400000,3],[1479924000000,1],[1479963600000,1],[1479978000000,4],[1479985200000,2],[1479988800000,1], ], id : '<!--hashkey-->' } ,/*<!--graph_data-->*/
+            ],
+          });
+      });
+      //]]>
+      </script>
+
+      <div id="container" style="height: 500px"></div>

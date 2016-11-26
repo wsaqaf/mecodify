@@ -14,7 +14,7 @@ $template=str_replace('<!--title-->',$website_title,$template);
 
 if ($load && $user_screen_name)
   {
-    if (!$_SESSION['authenticated']) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
+    if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
     $template=str_replace("//auto load","$(document).ready(function() { go_to_user('$user_screen_name'); });",$template);
   }
 else  $template=str_replace('//auto load','',$template);
@@ -44,7 +44,7 @@ function get_cases_db($case)
       while ($row = $result->fetch_assoc())
         {
 	  if ($case==$row['id']) $sel="SELECTED"; else $sel="";
-          $is_yours=isyours($row['creator'],$_SESSION['email']);
+          $is_yours=isyours($row['creator'],$_SESSION[basename(__DIR__).'email']);
           if ($is_yours=="*") $is_yours1=1; else $is_yours1=0;
 	  if (!$row['private'] || $is_yours1) 
             { $list.="<option value='${row['id']}' id='${row['id']}' style='color:blacki; background-color:white' $sel>".tops($row['top_only'])."${row['name']}<sup>$is_yours</sup>"; }
@@ -70,7 +70,7 @@ function check_ver()
  {
    $this_ver=trim(file_get_contents("./ver.no"));
    $latest_ver=trim(file_get_contents("http://mecodify.org/get_ver.php"));
-   if ($latest_ver!=$this_ver)
+   if ($latest_ver>$this_ver)
     {
        echo "<small><small>Your version ($this_ver) is out-of-date. Please <a href='https://github.com/wsaqaf/mecodify/releases' target=_blank>update</a> to version $latest_ver</small></small><br>";
     }

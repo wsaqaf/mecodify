@@ -1,5 +1,4 @@
 <?php
-
 //echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; //exit;
 //print_r($_POST); exit;
 error_reporting(E_ALL);
@@ -25,13 +24,13 @@ $submit_case_form = <<<END
 <tr><td style="border: none !important;">Search Method<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <select id='case_search_method' onchange="show_date();"><option value=0 id='search_API' selected>Search API</option><option value=2 id='web_search'>Web Search</option></select> <img src='images/info.png'  onclick=showtip('search_method'); ></td></tr>
 <tr><td style="border: none !important;">Search criteria</td><td style="border: none !important;"> <input type='checkbox' id='case_top_only'> Top results only.<br>If unchecked, will attempt to get all results (slower) <img src='images/info.png'  onclick=showtip('top_only'); ></td></tr>
 <tr><td style="border: none !important;">Case search query<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input type='search' size=50 id='case_query'> <img src='images/info.png'  onclick=showtip('query'); ></td></tr>
-<tr class="datefield" style="display:none"><td style="border: none !important;">From</td><td style="border: none !important;">  <input type='date' id='case_from'> <img src='images/info.png'  onclick=showtip('from'); ></td></tr>
+<tr class="datefield" style="display:none"><td style="border: none !important;">From (YYYY-MM-DD)</td><td style="border: none !important;">  <input type='date' id='case_from'> <img src='images/info.png'  onclick=showtip('from'); ></td></tr>
 <tr class="datefield" style="display:none"><td style="border: none !important;">To</td><td style="border: none !important;">  <input type='date' id='case_to'> <img src='images/info.png'  onclick=showtip('to'); ></td></tr>
 <tr><td style="border: none !important;">Details</td><td style="border: none !important;"><textarea  rows='5' cols='50' id='case_details'></textarea> <img src='images/info.png'  onclick=showtip('details'); ></td></tr>
 <tr><td style="border: none !important;">URL</td><td style="border: none !important;"><input type='text' size=50 id='case_details_url'>  <img src='images/info.png'  onclick=showtip('details_url'); ></td></tr>
 <tr><td style="border: none !important;">Flags</td><td style="border: none !important;"><textarea  rows='5' cols='50' id='case_flags'></textarea> <img src='images/info.png'  onclick=showtip('flags'); ></td></tr>
 <tr><td style="border: none !important;">Privacy: <select id='case_private'><option value="1">Private</option><option value="0">Public</option></select> <img src='images/info.png'  onclick=showtip('private'); ></td></tr></table>
-<input type='hidden' id='email' value='${_SESSION['email']}'>
+<input type='hidden' id='email' value='${_SESSION[basename(__DIR__).'email']}'>
 <input type='button' value='Submit case' onclick=case_proc('submit_case');>
 </form>
 END;
@@ -58,7 +57,7 @@ if ($_GET['action']=='toggle_login')
     exit;
   }
 
-if ($_SESSION['authenticated'] == true)
+if ($_SESSION[basename(__DIR__)])
    {
       if ($_GET['action']=='add_case')
          {
@@ -78,7 +77,7 @@ if ($_SESSION['authenticated'] == true)
         }
       elseif ($_GET['action']=='list_cases')
         {
-          echo get_from_db($_SESSION['email']);
+          echo get_from_db($_SESSION[basename(__DIR__).'email']);
           clear_cases();
           echo "<br><hr><br><a href='#' onclick=case_proc('add_case');> Add a new case</a>";
           exit;
@@ -104,26 +103,26 @@ if ($_SESSION['authenticated'] == true)
     elseif ($_GET['action']=='edit_profile')
         {
             connect_mysql();
-            echo edit_profile($_SESSION['email']);
+            echo edit_profile($_SESSION[basename(__DIR__).'email']);
             exit;
         }
     elseif ($_GET['action']=='delete_account' && $_GET['email'])
        {
          connect_mysql();
          echo del_account($_GET['email']);
-         $_SESSION['authenticated']=false;
+         $_SESSION[basename(__DIR__)]=false;
          echo $login_str;
          exit;
        }
      elseif ($_GET['action']=='toggle_access' && $_GET['case_id'])
        {
          connect_mysql();
-         echo toggle_from_db($_SESSION['email'],0,$_GET['case_id']);
+         echo toggle_from_db($_SESSION[basename(__DIR__).'email'],0,$_GET['case_id']);
          exit;
        }
      elseif ($_GET['action']=='logout')
        {
-         $_SESSION['authenticated']=false;
+         $_SESSION[basename(__DIR__)]=false;
          echo $login_str;
          exit;
        }
@@ -193,8 +192,9 @@ elseif (!empty($_POST) && $_POST['action']=='login')
          $password = empty($_POST['password']) ? null : $_POST['password'];
          if (correct_credentials($email,$password))
           {
-             $_SESSION['authenticated'] = true;
-             $_SESSION['email']=$_POST['email'];
+	     if ( ! session_id() ) @ session_start();
+	     $_SESSION[basename(__DIR__)] = true;
+             $_SESSION[basename(__DIR__).'email']=$_POST['email'];
              clear_cases();
              echo "<a href='#' onclick=javascript:case_proc('add_case');> Add a new case.....</a> ";
              exit;
@@ -284,7 +284,7 @@ echo "Creating users table ...<br>\n";
           "('${_POST['case_id']}', '".$link->real_escape_string($_POST['case_name'])."', '${_POST['email']}', '${_POST['case_platform']}', '${_POST['case_search_method']}', '${_POST['case_top_only']}', '".$link->real_escape_string($_POST['case_query'])."', '${_POST['case_from']}', '${_POST['case_to']}', '".$link->real_escape_string($_POST['case_details'])."', '".$link->real_escape_string($_POST['case_details_url'])."', '".$link->real_escape_string($_POST['case_flags'])."', '${_POST['case_private']}')";
         }
        if (!($result = $link->query($query))) die("Could not insert new case. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
-        $_SESSION['created']=$_POST['case_id'];
+        $_SESSION[basename(__DIR__).'created']=$_POST['case_id'];
         echo '<script type="text/javascript"> location.reload(); </script>';
         email_admin(lst($_POST),"");
        exit();
@@ -296,7 +296,7 @@ function toggle_login($preserve)
     $case_sec="";
     if ($_GET['login'])
       {
-        if (!$_SESSION['authenticated']) return "<li class=''><center><a href='#' onclick=javascript:case_proc('');>Login</a></center></li>";
+        if (!$_SESSION[basename(__DIR__)]) return "<li class=''><center><a href='#' onclick=javascript:case_proc('');>Login</a></center></li>";
         else return "<li class=''><center><a href='#' onclick=case_proc('logout');>Logout</a> - <font size=-2><a href='#' onclick=javascript:case_proc('edit_profile');>Profile</a></font></center></li><hr>";
       }
         $case_sec=get_from_db('',1);
@@ -346,7 +346,7 @@ if (!$case) { echo "Please select a case first"; return; }
 			$updated="<td style='border: none !important;'>${row['last_process_completed']}";
 		}
               elseif (!$row['last_process_completed']) $updated="<td style='border: none !important;'>Not completed <a href='fetch_process.php?id=$case&progress=1' target=_blank>See progress</a></td>";
-              if ($_SESSION['email']==$row['creator'] || $_SESSION['email']==$admin_email)
+              if ($_SESSION[basename(__DIR__).'email']==$row['creator'] || $_SESSION[basename(__DIR__).'email']==$admin_email)
                 {
 		  $action="<tr><td style='border: none !important;'>Action</td>";
                   $public="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>".ispublic($row['private'])."</a> </td></tr>";
@@ -375,7 +375,7 @@ if (!$case) { echo "Please select a case first"; return; }
             }
           else
             {
-              $is_yours=isyours($row['creator'],$_SESSION['email']);
+              $is_yours=isyours($row['creator'],$_SESSION[basename(__DIR__).'email']);
               if ($is_yours=="*") $is_yours1=1;
               $list.="<option value='${row['id']}' id='${row['id']}'>${row['name']}<sup>$is_yours</sup>";
             }
@@ -533,8 +533,8 @@ function del_from_db($creator,$case_id)
         unlink("tmp/log/$mask.log");
         rmdir("tmp/log/$case_id");
 	echo "Files deleted... Attempting to delete database entries..<br>\n";
-        if ($creator!=$_SESSION['email'] && $_SESSION['email']!=$admin_email) 
-		return $_SESSION['email']." is not the creator ($creator): Permission denied";
+        if ($creator!=$_SESSION[basename(__DIR__).'email'] && $_SESSION[basename(__DIR__).'email']!=$admin_email) 
+		return $_SESSION[basename(__DIR__).'email']." is not the creator ($creator): Permission denied";
         $query= "DELETE from cases where id='$case_id' AND creator='$creator'";
         if (!$link->query($query)) die("Error in query: ". $link->error.": Contact admin $admin_email for help.");
         $query= "DROP TABLE IF EXISTS $case_id";
@@ -543,14 +543,14 @@ function del_from_db($creator,$case_id)
         if (!$link->query($query)) die("Error in query: ". $link->error.": Contact admin $admin_email for help.");
         $query= "DROP table IF EXISTS user_mentions_".$case_id;
         if (!$link->query($query)) die("Error in query: ". $link->error.": Contact admin $admin_email for help.");
-	$_SESSION['deleted']=$case_id;
+	$_SESSION[basename(__DIR__).'deleted']=$case_id;
 	echo '<script type="text/javascript"> location.reload(); </script>';
     }
 
 function del_account($creator)
     {
         global $link; global $admin_email;
-        if ($creator!=$_SESSION['email'] && $_SESSION['email']!=$admin_email) return "Permission denied";
+        if ($creator!=$_SESSION[basename(__DIR__).'email'] && $_SESSION[basename(__DIR__).'email']!=$admin_email) return "Permission denied";
         $query= "DELETE from members where email='$creator'";
         if ($result = $link->query($query))
           {
@@ -645,9 +645,9 @@ function email_admin($case,$user)
     $mail->Port     = $smtp_port;
     $mail->Password = $smtp_pw;
 
-    $mail->From = $_SESSION['email'];
+    $mail->From = $_SESSION[basename(__DIR__).'email'];
     $mail->FromName = $admin_name;
-    $mail->SetFrom($_SESSION['email'],$_SESSION['email']);
+    $mail->SetFrom($_SESSION[basename(__DIR__).'email'],$_SESSION[basename(__DIR__).'email']);
     $mail->addAddress($admin_email, $admin_name);     // Add a recipient
 
     $mail->WordWrap = 50;                                 // Set word wrap to 50 characters
@@ -659,7 +659,7 @@ function email_admin($case,$user)
 	{
 	    $mail->Subject = "New case added to $website_title";
 	    $mail->Body    = "A new case was added to $website_title at $website_url with the below details:\n\n".
-	    		     "Case details: $case\n\n--\n\nAdded By account: ${_SESSION['email']}\n";
+	    		     "Case details: $case\n\n--\n\nAdded By account: ${_SESSION[basename(__DIR__).'email']}\n";
 	}
     else	
 	{ 
@@ -681,15 +681,15 @@ function lst($array)
 
 function clear_cases()
  {
-    if ($_SESSION['deleted'])
+    if ($_SESSION[basename(__DIR__).'deleted'])
         {
-          echo "Case <b>${_SESSION['deleted']}</b> deleted successfully.<br><hr><br>";
-          $_SESSION['deleted']="";
+          echo "Case <b>${_SESSION[basename(__DIR__).'deleted']}</b> deleted successfully.<br><hr><br>";
+          $_SESSION[basename(__DIR__).'deleted']="";
         }
-    if ($_SESSION['created'])
+    if ($_SESSION[basename(__DIR__).'created'])
         {
-          echo "Your new case has just been added successfully.<br><br><a href='fetch_process.php?id=".$_SESSION['created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
-          $_SESSION['created']="";
+          echo "Your new case has just been added successfully.<br><br><a href='fetch_process.php?id=".$_SESSION[basename(__DIR__).'created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
+          $_SESSION[basename(__DIR__).'created']="";
         }
  }
 ?>

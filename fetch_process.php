@@ -2,7 +2,7 @@
 $lifetime=60000;
 session_set_cookie_params($lifetime);
 session_start();
-if (!$_SESSION['authenticated']) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
+if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
 date_default_timezone_set('UTC');
 
 $table=$_GET['id'];

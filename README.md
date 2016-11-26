@@ -11,7 +11,7 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 
 ###### And the user manual can be found [here](manual.md)
 
-###### To see a live and 100% functional demo on our dedicated server, go [here](https://mecodify.org/demo) and enter 'demo@mecodify.org' as username and password.
+###### To see a live and 100% functional demo on our dedicated server, go [here](https://mecodify.org/demo) and enter 'demo@mecodify.org' as username and password. Mecodify has been tested using Chrome browser. We appreciate bug reports when using other browsers. 
 
 ...
 

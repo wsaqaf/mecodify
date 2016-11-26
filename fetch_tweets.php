@@ -16,7 +16,7 @@ require_once("cloud.php");
 $per_page=100;
 $debug=0;
 
-if (!$_SESSION['authenticated'])
+if (!$_SESSION[basename(__DIR__)])
   {
     die("<b>You are logged out. Please <a href='index.php?id=tweets'>Return to the main page</a> to log in again.</b><br><hr>");
   }
@@ -689,7 +689,7 @@ if ($tops)
       $url=preg_replace('/\&\&/','&',$url);
 
 //echo "[qry:$query]<br>";
-if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
       if ($result = $link->query($query))
         {
@@ -717,7 +717,7 @@ if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
           $data=$data."<tr><td><b>".($cnt+1).")</b></td><td>";
           if ($top_images)
             {
-if ($debug && $_SESSION['email']==$admin_email) { echo "(${row[0]},${row[1]})<br>\n"; }
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row[0]},${row[1]})<br>\n"; }
 	      $temp_list=explode(" ",$row[1]); $links="";
 	      foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."&')><img src='$temp_link' height=250></a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a><br> <br>"; }
               $data=$data."$links</td><td><center>${row[2]}</center></td></tr>\n";
@@ -809,7 +809,7 @@ if ($debug && $_SESSION['email']==$admin_email) { echo "(${row[0]},${row[1]})<br
             else $query=$qry1;
             $query="$query $order";
 
-if ($debug && $_SESSION['email']==$admin_email) echo "<hr>(".$query.")";
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
 //echo "$query\n"; //exit;
             if ($result = $link->query($query))
@@ -932,7 +932,7 @@ if ($retweets)
 	   $qry="SELECT sum(retweets) from $table $cnd AND is_protected_or_deleted is null and date_time is not null";
 	   if ($result = $link->query($qry))
 	     { $row=$result->fetch_array(); $total_retweets=$row[0]; }
-if ($debug && $_SESSION['email']==$admin_email) { echo "qry:$qry - retweets: $total_retweets <br>\n"; }
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$qry - retweets: $total_retweets <br>\n"; }
 	}
 
 //die("HERE");

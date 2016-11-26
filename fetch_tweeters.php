@@ -16,7 +16,7 @@ date_default_timezone_set('America/New_York');
 $lifetime=60000;
 session_set_cookie_params($lifetime);
 session_start();
-if (!$argv[2] && !$_SESSION['authenticated'])
+if (!$argv[2] && !$_SESSION[basename(__DIR__)])
   {
     die("<b>You are logged out. Please <a href='index.php?id=tweeters'>Return to the main page</a> to log in again.</b><br><hr>");
   }
@@ -327,9 +327,9 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
             $query = "$qry $condition group by user_screen_name order by count(tweet_id) desc";
           }
 
-if ($debug && $_SESSION['email']==$admin_email) echo "(".$query.")";
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "(".$query.")";
 
-if ($debug && $_SESSION['email']==$admin_email) echo "(".$query.")";
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "(".$query.")";
 
 //echo "\n<br>$query<br>\n"; exit();
       connect_mysql();
