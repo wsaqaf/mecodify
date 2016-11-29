@@ -15,6 +15,10 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 
 ...
 
+### NOTICE
+
+The developer of Mecodify is not liable or responsible for anything that may result from its use. As in any piece of code, there may well be vulnerabilities or bugs. So do your due diligence please!
+
 For more information, feel free to contact us on [admin@mecodify.org](mailto:admin@mecodify.org)
 
 ###### [Walid Al-Saqaf](http://al-saqaf.se), PhD
