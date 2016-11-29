@@ -2,7 +2,7 @@
 $lifetime=60000;
 session_set_cookie_params($lifetime);
 session_start();
-if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
+if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>\n");
 date_default_timezone_set('UTC');
 
 $table=$_GET['id'];
@@ -39,7 +39,8 @@ if ($result = $link->query($query))
      }
 
 //echo "(s:".$last_process_started.",u:".$last_process_updated.",c:".$row['last_process_completed'].")"; 
-if (!$_GET['progress'] && $table && !$_GET['stop'])
+
+if (!$_GET['progress'] && $table && !$_GET['stop'] && !$_GET['overlimit'])
   {
     kill_process(0);
       $query="update cases set status='$status',last_process_started='".gmdate("Y-m-d H:i:s")."', last_process_updated='".gmdate("Y-m-d H:i:s")."' where id='${_GET['id']}'";
@@ -60,7 +61,17 @@ elseif ($_GET['progress'] && $table)
     $query="SELECT date_time AS num_rows FROM `$mysql_db`.`$table` WHERE `date_time` IS NOT NULL";
     if ($result = $link->query($query)) $step2=$result->num_rows;
 
-    $refresh=" <meta http-equiv=\"refresh\" content=\"10; URL='fetch_process.php?progress=1&id=$table'\">";
+if (!$_GET['overlimit'])
+  {
+   if ($step2>=$max_tweets_per_case)
+     {
+      kill_process(0);
+      $cmd='php '.$search_meth.'.php '.$_GET['id'].' step4 >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
+      shell_exec($cmd);
+      $refresh=" <meta http-equiv=\"refresh\" content=\"10; URL='fetch_process.php?progress=1&id=$table&overlimit=1'\">";
+     }
+    else { $refresh=" <meta http-equiv=\"refresh\" content=\"10; URL='fetch_process.php?progress=1&id=$table'\">"; }
+  }
     $html="</HEAD><BODY>Progress with extracting and saving data for case ($table)<br><br>";
     $period_covered='NA';
     $pstatus=process_status($table);
@@ -111,9 +122,20 @@ elseif ($_GET['progress'] && $table)
     }
   if (!$last_process_started) $last_process_started='N/A';
   if (!$last_process_updated) $last_process_updated='N/A';
+  if ($_GET['overlimit'])
+                    {
+                      $status="<font color=green>Limit Reached</font>";
+                      $html.="<hr><big><b>Limit reached!</b></big><br><br>";
+                      $html.="Your demo case contains $step2 tweets, which is beyond the allowed limit of <b>".$max_tweets_per_case."</b> tweets per case.<br>";
+                      $html.="<br>You can now <a href='".$website_url."' target=_blank>go back to the main page</a> to view your created demo case.<br>";
+                      $html.="<br><br>We have to enforce a limit to reduce the burden on our server, which is only meant for demonstration purposes.<br>";
+                      $html.="You can download Mecodify from <a href='https://github.com/wsaqaf/mecodify' target=_blank>GitHub</a> and install it on your server if you wish to create larger cases.";
+                      $html.="If you need help, feel free to contact us by email on <a href='mailto:admin@mecodify.org'>admin@mecodify.org</a></BODY></HTML>";
+                    }
   echo $html;
   echo "<table border=1><tr><td>Created</td><td>Status</td><td>Last process started</td><td>Last activity</td><td>Period covered</td><td>Records fetched</td><td>Detailed records fetched</td></tr>";
-    echo "<tr><td>$date_created</td><td>$status</td><td>$last_process_started</td><td>$last_process_updated</td><td>$period_covered</td><td>$step1</td><td>$step2</td></tr></table> <br><br>You can always review the results of the extraction on <a href='$website_url'>the main page</a></BODY></HTML>";
+    echo "<tr><td>$date_created</td><td>$status</td><td>$last_process_started</td><td>$last_process_updated</td><td>$period_covered</td><td>$step1</td><td>$step2</td></tr></table>";
+    echo "<br><br>You can always review the results of the extraction on <a href='$website_url'>the main page</a></BODY></HTML>";
 
   function time_elapsed_string($ptime)
   {
@@ -152,7 +174,7 @@ elseif ($_GET['progress'] && $table)
 
 function kill_process($verbose)
   {
-    global $search_meth;
+    global $search_meth; global $step2;
     $match=$search_meth.'.php '.$_GET['id'];
     $match = escapeshellarg($match)."\$";
     $str="ps x|grep $match|grep -v grep|awk '{print $1}'";
@@ -165,7 +187,10 @@ function kill_process($verbose)
     if(!$ret) {
 //    if(posix_kill($ret,SIGKILL)) {
             update_status('Stopped');
-   	    echo "<HTML><HEAD><meta http-equiv=\"refresh\" content=\"0; URL='fetch_process.php?progress=1&id=".$_GET['id']."'\">";
+	    if ($step2)
+   	        echo "<HTML><HEAD><meta http-equiv=\"refresh\" content=\"0; URL='fetch_process.php?progress=1&id=".$_GET['id']."&overlimit=1'\">";
+	    else
+                echo "<HTML><HEAD><meta http-equiv=\"refresh\" content=\"0; URL='fetch_process.php?progress=1&id=".$_GET['id']."'\">";
     	    echo "</HEAD><BODY></BODY></HTML>";
     } else {
          echo "The process does not seem to be running<br> <a href='fetch_process.php?id=".$_GET['id']."&progress=1'>Go back</a> \n"; 

@@ -23,7 +23,7 @@ echo $template;
 
 function get_cases_db($case)
   {
-      global $link; 
+      global $link; global $allow_new_cases; 
 
       $cond="";
 
@@ -50,7 +50,9 @@ function get_cases_db($case)
             { $list.="<option value='${row['id']}' id='${row['id']}' style='color:blacki; background-color:white' $sel>".tops($row['top_only'])."${row['name']}<sup>$is_yours</sup>"; }
           $cnt++;
         }
-      $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br><br><a href='#' onclick=case_proc('add_case');><div style='text-align:center'>Add a new case </a></div><br>";
+      $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br>";
+      if ($allow_new_cases) $list.="<br><a href='#' onclick=case_proc('add_case');><div style='text-align:center'>Add a new case </a></div><br>";
+      else $list.="<br>";
 //          if ($is_yours1) $list.="<br> &nbsp; &nbsp; &nbsp; <font color=yellow>*<i><font size=-1> A case you created</i></font></font>";
       return $list;
   }

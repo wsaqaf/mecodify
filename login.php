@@ -10,7 +10,7 @@ $login_str = <<<END
      <form id='login'><table>
      <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
      <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
-     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > &nbsp; <a href='#' onclick=case_proc('signup'); >Sign up</a></td></tr></table><br>
+     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > Sign up</td></tr></table><br>
      </form>
 END;
 
@@ -33,6 +33,7 @@ $submit_case_form = <<<END
 <input type='hidden' id='email' value='${_SESSION[basename(__DIR__).'email']}'>
 <input type='button' value='Submit case' onclick=case_proc('submit_case');>
 </form>
+<br><b>NOTE:</b> This platform has a limit of <b>($max_tweets_per_case)</b> tweets per case.
 END;
 
 $create_account_form = <<<END
@@ -72,14 +73,18 @@ if ($_SESSION[basename(__DIR__)])
       elseif ($_GET['action']=='login')
         {
 	  clear_cases();
-          echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+	  if ($allow_new_cases)
+          	echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+	  else echo "Select one of the cases to visualise.";
           exit;
         }
       elseif ($_GET['action']=='list_cases')
         {
           echo get_from_db($_SESSION[basename(__DIR__).'email']);
           clear_cases();
-          echo "<br><hr><br><a href='#' onclick=case_proc('add_case');> Add a new case</a>";
+          if ($allow_new_cases)
+                echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+          else echo "Select one of the cases to visualise.";
           exit;
         }
       elseif ($_GET['action']=='more_info')
@@ -182,7 +187,9 @@ if ($_SESSION[basename(__DIR__)])
      else
          {
 	   clear_cases();
-           echo "<a href='#' onclick=javascript:case_proc('add_case');> Add a new case</a> ";
+          if ($allow_new_cases)
+                echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+          else echo "Select one of the cases to visualise.";
            exit;
          }
   }
@@ -196,7 +203,9 @@ elseif (!empty($_POST) && $_POST['action']=='login')
 	     $_SESSION[basename(__DIR__)] = true;
              $_SESSION[basename(__DIR__).'email']=$_POST['email'];
              clear_cases();
-             echo "<a href='#' onclick=javascript:case_proc('add_case');> Add a new case.....</a> ";
+          if ($allow_new_cases)
+                echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+          else echo "Select one of the cases to visualise.";
              exit;
           }
         else
@@ -293,6 +302,7 @@ echo "Creating users table ...<br>\n";
 
 function toggle_login($preserve)
   {
+    global $allow_new_cases;
     $case_sec="";
     if ($_GET['login'])
       {
@@ -303,14 +313,16 @@ function toggle_login($preserve)
         if ($case_sec=="<font size=-1 color=red>There are no cases available.</font>")
           {
             clear_cases();
-            $cases_sec.="<br><a href='#' onclick=case_proc('add_case');> Add a new case......</a>";
+          if ($allow_new_cases)
+                echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+          else echo "Select one of the cases to visualise.";
           }
        return $case_sec;
   }
 
 function get_from_db($email,$menu,$case)
   {
-      global $link; global $login_str; global $admin_email;
+      global $link; global $login_str; global $admin_email; global $allow_new_cases;
 if (!$case) { echo "Please select a case first"; return; }
       $cond="";
 
@@ -348,9 +360,12 @@ if (!$case) { echo "Please select a case first"; return; }
               elseif (!$row['last_process_completed']) $updated="<td style='border: none !important;'>Not completed <a href='fetch_process.php?id=$case&progress=1' target=_blank>See progress</a></td>";
               if ($_SESSION[basename(__DIR__).'email']==$row['creator'] || $_SESSION[basename(__DIR__).'email']==$admin_email)
                 {
-		  $action="<tr><td style='border: none !important;'>Action</td>";
+                  $action="<tr><td style='border: none !important;'>Action</td>";
                   $public="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>".ispublic($row['private'])."</a> </td></tr>";
-                  $action.="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)</a></td></tr>";
+                 $action.="<td style='border: none !important;'>";
+                 if ($_SESSION[basename(__DIR__).'email']==$admin_email)
+                  { $action.="<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)"; }
+                $action.="</td></tr>";
                 }
               else $public="<td style='border: none !important;'>".ispublic($row['private'])."</td><td style='border: none !important;'></td></tr>";
               
@@ -383,7 +398,10 @@ if (!$case) { echo "Please select a case first"; return; }
         }
       if ($menu)
         {
-          $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br><br><a href='#' onclick=case_proc('add_case');><div style='text-align:center'>Add a new case </a></div><br>";
+          $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br><br><a href='#' onclick=case_proc('add_case');>";
+          if ($allow_new_cases)
+                $list.="<div style='text-align:center'>Add a new case </a></div><br>";
+          else $list.="<div style='text-align:center'>Select one of the cases to visualise.</div><br>";
         }
       return $list;
   }
@@ -443,6 +461,8 @@ e changed. You can add a new case with a different search method</font></i>",$te
 function edit_profile($email)
   {
       global $link; global $create_account_form;
+      if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+	{ echo "Editing DEMO profile is not permitted"; return; }
       if ($email)
         {
           $condition="where email='$email'";
@@ -466,7 +486,7 @@ function edit_profile($email)
       $template=str_replace("'institution'>","'institution' value='".htmlspecialchars($row['institution'])."'>",$template);
       $template=str_replace("'country'>","'country' value='".htmlspecialchars($row['country'])."'>",$template);
       $template=str_replace("name='email'>","name='email' value='${row['email']}' readonly><i> <font size=-2>Your email cannot be changed. You can delete this account and create another with the new one if you wish </font></i>",$template);
-      $template=str_replace("value='Signup' onclick=case_proc('create_account'); >","value='Update profile' onclick=case_proc('update_account'); >",$template);
+      $template=str_replace("value='Signup' onclick=case_proc('create_account'); >","value='Update profile' onclick=case_proc('update_account');>",$template);
       $template.="<br><hr><a href='#' onclick=javascript:case_proc('delete_account','${row['email']}'> Delete account</a><br><br>";
       return $template;
   }
@@ -527,6 +547,9 @@ function correct_credentials($email,$password)
 function del_from_db($creator,$case_id)
     {
         global $link; global $admin_email;
+        if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+          { echo "Deleting case is not permitted"; return; }
+
         $mask = "$case_id"."*.*";
         array_map('unlink', glob("tmp/network/$mask"));
         array_map('unlink', glob("tmp/log/$case_id/$mask"));
@@ -551,6 +574,9 @@ function del_account($creator)
     {
         global $link; global $admin_email;
         if ($creator!=$_SESSION[basename(__DIR__).'email'] && $_SESSION[basename(__DIR__).'email']!=$admin_email) return "Permission denied";
+      if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+        { echo "Deleting DEMO profile is not permitted"; return; }
+
         $query= "DELETE from members where email='$creator'";
         if ($result = $link->query($query))
           {
@@ -688,7 +714,7 @@ function clear_cases()
         }
     if ($_SESSION[basename(__DIR__).'created'])
         {
-          echo "Your new case has just been added successfully.<br><br><a href='fetch_process.php?id=".$_SESSION[basename(__DIR__).'created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
+          echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>y.<br><br><a href='fetch_process.php?id=".$_SESSION[basename(__DIR__).'created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
           $_SESSION[basename(__DIR__).'created']="";
         }
  }

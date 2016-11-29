@@ -680,13 +680,13 @@ function update_response_mentions()
         $query="TRUNCATE TABLE $tmp";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-	$query="INSERT INTO $tmp (tweet_id,responses) (SELECT $table.in_reply_to_tweet,count($table.tweet_id) FROM $table WHERE $table.in_reply_to_tweet is not null group by $table.in_reply_to_tweet order by count($table.tweet_id) desc)";
+	$query="INSERT INTO $tmp (tweet_id,responses) (SELECT $table.in_reply_to_tweet,count($table.tweet_id) FROM $table WHERE $table.is_protected_or_deleted is null and $table.date_time is not null AND $table.in_reply_to_tweet is not null group by $table.in_reply_to_tweet order by count($table.tweet_id) desc)";
 	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
 	$query="UPDATE IGNORE $tmp,$table SET $tmp.user_screen_name = LOWER($table.user_screen_name), $tmp.user_id = $table.user_id  WHERE $tmp.tweet_id = $table.tweet_id";
 	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-	$query="UPDATE IGNORE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
+	$query="UPDATE IGNORE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
 	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         $query="CREATE TABLE IF NOT EXISTS $u_m LIKE 1_empty_user_mentions";
@@ -704,7 +704,7 @@ function update_response_mentions()
         "SPLIT_STRING($table.user_mentions, ' ', 1),SPLIT_STRING($table.user_mentions, ' ', 2),SPLIT_STRING($table.user_mentions, ' ', 3),".
         "SPLIT_STRING($table.user_mentions, ' ', 4),SPLIT_STRING($table.user_mentions, ' ', 5),SPLIT_STRING($table.user_mentions, ' ', 6),".
         "SPLIT_STRING($table.user_mentions, ' ', 7),SPLIT_STRING($table.user_mentions, ' ', 8),SPLIT_STRING($table.user_mentions, ' ', 9),".
-        "SPLIT_STRING($table.user_mentions, ' ', 10) from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null)";
+        "SPLIT_STRING($table.user_mentions, ' ', 10) from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null)";
 //echo "\n\n$query\n\n";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
@@ -864,6 +864,7 @@ $query = "SELECT LOWER(user_screen_name) FROM users_".$table." WHERE user_screen
 		"$table.has_link,$table.media_link,$table.expanded_links,$table.source,$table.location_name,$table.country,".
 		"$table.tweet_language,$table.raw_text,$table.hashtags,$table.user_mentions,$table.retweets,$table.favorites,$t.tweet_id ".
 		"FROM $t,$table WHERE $t.in_response_to_user_screen_name is not null and $t.user_screen_name is not null ".
+		"AND $table.is_protected_or_deleted is null and $table.date_time is not null ".
 		"and $t.tweet_id=$table.tweet_id order by $table.retweets DESC";
 
 //echo "\n $query\n";
@@ -924,7 +925,9 @@ echo "Kumu: DONE\n\nCreating connection for mentions...";
 		"$t.tweet_datetime,$table.is_retweet,$table.tweet_permalink_path,$table.user_verified,$table.has_image,$table.has_video,".
                 "$table.has_link,$table.media_link,$table.expanded_links,$table.source,$table.location_name,$table.country,".
                 "$table.tweet_language,$table.raw_text,$table.hashtags,$table.user_mentions,$table.retweets,$table.favorites,$t.tweet_id ".
-                "FROM $t,$table WHERE $t.mention1>'' and $t.user_screen_name is not null and $t.tweet_id=$table.tweet_id order by $table.retweets DESC";
+                "FROM $t,$table WHERE $t.mention1>'' and $t.user_screen_name is not null and $t.tweet_id=$table.tweet_id ".
+		"AND $table.is_protected_or_deleted is null and $table.date_time is not null ".
+		"order by $table.retweets DESC";
 
             if ($result = $link->query($query))
                 {

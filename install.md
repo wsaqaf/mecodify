@@ -32,6 +32,18 @@ You should ensure that you have the latest version of Mecodify by checking the l
 ### 2- Configure Mecodify:
 In the main folder, you will find the file named `configurations_empty.php`. With any text editor, go into the file and add the missing values for each of the following variables:
 
+#### Performance-related
+You may want to adjust the following variables 
+```sh
+$allow_new_cases=1;
+$max_tweets_per_case=500000;
+
+```
+whereas:
+
+- **allow_new_cases** indicates whether you would allow users to create cases. Can be handy when you reached your database storage limit or doing maintenance for example.
+- **max_tweets_per_case** How many tweets could each case be. This depends on your capacity, API usage, user activity, etc. It is set to 500k by default.
+
 #### Website-related
 You need to fill in the following information
 ```sh

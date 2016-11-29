@@ -4,6 +4,9 @@ $lifetime=6000;
 session_set_cookie_params($lifetime);
 session_start();
 
+$allow_new_cases=0; //allow adding new cases (can be set when you wish to prevent altering the DB
+$max_tweets_per_case=500000; //maximum tweets per case (can be exceeded by 100 records max)
+
 $website_url=""; //e.g., https://mecodify.org . Don't end with '/'
 $website_title="";
 
