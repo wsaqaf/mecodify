@@ -109,12 +109,13 @@ if ($_GET['inspect'])
 //    else $clear_text="";
 
     $query="select tweet_id,tweet_permalink_path,user_id,user_screen_name,user_name,user_image_url,user_mentions,clear_text,in_reply_to_user,in_reply_to_tweet,date_time from $table".
-           " where in_reply_to_tweet='$tweet_id' OR ". //direct response
+           " where (in_reply_to_tweet='$tweet_id' OR ". //direct response
            " (date_time>'$date_time' AND date_time<='$date_time'+ INTERVAL 1 DAY AND (in_reply_to_user='$user_id' ". //response to user only
            " OR user_mentions like '%@$user_name%' ". //mentioned only
-           " $clear_text)) order by date_time"; //repeated part of the tweet
+           " $clear_text))) and is_protected_or_deleted is null order by date_time"; //repeated part of the tweet
 
-//echo "<hr>$query<hr>";
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
+
     if ($result=$link->query($query))
       {
         if (!$result->num_rows) die("<b><br>This tweet has no interaction<br></b><a href='#' onclick=javascript:GetDetails('$url')><small>Back to the main list</small></a></center>");
