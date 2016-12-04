@@ -112,9 +112,8 @@ if ($step1)
             }
         for ($k1=$total_days-1; $k1>=0; $k1--)
          {
-        //   echo "($c)"; exit;
-           $from=$dates[$k1+1];
-           $to=$dates[$k1];
+           $from=$dates[$k1];
+           $to=$dates[$k1+1];
 
             $log_file="tmp/log/$table/$table"."_".$from."_to_".$to.".txt";
 
@@ -137,24 +136,12 @@ if ($step1)
                 $first_tweet_id=$tmp2[2];
                 $i=$start_from; // if more than 1, must also set the next two variables
                 del_last_line($log_file,$tmp2[1]." ".$tmp2[2]);
-            /*
-                if (del_last_line($log_file,$tmp2[1]." ".$tmp2[2])>0)
-                  {
-                    echo "Record (".$tmp2[2].") has already been fetched, no more tweets. Checking other fields...\n";
-                    get_other_fields($table);
-                    clean_data($table);
-                    $link->close();
-                  }
-            */
                 echo "found records ($last_tweet_id $first_tweet_id) in log, resuming from $start_from\n";
-    //            exit;
               }
               //else { echo "Starting a new file!\n"; unlink($log_file); }
             //  die("corrupt file ($log_file).\n");
             }
-//if ($table=="FeesMustFall2015") { echo "GETTING links for period ($from - $to, k1:$k1)\n"; exit; }
-//            get_tweet_ids($type, $table,$keywords,$from,$to);
-            get_tweet_ids($type, $table,$keywords,$to,$from);
+            get_tweet_ids($type, $table,$keywords,$from,$to);
           }
    }
 if ($step2) 
@@ -239,7 +226,7 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
 //echo "\n---$html---\n";
 //          if (preg_match("/data-max-position=[^\"<>]+?-([\d+])-([\d+])-/si",$html,$t))
  	    if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)-/",$html,$t))
-		{ $last_tweet_id=$t[1]; $first_tweet_id=$t[2]; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
+		{ $last_tweet_id=$t[1]; $first_tweet_id=$t[2]; echo "l_t:".$t[1]." f_t:".$t[2]."\n\n"; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
           else { echo "problem"; }
 //exit;
 	  $first_page=1;
@@ -247,18 +234,21 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
         elseif ($last_tweet_id && $first_tweet_id)
         {
 	   $url="https://twitter.com/i/search/timeline?$type"."vertical=default&q=".$keywords.$specific_period."%20include%3Aretweets&src=typd&include_available_features=1&include_entities=1&max_position=TWEET-".$last_tweet_id."-".$first_tweet_id."-BD1UO2FFu9QAAAAAAAAETAAAAAcAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&reset_error_state=false"; 
-
+$first_page=0;
 echo "$url\n---\n";
           note("$i $last_tweet_id $first_tweet_id\n");
           $json=url_get_contents($url);
           $html1=json_decode($json);
           $html=stripslashes($html1->items_html);
 
-          if (strpos($json,"\"has_more_items\":false"))
+          if (strpos($json,"\"has_more_items\""))
             {
+	      if (strlen(trim($html))<100)
+		{
                   note("no more tweets\n");
                   $list_count=1; $start_from=1; //comment this line to use the JSON rather than html method for fetching new pages.
                   return;
+		}
             }
 //echo "\n---$html---\n"; exit;
           if (strpos($json,"\"has_more_items\"")===false)
@@ -312,12 +302,12 @@ return; }
                 echo "i:".$i." t_id: ".$t[1]." ";
                 if (!$started)
                   {
-                    if (!$wait_one_more) { if (!$first_page) $first_tweet_id=$t[1]; $started=true; }
+                    if (!$wait_one_more) { if (!$first_page) { $first_tweet_id=$t[1]; } $started=true; }
 //                    die("w:$wait_one_more, $first_tweet_id");
                     $wait_one_more=0;
                   }
-//                if (!$first_page) 
-$last_tweet_id=$t[1];
+if (!$first_page) 
+   $last_tweet_id=$t[1];
 //		$list_count++;
               }
             else
@@ -347,12 +337,10 @@ $last_tweet_id=$t[1];
                 note("no more tweets\n");
                 $list_count=1;
 		echo "reached limit per page (for top_only)\n";
-                $first_page=0;
 		return;
               }
         }
     }
- $first_page=0; 
  }
 
 function get_other_fields($table)
@@ -905,7 +893,7 @@ function update_response_mentions()
         $query="UPDATE IGNORE $tmp,$table SET $tmp.user_screen_name = LOWER($table.user_screen_name), $tmp.user_id = $table.user_id  WHERE $tmp.tweet_id = $table.tweet_id";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        $query="UPDATE IGNORE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
+        $query="UPDATE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
 	$query="CREATE TABLE IF NOT EXISTS $u_m LIKE 1_empty_user_mentions";

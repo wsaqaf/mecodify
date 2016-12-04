@@ -714,7 +714,7 @@ function clear_cases()
         }
     if ($_SESSION[basename(__DIR__).'created'])
         {
-          echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>y.<br><br><a href='fetch_process.php?id=".$_SESSION[basename(__DIR__).'created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
+          echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>.<br><br><a href='fetch_process.php?id=".$_SESSION[basename(__DIR__).'created']."' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
           $_SESSION[basename(__DIR__).'created']="";
         }
  }
