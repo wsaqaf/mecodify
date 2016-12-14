@@ -10,7 +10,7 @@ $login_str = <<<END
      <form id='login'><table>
      <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
      <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
-     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > Sign up</td></tr></table><br>
+     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > <input type='button' value='Login' onclick=case_proc('login'); >  <a href='#' onclick=case_proc('signup'); >Sign up</a></td></tr></table><br>
      </form>
 END;
 
