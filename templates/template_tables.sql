@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `cases` (
   `to_date` date DEFAULT NULL,
   `details` varchar(2400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `details_url` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `private` tinyint(1) NOT NULL DEFAULT '0',
   `last_process_started` datetime DEFAULT '0000-00-00 00:00:00',
   `last_process_updated` datetime DEFAULT '0000-00-00 00:00:00',
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `1_empty_users` (
   `restricted_to_public` tinyint(1) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT NULL,
   `is_suspended` tinyint(1) DEFAULT NULL,
-  `item_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `item_updated_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `not_in_search_results` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
