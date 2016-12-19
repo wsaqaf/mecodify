@@ -1,7 +1,7 @@
 FROM tutum/lamp:latest
 
-# the latest version of pvanheus' fork with SQL bug fixed
-RUN rm -fr /app && git clone https://github.com/pvanheus/mecodify /app
+# the latest version of pvanheus' fork with SQL bug fixed (I've reverted it back to the original source in case of new changes)
+RUN rm -fr /app && git clone https://github.com/wsaqaf/mecodify /app
 
 # These pull a particular version and deploy it, but currently v. 1.21 doesn't
 # work with the MySQL 5.5 used by this container (due to `timestamp` vs `datetime` error)
