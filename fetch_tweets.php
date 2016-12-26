@@ -220,7 +220,7 @@ if (!$_GET['point'])
   elseif ($sources=="only_mobile") { $condition=$condition." AND (source LIKE '%Android%' OR source LIKE '%iPad%' OR source LIKE '%BlackBerry%' OR source LIKE '%Mobile%' OR source LIKE '%Nokia%' OR source LIKE '%Symbian%' OR source LIKE '%Phone%' OR source LIKE '%Tab%' OR source LIKE '%App%') AND (source NOT LIKE '%Web%')"; $name=$name." (mobile sources)"; }
   elseif ($sources) { 
     $c=""; $started=false;
-    $tmp=preg_split('/\,/',$sources);
+    $tmp=preg_split('/\,/',$sources, -1, PREG_SPLIT_NO_EMPTY);
     foreach ($tmp as $k)
      {
        if (!$started) $c="AND ((source is not null and LOWER(source) like '%".$link->real_escape_string(trim(strtolower($k)))."%') ";
@@ -251,10 +251,11 @@ $name=$name." (other sources)";// echo "($condition)";
             { 
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
               $_GET['any_hashtags']=str_replace(","," ",$_GET['any_hashtags']);
-	      $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags']);
+	      $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
+echo "k:$k ";
                   if (!$started) $c="AND (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   $started=true;
@@ -264,7 +265,7 @@ $name=$name." (other sources)";// echo "($condition)";
           if ($_GET['any_keywords'])
             {
               $name=$name." (with any of keywords: ".$_GET['any_keywords'].")";
-              $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords']);
+              $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
@@ -277,7 +278,7 @@ $name=$name." (other sources)";// echo "($condition)";
           if ($_GET['all_keywords'])
             {
                 $name=$name." (with any of keywords: ".$_GET['all_keywords'].")";
-                $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords']);
+                $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
                 $c=""; $started=false;
                 foreach ($tmp as $k)
                   {
@@ -291,7 +292,7 @@ $name=$name." (other sources)";// echo "($condition)";
             {
 		  $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
                   $name=$name." (from accounts: ".$_GET['from_accounts'].")";
-                  $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts']);
+                  $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
@@ -525,7 +526,7 @@ echo "Using cached table<br>";
   elseif ($sources) 
    { 
     $c=""; $started=false;
-    $tmp=preg_split('/\,/',$sources);
+    $tmp=preg_split('/\,/',$sources, -1, PREG_SPLIT_NO_EMPTY);
     foreach ($tmp as $k)
      {
        if (!$started) $c="AND ((source is not null and LOWER(source) like '%".$link->real_escape_string(trim(strtolower($k)))."%') ";
@@ -559,7 +560,7 @@ echo "Using cached table<br>";
       { 
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
               $_GET['any_hashtags']=trim($_GET['any_hashtags']);
-              $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags']);
+              $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
@@ -570,7 +571,7 @@ echo "Using cached table<br>";
               $condition=$condition." $c) ";
       }
     if ($_GET['any_keywords'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords']);
+      { $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
         $c=""; $started=false;
         foreach ($tmp as $k)
           {
@@ -582,7 +583,7 @@ echo "Using cached table<br>";
 //echo "[$condition]"; exit;
       }
     if ($_GET['all_keywords'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords']);
+      { $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
@@ -593,7 +594,7 @@ echo "Using cached table<br>";
           $condition=$condition." $c) ";
       }
     if ($_GET['from_accounts'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts']);
+      { $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
             $c=""; $started=false;
             foreach ($tmp as $k)
               {
