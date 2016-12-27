@@ -255,7 +255,6 @@ $name=$name." (other sources)";// echo "($condition)";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-echo "k:$k ";
                   if (!$started) $c="AND (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   $started=true;
