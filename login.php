@@ -1,7 +1,7 @@
 <?php
 //echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; //exit;
 //print_r($_POST); exit;
-error_reporting(E_ALL);
+error_reporting(E_ERROR);
 
 require_once("configurations.php");
 require_once("phpmailer/PHPMailerAutoload.php");

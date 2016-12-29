@@ -206,7 +206,7 @@ echo "$data";
 if (!$_GET['point'])
 {
 
-  $condition= "WHERE is_protected_or_deleted is null and date_time is not null and date_time is not null ";
+  $condition= "WHERE is_protected_or_deleted is null and date_time is not null ";
 //if ($table=="ChrChristensen2")
 // echo "(".$_GET['only_tweets'].")";
 	  if ($_GET['only_tweets']) $condition=$condition." AND (is_retweet<>1)";
@@ -236,26 +236,27 @@ $name=$name." (other sources)";// echo "($condition)";
 
   if ($_GET['types']=="some")
         {
-          if ($_GET['image_tweets']) { $condition=$condition." AND has_image=1 "; $name=$name." (with image only)"; }
-          if ($_GET['video_tweets']) { $condition=$condition." AND has_video=1 "; $name=$name." (with video only)"; }
-          if ($_GET['link_tweets']) { $condition=$condition." AND has_link=1 "; $name=$name." (with link only)"; }
-          if ($_GET['retweet_tweets']) { $condition=$condition." AND (is_retweet=1) ";  $name=$name." (are retweets)"; }
-          if ($_GET['response_tweets']) { $condition=$condition." AND (in_reply_to_tweet is not null OR in_reply_to_user is not null) ";  $name=$name." (are responses)"; }
-          if ($_GET['quoting_tweets']) { $condition=$condition." AND (quoted_tweet_id is not null) ";  $name=$name." (quoting a tweet)"; }
-          if ($_GET['mentions_tweets']) { $condition=$condition." AND (clear_text like '@%') ";  $name=$name." (are responses)"; }
-          if ($_GET['responded_tweets']) { $condition=$condition." AND (responses is not null AND responses>0) ";  $name=$name." (are responsed to)"; }
-          if ($_GET['exact_phrase']) { $condition=$condition." AND LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; }
-          if ($_GET['user_verified']) { $condition=$condition." AND user_verified=1 "; $name=$name." (from a verified tweeter)"; }
-          if ($_GET['min_retweets']) { $condition=$condition." AND retweets>=".$_GET['min_retweets']." "; $name=$name." (with minimum # of ".$_GET['min_retweets']." retweets)"; }
+          $bool_op=" AND (";
+          if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['response_tweets']) { $condition=$condition." $bool_op (in_reply_to_tweet is not null OR in_reply_to_user is not null) ";  $name=$name." (are responses)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (quoted_tweet_id is not null) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op (clear_text like '@%') ";  $name=$name." (are responses)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (responses is not null AND responses>0) ";  $name=$name." (are responsed to)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['user_verified']) { $condition=$condition." $bool_op user_verified=1 "; $name=$name." (from a verified tweeter)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['min_retweets']) { $condition=$condition." $bool_op retweets>=".$_GET['min_retweets']." "; $name=$name." (with minimum # of ".$_GET['min_retweets']." retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['any_hashtags'])
-            { 
+            {
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
               $_GET['any_hashtags']=str_replace(","," ",$_GET['any_hashtags']);
-	      $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
+              $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) $c="AND (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' "; $bool_op=$_GET['bool_op']; }
                   else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   $started=true;
                 }
@@ -268,7 +269,7 @@ $name=$name." (other sources)";// echo "($condition)";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) $c="AND (LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
+                  if (!$started) { $c="$bool_op (LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' "; $bool_op=$_GET['bool_op']; }
                   else $c=$c." OR LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
                   $started=true;
                 }
@@ -281,7 +282,7 @@ $name=$name." (other sources)";// echo "($condition)";
                 $c=""; $started=false;
                 foreach ($tmp as $k)
                   {
-                    if (!$started) $c="AND (LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
+                    if (!$started) { $c="$bool_op (LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' "; $bool_op=$_GET['bool_op'];}
                     else $c=$c." AND LOWER(clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
                   $started=true;
                   }
@@ -289,13 +290,13 @@ $name=$name." (other sources)";// echo "($condition)";
             }
           if ($_GET['from_accounts'])
             {
-		  $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
+                  $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
                   $name=$name." (from accounts: ".$_GET['from_accounts'].")";
                   $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
-                      if (!$started) $c="AND ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
+                      if (!$started) { $c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') "; $bool_op=$_GET['bool_op']; }
                       else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
                   $started=true;
                     }
@@ -304,7 +305,7 @@ $name=$name." (other sources)";// echo "($condition)";
           if ($_GET['in_reply_to_tweet_id'])
             {
                   $name=$name." (reply to tweet: ".$_GET['in_reply_to_tweet_id'].")";
-                  $c="AND ($table.in_reply_to_tweet='${_GET['in_reply_to_tweet_id']}'";
+                  $c="$bool_op ($table.in_reply_to_tweet='${_GET['in_reply_to_tweet_id']}'"; $bool_op=$_GET['bool_op'];
                   $condition=$condition." $c) ";
             }
 
@@ -317,13 +318,15 @@ $name=$name." (other sources)";// echo "($condition)";
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
-                      if (!$started) $c="AND ((LOWER(location_fullname) like '%".$k."%' OR LOWER(location_name) like '%".$k."%' OR LOWER(user_location) like '%".$k."%' OR LOWER(user_timezone) like '%".$k."%')";
+                      if (!$started) { $c="$bool_op ((LOWER(location_fullname) like '%".$k."%' OR LOWER(location_name) like '%".$k."%' OR LOWER(user_location) like '%".$k."%' OR LOWER(user_timezone) like '%".$k."%')"; $bool_op=$_GET['bool_op']; }
                       else $c=$c." OR (LOWER(location_fullname) like '%".$k."%' OR LOWER(location_name) like '%".$k."%' OR LOWER(user_location) like '%".$k."%' OR LOWER(user_timezone) like '%".$k."%')";
                   $started=true;
                     }
                   $condition=$condition." $c) ";
                 }
      }
+
+	if ($bool_op==$_GET['bool_op']) $condition=$condition." ) ";
  
        $started=false;
         $name="total # ";
@@ -544,17 +547,18 @@ echo "Using cached table<br>";
 
   if ($_GET['types']=="some")
   {
-    if ($_GET['image_tweets']) $condition=$condition." AND $table.has_image=1 ";
-    if ($_GET['video_tweets']) $condition=$condition." AND $table.has_video=1 ";
-    if ($_GET['link_tweets']) $condition=$condition." AND $table.has_link=1 ";
-    if ($_GET['retweet_tweets']) $condition=$condition." AND ($table.is_retweet=1) ";
-    if ($_GET['response_tweets']) $condition=$condition." AND ($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) ";
-    if ($_GET['quoting_tweets']) { $condition=$condition." AND (quoted_tweet_id is not null) ";  $name=$name." (quoting a tweet)"; }
-    if ($_GET['mentions_tweets']) $condition=$condition." AND ($table.clear_text like '@%') ";
-    if ($_GET['responded_tweets']) { $condition=$condition." AND (responses is not null AND responses>0) ";  $name=$name." are responsed to"; }
-    if ($_GET['exact_phrase']) { $condition=$condition." AND LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; }
-    if ($_GET['user_verified']) $condition=$condition." AND $table.user_verified=1 ";
-    if ($_GET['min_retweets']) $condition=$condition." AND $table.retweets>=".$_GET['min_retweets']." ";
+    $bool_op=" AND (";    
+    if ($_GET['image_tweets']) { $condition=$condition." $bool_op $table.has_image=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['video_tweets']) { $condition=$condition." $bool_op $table.has_video=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['response_tweets']) { $condition=$condition." $bool_op ($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (quoted_tweet_id is not null) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
+    if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op ($table.clear_text like '@%') ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (responses is not null AND responses>0) ";  $name=$name." are responsed to"; $bool_op=$_GET['bool_op'];}
+    if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)";$bool_op=$_GET['bool_op'];} 
+    if ($_GET['user_verified']) { $condition=$condition." $bool_op $table.user_verified=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['min_retweets']) { $condition=$condition." $bool_op $table.retweets>=".$_GET['min_retweets']." ";$bool_op=$_GET['bool_op'];}
     if ($_GET['any_hashtags'])
       { 
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
@@ -563,7 +567,7 @@ echo "Using cached table<br>";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) $c="AND (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' "; $bool_op=$_GET['bool_op'];}
                   else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
                   $started=true;
                 }
@@ -574,7 +578,7 @@ echo "Using cached table<br>";
         $c=""; $started=false;
         foreach ($tmp as $k)
           {
-            if (!$started) $c="AND (LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
+            if (!$started) { $c="$bool_op (LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' "; $bool_op=$_GET['bool_op'];}
             else $c=$c." OR LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
                   $started=true;
           }
@@ -586,7 +590,7 @@ echo "Using cached table<br>";
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
-              if (!$started) $c="AND (LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
+              if (!$started) {$c="$bool_op (LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' "; $bool_op=$_GET['bool_op'];}
               else $c=$c." AND LOWER($table.clear_text) like '%".$link->real_escape_string(trim($k))."%' ";
                   $started=true;
             }
@@ -598,7 +602,7 @@ echo "Using cached table<br>";
             foreach ($tmp as $k)
               {
                 $k=ltrim($k,'@');
-                if (!$started) $c="AND ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
+                if (!$started) {$c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";$bool_op=$_GET['bool_op'];}
                 else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
                   $started=true;
               }
@@ -607,7 +611,7 @@ echo "Using cached table<br>";
     if ($_GET['in_reply_to_tweet_id'])
             {
                   $name=$name." (reply to tweet: ".$_GET['in_reply_to_tweet_id'].")";
-                  $c="AND ($table.in_reply_to_tweet='${_GET['in_reply_to_tweet_id']}'";
+                  $c="$bool_op ($table.in_reply_to_tweet='${_GET['in_reply_to_tweet_id']}'"; $bool_op=$_GET['bool_op'];
                   $condition=$condition." $c) ";
             }
 
@@ -619,7 +623,7 @@ echo "Using cached table<br>";
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
-              if (!$started) $c="AND ((LOWER($table.location_fullname) like '%".$k."%' OR LOWER($table.location_name) like '%".$k."%' OR LOWER(users_".$table.".user_location) like '%".$k."%' OR LOWER(users_".$table.".user_timezone) like '%".$k."%')";
+              if (!$started) { $c="$bool_op ((LOWER($table.location_fullname) like '%".$k."%' OR LOWER($table.location_name) like '%".$k."%' OR LOWER(users_".$table.".user_location) like '%".$k."%' OR LOWER(users_".$table.".user_timezone) like '%".$k."%')"; $bool_op=$_GET['bool_op'];}
               else $c=$c." OR (LOWER($table.location_fullname) like '%".$k."%' OR LOWER($table.location_name) like '%".$k."%' OR LOWER($table.user_location) like '%".$k."%' OR LOWER($table.user_timezone) like '%".$k."%')";
                   $started=true;
             }
@@ -628,9 +632,12 @@ echo "Using cached table<br>";
         }
     if ($_GET['response_to'])
         {
-          $condition=" WHERE (in_reply_to_tweet='".$_GET['response_to']."') ";
+          $condition=" $bool_op (in_reply_to_tweet='".$_GET['response_to']."') "; 
+	  $bool_op=$_GET['bool_op'];
         }
 //            $_GET['hashtag_cloud']=1;
+
+   if ($bool_op==$_GET['bool_op']) $condition=$condition." ) ";
 
 if ($tops)
   {
