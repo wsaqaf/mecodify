@@ -713,6 +713,8 @@ function showkumu()
 					var sel = document.getElementById('case');
 	 			  qry['table'] = sel.options[sel.selectedIndex].value;
 	 				if (!qry['table']) { alert('Please select at least one case to visualise!'); return; }
+					var temp_bool=document.getElementById("bool_op");
+					qry['bool_op']=temp_bool.options[temp_bool.selectedIndex].value;
 	 				var e = document.getElementById("time_unit");
 	 				try
 	 				{

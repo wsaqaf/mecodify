@@ -65,9 +65,17 @@
 													  <div  id="type_of_content" class="slidingDiv2" style="display: block;">
 															<input type="radio" name="content_types" id="all_types" value="all" checked onclick=show_or_hide(document.getElementById('specify_types'),"none")> All types<br>
 															<input type="radio" name="content_types" id="specific_types" value="some" onclick=show_or_hide(document.getElementById('specify_types'),"block")> Specific types<br><br>
-															<div id="specify_types" style="display:none;">
+															
+<div id="specify_types" style="display:none;">
 																Tweets MUST*:<br>
-														  	<input type="checkbox" id="image_tweets" name="image_tweets" value=1> Include an image<br>
+														  	
+Boolean operator: <select id="bool_op" style='color:black; background-color:white'>
+<option value="and">AND</option>
+<option value="or" selected>OR</option>
+<option value="not">NOT</option>
+</select><br>
+
+<input type="checkbox" id="image_tweets" name="image_tweets" value=1> Include an image<br>
 														  	<input type="checkbox" id="video_tweets" name="video_tweets" value=1> Include a video<br>
 														  	<input type="checkbox" id="link_tweets" name="link_tweets" value=1> Include a link<br>
 																<input type="checkbox" id="user_verified" name="user_verified" value=1> From a verified user<br>
