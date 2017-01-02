@@ -236,7 +236,7 @@ $name=$name." (other sources)";// echo "($condition)";
 
   if ($_GET['types']=="some")
         {
-          $bool_op=" AND (";
+	  if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="AND NOT") { $bool_op=" AND NOT ("; $_GET['bool_op']=="AND NOT"; } else $bool_op=" AND (";
           if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
@@ -547,7 +547,7 @@ echo "Using cached table<br>";
 
   if ($_GET['types']=="some")
   {
-    $bool_op=" AND (";    
+    if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="AND NOT") { $bool_op=" AND NOT ("; $_GET['bool_op']=="AND NOT"; } else $bool_op=" AND (";  
     if ($_GET['image_tweets']) { $condition=$condition." $bool_op $table.has_image=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['video_tweets']) { $condition=$condition." $bool_op $table.has_video=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
