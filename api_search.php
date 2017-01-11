@@ -42,7 +42,7 @@ $started=false;
 $step=0;
 $failed_proxy=0;
 $hash_cloud="";
-
+$overlimit=0;
 //note("\nhi!\n");
 
  update_cases_table("started");
@@ -154,6 +154,7 @@ function get_tweet_ids($type, $table,$keywords)
     global $global_step;  global $oldest_tweet_id; global $last_tweet_id;  global $max_list;
     global $list_count; global $start_from; global $added; global $skipped; global $top_only;
     global $global_step_limit; global $max_per_page; global $count_total;
+    global $max_tweets_per_case; global $overlimit;
 
     echo "$table, keywords: ($keywords)\n";
 
@@ -184,6 +185,8 @@ function get_tweet_ids($type, $table,$keywords)
           if (!$processed) break;
           $max_id="&max_id=$oldest_tweet_id";
           $tweets_done=$tweets_done+$processed;
+    if ($tweets_done>=($max_tweets_per_case+$global_step_limit))
+        { note("$tweets_done more than allowed limit ($max_tweets_per_case), exiting...\n"); $overlimit=1; return; /*exit;*/ }
      }
 /*
      $query= "SELECT tweet_id from $table order by tweet_id";
@@ -210,6 +213,8 @@ function get_tweet_ids($type, $table,$keywords)
            if (!$processed) break;
            $max_id="&max_id=$oldest_tweet_id";
            $tweets_done=$tweets_done+$processed;
+    if ($tweets_done>=($max_tweets_per_case+$global_step_limit))
+        { note("$tweets_done more than allowed limit ($max_tweets_per_case), exiting...\n"); $overlimit=1; return; /*exit;*/ }
       }
     if (!$tweets_done) { note("No tweets found, exiting...\n"); update_cases_table("completed"); /*exit;*/ }
     note("Processed total of $tweets_done tweets\n");
@@ -684,7 +689,7 @@ function update_response_mentions()
 	$query="UPDATE IGNORE $tmp,$table SET $tmp.user_screen_name = LOWER($table.user_screen_name), $tmp.user_id = $table.user_id  WHERE $tmp.tweet_id = $table.tweet_id";
 	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-	$query="UPDATE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
+	$query="UPDATE IGNORE $tmp,$table SET $tmp.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null AND $tmp.user_id=$table.in_reply_to_user group by $table.in_reply_to_user) WHERE $tmp.user_id=$table.in_reply_to_user";
 	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         $query="CREATE TABLE IF NOT EXISTS $u_m LIKE 1_empty_user_mentions";
@@ -1146,7 +1151,11 @@ function update_cases_table($mode)
         global $table; global $link;
         if ($mode=="started") { echo "Recorded starting!\n"; $add_compl=",last_process_completed='0000-00-00 00:00:00'"; }
         else { echo "Recorded completed!\n"; $add_compl=""; }
-        $query="update cases set last_process_"."$mode=NOW()$add_compl,status='$mode' where id='$table'";
+	if ($mode=="overlimit")
+	 {
+           $query="update cases set last_process_completed=NOW()$add_compl,status='overlimit' where id='$table'";
+	 }
+	else { $query="update cases set last_process_"."$mode=NOW()$add_compl,status='$mode' where id='$table'"; }
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
       }
 
@@ -1472,7 +1481,7 @@ function del_last_line($file,$record_exists)
 
 function draw_network($table)
   {
-    global $link;
+    global $link; global $overlimit; 
     $maximum_strength=5;
     $minimum_strength=0;
     $limit=10;
@@ -1610,7 +1619,8 @@ echo "\n\nSTEP 2 (replies) DONE\n\n";
                }
 echo "\n\nSTEP 3 (mentions) DONE\n\n";
 echo "\n\nALL DONE\n\n";
-update_cases_table("completed");
+if ($overlimit) update_cases_table("overlimit");
+else update_cases_table("completed");
   }
 
 function startswith($haystack, $needle) {

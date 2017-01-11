@@ -63,7 +63,7 @@ elseif ($_GET['progress'] && $table)
 
 if (!$_GET['overlimit'])
   {
-   if ($step2>=$max_tweets_per_case)
+   if ($pstatus=="overlimit")
      {
       kill_process(0);
       $cmd='php '.$search_meth.'.php '.$_GET['id'].' step4 >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
@@ -74,9 +74,9 @@ if (!$_GET['overlimit'])
   }
     $html="</HEAD><BODY>Progress with extracting and saving data for case ($table)<br><br>";
     $period_covered='NA';
-    $pstatus=process_status($table);
+    $pstatus2=process_status($table);
 //echo "($pstatus)";
-    if ($pstatus)
+    if ($pstatus2)
           {
 	    $status="<img src='images/in_progress.gif'> <font color=orange>In progress - <a href='fetch_process.php?id=$table&stop=1'>Stop</a></font>"; 
 	    $html="<HTML><HEAD> $refresh $html";
@@ -86,7 +86,10 @@ if (!$_GET['overlimit'])
           {
 	    if ($last_process_started!='0000-00-00 00:00:00' && $last_process_completed!='0000-00-00 00:00:00')
 		{
- 		   $status="<font color=green>Completed (<a href='fetch_process.php?id=$table'>Process again</a>)</font>";
+ 		 if ($pstatus=="overlimit") 
+		   { $status="<font color=green>Limit Exceeded</font>"; }
+		 else
+		   { $status="<font color=green>Completed (<a href='fetch_process.php?id=$table'>Process again</a>)</font>"; }
 		}
 	    elseif ($last_process_started!='0000-00-00 00:00:00' && $last_process_completed=='0000-00-00 00:00:00')
 		{
