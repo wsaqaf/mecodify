@@ -363,7 +363,7 @@ if (!$case) { echo "Please select a case first"; return; }
                   $action="<tr><td style='border: none !important;'>Action</td>";
                   $public="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>".ispublic($row['private'])."</a> </td></tr>";
                  $action.="<td style='border: none !important;'>";
-                 if ($_SESSION[basename(__DIR__).'email']==$admin_email)
+                 if ($_SESSION[basename(__DIR__).'email']==$row['creator'] || $_SESSION[basename(__DIR__).'email']==$admin_email)
                   { $action.="<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)"; }
                 $action.="</td></tr>";
                 }
