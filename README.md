@@ -13,6 +13,11 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 
 ###### To see a live and 100% functional demo on our dedicated server, go [here](https://mecodify.org/demo) and enter 'demo@mecodify.org' as username and password. Mecodify has been tested using Chrome browser. We appreciate bug reports when using other browsers. 
 
+### Resources: 
+#####- [Whitepaper](https://mecodify.org/mecodify-whitepaper.pdf)
+#####- [Webinar and video demo](https://www.youtube.com/watch?v=_wWYm-kobLI) hosted by Oxfam
+#####- [Brief article](http://datadrivenjournalism.net/resources/mecodify) published by DDJ
+
 ...
 
 ### NOTICE
