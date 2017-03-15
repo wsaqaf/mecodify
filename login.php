@@ -694,7 +694,7 @@ function email_admin($case,$user)
 	}
     if(!$mail->send())
        {
-        echo 'Mailer Error: ' . $mail->ErrorInfo;
+  //      echo 'Mailer Error: ' . $mail->ErrorInfo;
         return false;
        }
    }
