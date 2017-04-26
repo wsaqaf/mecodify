@@ -228,7 +228,6 @@ function get_other_fields($table,$getfield)
     $last_setting=rand(0,sizeof($twitter_api_settings)-1);
 
     $regex = '$\b(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$i';
-//$getfield="?q=from:ChrChristensen";
 //echo "Get field: $getfield\n";
           $response=getapi_record($getfield);
           $recs=json_decode($response);
