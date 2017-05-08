@@ -14,7 +14,7 @@ $ php -v
 ```
 In order to install PHP, you can refer to the official PHP installation instructions found here: [http://php.net/manual/en/install.php](http://php.net/manual/en/install.php)
 
-2- **MySQL 14.0 or higher:** Mecodify relies extensively on MySQL tables to store data. You can see if you have MySQL by running the command:
+2- **MySQL 5.5 or higher:** Mecodify relies extensively on MySQL tables to store data. You can see if you have MySQL by running the command:
 ```sh
 $ mysql --version
 ```
