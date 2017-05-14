@@ -630,6 +630,12 @@ function verify_code($email,$code)
 function create_account($replace)
     {
         global $link; global $login_str;
+
+        global $enable_new_accounts;
+        if (!$enable_new_accounts) {
+          die("Account creation disabled");
+        }
+
         $query= "SELECT email from members where email='${_POST['email']}' AND verified=1";
         if ($result = $link->query($query))
           {
