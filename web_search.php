@@ -223,9 +223,7 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
           $html=preg_replace('/[[:blank:]]+/',' ',$html);
           $html=preg_replace('/\t+/',"\t",$html);
           $html=preg_replace('/\n+/',"\n",$html);
-//echo "\n---$html---\n";
-//          if (preg_match("/data-max-position=[^\"<>]+?-([\d+])-([\d+])-/si",$html,$t))
- 	    if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)-/",$html,$t))
+ 	  if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)\"/",$html,$t))
 		{ $last_tweet_id=$t[1]; $first_tweet_id=$t[2]; echo "l_t:".$t[1]." f_t:".$t[2]."\n\n"; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
           else { echo "problem"; }
 //exit;
