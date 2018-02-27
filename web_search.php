@@ -223,7 +223,9 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
           $html=preg_replace('/[[:blank:]]+/',' ',$html);
           $html=preg_replace('/\t+/',"\t",$html);
           $html=preg_replace('/\n+/',"\n",$html);
- 	  if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)\"/",$html,$t))
+//echo "\n---$html---\n";
+//          if (preg_match("/data-max-position=[^\"<>]+?-([\d+])-([\d+])\"/si",$html,$t))
+ 	    if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)\"/",$html,$t))
 		{ $last_tweet_id=$t[1]; $first_tweet_id=$t[2]; echo "l_t:".$t[1]." f_t:".$t[2]."\n\n"; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
           else { echo "problem"; }
 //exit;
@@ -425,7 +427,7 @@ $records="";
                   echo "$k\n"; //continue;
                   extract_and_store_data($r[$k]);
 		 if ($total_records==10000) { tweeter_data($table); $total_records=0; }
-               }
+               } 
             }
 
           echo "Processed (".($last_rec+1)." - ".($new_rec) ." out of $total_to_do in $table)\n";// for ($tweet_updated_rows tweets, $user_updated_rows users updated)\n";
@@ -877,6 +879,7 @@ function update_response_mentions()
       {
         global $table; global $link; global $mysql_db;
         $tmp="user_all_mentions_"."$table"; $u_m="user_mentions_".$table;
+
         echo "Adding responses, responses to tweeter and mentions of tweeter data to table ...<br>\n";
 
         $query="CREATE TABLE IF NOT EXISTS $tmp like 1_empty_all_mentions";
@@ -959,6 +962,8 @@ for ($i=1; $i<=10; $i++)
 
         echo "\n"."Done with updating responses...\n";
       }
+
+
 
 function update_kumu_files($table)
       {
@@ -1822,6 +1827,9 @@ echo "\n\nSTEP 2 (replies) DONE\n\n";
 echo "\n\nSTEP 3 (mentions) DONE\n\n";
 echo "\n\nALL DONE\n\n";
 update_cases_table("completed");
+array_map('unlink', glob("tmp/cache/$table*.tab"));
+array_map('unlink', glob("tmp/cache/$table*.htm*"));
+array_map('unlink', glob("tmp/cache/$table?*-hashcloud*.txt"));
   }
 function startswith($haystack, $needle) {
     // search backwards starting from haystack length characters from the end

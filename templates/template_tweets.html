@@ -8,9 +8,8 @@
   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="css/template.css" type="text/css" />
 	<link rel="stylesheet" href="css/tweets.css" type="text/css" />
-	<script type='text/javascript' src='js/jquery.min.js'></script>
-	<script type='text/javascript' src='js/tweets.js'></script>
-
+        <script type='text/javascript' src='js/jquery.min.js'></script>
+        <script type='text/javascript' src='js/tweets.js'></script>
 		<meta name="msapplication-TileColor" content="#2b5797">
 <script type='text/javascript'>
 //auto load
@@ -113,6 +112,18 @@ In reply to this tweet id: <br><input type="text" id="in_reply_to_tweet_id" name
 
 <input type="radio" id="unique_retweers" name="graph_metrics" value="unique_tweeters"> Count only unique tweeters<br>
 
+<input type="radio" id="normalized_tweets" name="graph_metrics" value="normalized_tweets"> Count original tweets per tweeter<br>
+
+<input type="radio" id="normalized_retweets" name="graph_metrics" value="normalized_retweets"> Count tweets & retweets per tweeter<br>
+
+<input type="radio" id="relative_tweets" name="graph_metrics" value="relative_tweets"> Relative impact (original tweets)*<br>
+
+<input type="radio" id="relative_retweets" name="graph_metrics" value="relative_retweets"> Relative impact (tweets & retweets)*<br>
+
+<input type="radio" id="relative_tweeters" name="graph_metrics" value="relative_tweeters"> Relative impact (tweeters)*<br>
+<br>
+<i>* Relative impact is measured by dividing the number of corresponding value (tweets, retweets or tweeters) by the total number of Twitter users at the time based on publicly available statistics.</i>
+
 													</div>
 												</li>
 											</ul>
@@ -134,9 +145,11 @@ In reply to this tweet id: <br><input type="text" id="in_reply_to_tweet_id" name
 													</div>
 			<br>Graph timeseries unit<br><br>
 			<select id="time_unit" style='color:black; background-color:white'>
-			  <option value="days">Days</option>
+                         <option value="years">Years</option>
+                          <option value="months">Months</option>
+ 			  <option value="days" selected>Days</option>
 				<option value="hours">Hours</option>
-			  <option value="minutes" selected>Minutes</option>
+			  <option value="minutes">Minutes</option>
 			  <option value="seconds">Seconds</option>
 			</select>
 													</div>
@@ -206,8 +219,10 @@ In reply to this tweet id: <br><input type="text" id="in_reply_to_tweet_id" name
 
 	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 sidebar-eq demo">
 		<div class="chart-container">
-		<script src="js/highstock.js"></script>
-		<script src="js/exporting.js"></script>
+                <script src="js/highstock.js"></script>
+                <script src="js/exporting.js"></script>
+                <script src="js/export-csv.js"></script>
+
 			<span id="chartcontainer"><form><input type='hidden' id='last_graph_hash' value=''></form></span>
 <div id="loadingchart" style="display:none;"><br><center>Loading chart... <img src="images/ajax-loader.gif"><br></center></div>
 <div id="loadingtweets" style="display:none;"><br><center>Loading tweets... <img src="images/ajax-loader.gif"><br></center></div>

@@ -1,15 +1,9 @@
 <?php
-//echo "<hr>${_SERVER['QUERY_STRING']}<hr>";
-//exit;
-//error_reporting(-1);
-//ini_set('display_errors', 'On');
 ini_set('max_execution_time', 3000);
 ini_set('memory_limit', '1024M');
 
-
 foreach (array_keys($_GET) as $p) { $_GET[$p]=trim($_GET[$p]); }
 date_default_timezone_set('UTC');
-//'America/New_York');
 require_once("configurations.php");
 require_once("cloud.php");
 
@@ -25,6 +19,12 @@ $table=$_GET['table'];
 $drill_level=$_GET['drill_level'];
 $retweets_graph=$_GET['retweets_graph'];
 $unique_tweeters=$_GET['unique_tweeters'];
+$normalized_tweets=$_GET['normalized_tweets'];
+$normalized_retweets=$_GET['normalized_retweets'];
+$relative_tweets=$_GET['relative_tweets'];
+$relative_retweets=$_GET['relative_retweets'];
+$relative_tweeters=$_GET['relative_tweeters'];
+
 $retweets=$_GET['retweets'];
 $from=$_GET['from'];
 $to=$_GET['to'];
@@ -39,7 +39,6 @@ if (!$retweeted) $shared=1;
 if ($top_images || $top_videos || $top_links) $tops=1;
 $stackgraph=$_GET['stackgraph'];
 
-//echo "(".$cases[$table]['name'].")"; exit;
 
 if (!$p) $p=1; if (!$pp) $pp=$per_page;;
 if ($_GET['startdate'])
@@ -49,7 +48,6 @@ if ($_GET['startdate'])
     $startdate=$temp->format('Y-m-d');
     if ($_GET['starttime']) $starttime=$_GET['starttime'];
   }
-//echo "(sd:$startdate)"; exit;
 if ($_GET['enddate'])
     {
       $temp=DateTime::createFromFormat('d/m/Y', trim($_GET['enddate']));
@@ -66,16 +64,11 @@ get_cases();
 
 $name=$cases[$table]['name'];
 
-//echo "(${_GET['point']})";
 if ($_GET['inspect'])
   {
-//print_r($_GET); exit;
     $_GET['clear_text']=hyper_link(urldecode($_GET['clear_text']));
     $url=get_hd().$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI];
     $url=preg_replace('/\&inspect\=1\&.+/','',$url);
-
-//echo "<hr>inspect<br>$url<hr>branch:".$_GET['branch'];
-//print_r($_GET); echo "<hr>";
 
     if (!$_GET['branch'])
       {
@@ -94,7 +87,6 @@ if ($_GET['inspect'])
     $date_time=$_GET['date_time'];
     $user_id=$_GET['user_id'];
     $user_name=$_GET['user_screen_name'];
-//    $clear_text=preg_replace("/https?\:\/\/[^\s]+?/","",$_GET[4]);
 
     $original_text=$_GET['clear_text'];
     $clear_text=preg_replace("/RT /i","",$_GET['clear_text']);
@@ -106,7 +98,6 @@ if ($_GET['inspect'])
     if ($clear_text) { $clear_text="OR clear_text='".$link->real_escape_string($clear_text).
                                     "' OR clear_text='".$link->real_escape_string($original_text).
                                     "' OR clear_text like '%".$link->real_escape_string($partial_text)."%'"; }
-//    else $clear_text="";
 
     $query="select tweet_id,tweet_permalink_path,user_id,user_screen_name,user_name,user_image_url,user_mentions,clear_text,in_reply_to_user,in_reply_to_tweet,date_time from $table".
            " where (in_reply_to_tweet='$tweet_id' OR ". //direct response
@@ -124,14 +115,11 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
     else die("Error in query: ". $link->error.": $query");
 
     $i=0; $t=0; $u=0; $m=0; $r=0; $o=0; $p=0;
-//die("hi2: $query<br>\n");
 
     $data=""; $last_five=rand(1000,9999);
     while ($row=$result->fetch_assoc())
       {
-//        if (!$row['user_id']) continue;
 	$found=""; $note=""; $tweet_marker="";
-//print_r($row); 
 
         if ($row['in_reply_to_tweet']==$tweet_id)
           {
@@ -158,7 +146,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             $found="A mention of @$user_name (excluding direct or user replies)"; $note="error"; $m++; $tweet_marker=$tweet_id."_m";
           }
           $i++;
-//          if ($_GET['branch']) $data=$data;
           $data=$data."<div class='$tweet_marker'><br><font size=+1>".$row['date_time']."</font><br>";
           $data=$data."<div class='alert alert-$note'>";
           $data=$data."<h4 class='alert-heading'><a href='${row['tweet_permalink_path']}' target=_blank>$found</a></h4>";
@@ -168,12 +155,9 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
           $data=$data."<center><a href='?id=tweets&table=$table&user_screen_name=".$row['user_screen_name']."&load=1' target=_blank>More from this tweeter</a> in connection to (".$cases[$table]['name'].")</center><br><a href=";
           $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."','".$row['tweet_id'].$last_five."_branch')";
           $inspect_link=str_replace("%0A","%20",$inspect_link);
-//if ($tweet_id=='125521403817623552') echo "<hr>$inspect_link<hr>";
-//echo "($inspect_link)";
           $data=$data.$inspect_link."><img src='images/inspect.png' alt='see connected tweets'></a><br><div id='".$row['tweet_id'].$last_five."_branch'></div></div></div>";
           if ($_GET['branch']) $data=$data;
       }
-//die("hi3<br>\n");
 
 if (!$i) die("No related tweets to ($user_name) were found...");
 if (!$_GET['branch'])
@@ -198,7 +182,6 @@ if ($p) echo "&nbsp; <input type=checkbox id='show_p' name='show_p' checked oncl
 echo "</center>";
 
 echo "$data";
-//echo "total1:$total, i:$i; t:$t, u:$u, m:$m, r:$r, o:$o, p:$p total2 ".($t+$u+$m+$r+$o+$p);
       $link->close();
       exit;
 
@@ -207,12 +190,9 @@ if (!$_GET['point'])
 {
 
   $condition= "WHERE is_protected_or_deleted is null and date_time is not null ";
-//if ($table=="ChrChristensen2")
-// echo "(".$_GET['only_tweets'].")";
 	  if ($_GET['only_tweets']) $condition=$condition." AND (is_retweet<>1)";
 	  if ($startdate) $from=trim("$startdate $starttime");
   if ($enddate) $to=trim("$enddate $endtime");
-  //echo "$from - $to";
   if ($from) $condition=$condition." AND date_time>='$from'";
   if ($to) $condition=$condition." AND date_time<'$to'";
 
@@ -228,7 +208,7 @@ if (!$_GET['point'])
        $started=true;
      }
     $condition=$condition." $c) ";
-$name=$name." (other sources)";// echo "($condition)"; 
+$name=$name." (other sources)"; 
 }
 
   if ($languages=="en") $condition=$condition." AND (tweet_language='en')";
@@ -329,11 +309,16 @@ $name=$name." (other sources)";// echo "($condition)";
 	if ($bool_op==$_GET['bool_op']) $condition=$condition." ) ";
  
        $started=false;
-        $name="total # ";
+        $name="[".$table."] total # ";
 	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweet","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
+         elseif ($normalized_tweets) $name=$name." of original tweets per tweeter";
+         elseif ($normalized_retweets) $name=$name." of (tweets+retweets) per tweeter";
+         elseif ($relative_tweeters) $name=$name." relative impact (tweeters)";
+         elseif ($relative_tweets) $name=$name." relative impact (original tweets)";
+         elseif ($relative_retweets) $name=$name." relative impact (tweets+retweets)";
 	 else  $name=$name." of tweets ";
 	 foreach (array_keys($_GET) as $g)
 		{
@@ -343,7 +328,17 @@ $name=$name." (other sources)";// echo "($condition)";
 	if ($params) $name="[$params]";
         if (!$from || !$to) $prd=" (for full period)";
         else $prd=" (from $from to $to)";
-        if ($drill_level=="days")
+        if ($drill_level=="years")
+            {
+              $datetime_format="%Y";
+              $pointInterval="365 * 24 * 3600 * 1000";
+            }
+        elseif ($drill_level=="months")
+            {
+              $datetime_format="%Y-%m";
+              $pointInterval="30 * 24 * 3600 * 1000";
+            }
+        elseif ($drill_level=="days")
             {
               $datetime_format="%Y-%m-%d";
               $pointInterval="24 * 3600 * 1000";
@@ -363,7 +358,9 @@ $name=$name." (other sources)";// echo "($condition)";
               $datetime_format="%Y-%m-%d %H:%M:%S";
               $pointInterval="1000";
             }
-        if ($drill_level=="days")  { $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-%d 00:00:00')"; $param2="tweet_date"; }
+        if ($drill_level=="years")  { $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-01-01 00:00:00')"; $param2="DATE_FORMAT(date_time,'%Y-01-01 00:00:00')"; }
+        elseif ($drill_level=="months"){ $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-01 00:00:00')"; $param2="DATE_FORMAT(date_time,'%Y-%m-01 00:00:00')"; }
+        elseif ($drill_level=="days")  { $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-%d 00:00:00')"; $param2="tweet_date"; }
         elseif ($drill_level=="hours")  { $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-%d %H:00:00')"; $param2="DATE_FORMAT(date_time,'%Y-%m-%d %H:00:00')"; }
         elseif ($drill_level=="minutes"){ $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-%d %H:%i:00')"; $param2="DATE_FORMAT(date_time,'%Y-%m-%d %H:%i:00')"; }
         elseif ($drill_level=="seconds"){ $param1="CONVERT_TZ(DATE_FORMAT(date_time,'%Y-%m-%d %H:%i:%S')"; $param2="date_time"; }
@@ -373,13 +370,23 @@ $name=$name." (other sources)";// echo "($condition)";
 
         if ($unique_tweeters)
 	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(distinct user_id) from $table $condition group by $param2";
+        elseif ($normalized_retweets)
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id)+sum(retweets))/(count(distinct user_id))) from $table $condition group by $param2";
+        elseif ($normalized_tweets)
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id))/(count(distinct user_id))) from $table $condition group by $param2";
+        elseif ($relative_tweeters)
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(distinct user_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
+        elseif ($relative_retweets)
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*((count(tweet_id)+sum(retweets))/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
+        elseif ($relative_tweets)
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(tweet_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($retweets)
 	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id)+sum(retweets) from $table $condition group by $param2";
 	else            
 	  $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
         $started=true;
         $query=$query." order by date_time";
-//echo "<hr>$query<hr>";
+
         if ($result = $link->query($query))
           {
             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
@@ -408,7 +415,6 @@ $name=$name." (other sources)";// echo "($condition)";
 
 $flags="";
 $qry="SELECT flags FROM cases WHERE id='$table'";
-//echo "[$qry]";
 if ($result=$link->query($qry))
   {
 	$flags_arr = $result->fetch_array();
@@ -422,7 +428,6 @@ foreach ($flags_data['flags'] as $pd)
 	$flags=$flags." { x : ".strtotime($pd['date_and_time'])."000 , title : '${pd['title']}' , text : '${pd['description']}' },\n";
    }
 
-//echo $flags; exit;
 if ($flags)
   {
    $temp_flags="{\n\ttype : 'flags',\n\tdata : [<!--flags-->],\n\tonSeries : '<!--hashkey-->',\n\tname : 'Timeline flags',\n\tshape : 'flag',\n\twidth : 70\n}\n";
@@ -443,16 +448,15 @@ if ($flags)
         $graph_data=$graph_data."\n$flags\n/*<!--graph_data-->*/";
         $graph_data2=$graph_data2."/*<!--graph_data-->*/";
 
-        $hashkey=base_convert(md5($_SERVER[REQUEST_URI]), 16, 10);
-        $graph_data=str_replace("<!--hashkey-->","data".substr($hashkey,0,10),$graph_data);
+        $tmp_url=preg_replace("/\&last_graph_hash=[\d]+/","",$_SERVER[REQUEST_URI]);
 
-//echo "<hr>$graph_data<hr>"; exit;
+        $hashkey=base_convert(md5($tmp_url), 16, 10);
+        $graph_data=str_replace("<!--hashkey-->","data".substr($hashkey,0,10),$graph_data);
 
         if ($_GET['demo'])
           {
             $template=preg_replace("/<script type='text\/javascript' src.+/","",$template);
           }
-        //echo "($template)";
         $template=str_replace("<!--content_type-->",$content_type,$template);
         $template=str_replace("<!--drill_level-->",$drill_level,$template);
         $template=str_replace("<!--datetime_format-->",$datetime_format,$template);
@@ -463,21 +467,30 @@ if ($flags)
         $template2=str_replace('/*<!--graph_data-->*/',$graph_data2,$template2);
         $template=str_replace("<!--url-->",$url,$template);
         $template2=str_replace("<!--url-->",$url,$template2);
-//echo "($hashkey)"; exit;
         file_put_contents("tmp/cache/$hashkey.htm",$template2);
         echo $template."<form><input type='hidden' id='last_graph_hash' value='$hashkey'></form>";
  }
 else
 {
-	$main_url=preg_replace("/\&last_graph_hash=[\d]+/","",$_SERVER[REQUEST_URI]);
-//echo "<hr>$main_url<hr>";
+	$tmp_url=preg_replace("/\&last_graph_hash=[\d]+/","",$_SERVER[REQUEST_URI]);
 
-        $hashkey2=base_convert(md5($main_url), 16, 10);
+        $tmp_url=preg_replace("/\&drill_level=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&retweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&only_tweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&unique_tweeters=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&normalized_tweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&normalized_retweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&relative_tweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&relative_retweets=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&relative_tweeters=.+?\&/","&",$tmp_url);
+        $tmp_url=preg_replace("/\&stackgraph=1/","",$tmp_url);
 
-        if (file_exists("tmp/cache/$table$hashkey2.tab"))
+        $hashkey2=base_convert(md5($tmp_url), 16, 10);
+
+        if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2.tab"))
           {
-echo "Using cached table<br>";
             $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table$hashkey2.tab"));
+echo "Using cached table created at ($file_updated)<br>";
 
             if ($result=$link->query("SELECT last_process_updated FROM cases WHERE id='$table'")) 
 		{ 
@@ -485,7 +498,6 @@ echo "Using cached table<br>";
 		   $row=$result->fetch_array();
 		   if ($row[0]<$file_updated)
 			{
-			  //echo "<span style='text-align:right; text-size:10pt;'>Note: * Cached table</span><br>";
 			  if (file_exists("tmp/cache/$table$hashkey2-slides.html")) 
 			     { 
 	  			echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
@@ -503,14 +515,14 @@ echo "Using cached table<br>";
       $per_page=100;
 
       $point=$_GET['point']/1000;
-      if ($drill_level=="days") $point=gmdate("Y-m-d 00:00:00", $point);
+      if ($drill_level=="years") $point=gmdate("Y-01-01 00:00:00", $point);
+      elseif ($drill_level=="months") $point=gmdate("Y-m-01 00:00:00", $point);
+      elseif ($drill_level=="days") $point=gmdate("Y-m-d 00:00:00", $point);
       elseif ($drill_level=="hours") $point=gmdate("Y-m-d H:00:00",$point);
       elseif ($drill_level=="minutes") $point=gmdate("Y-m-d H:i:00",$point);
       elseif ($drill_level=="seconds") $point=gmdate("Y-m-d H:i:s",$point);
     }
     else $point=1;
-    //  echo "new point for ($drill_level):".$point; exit;
-    //echo $table; exit;
     $started=false;
 
   $condition= "WHERE $table.is_protected_or_deleted is null and $table.date_time is not null ";
@@ -519,7 +531,6 @@ echo "Using cached table<br>";
 
   if ($startdate) $from=trim("$startdate $starttime");
   if ($enddate) $to=trim("$enddate $endtime");
-  //echo "$from - $to";
   if ($from) $condition=$condition." AND $table.date_time>='$from'";
   if ($to) $condition=$condition." AND $table.date_time<'$to'";
 
@@ -536,7 +547,7 @@ echo "Using cached table<br>";
        $started=true;
      }
     $condition=$condition." $c) ";
-    $name=$name." (other sources)";// echo "($condition)";
+    $name=$name." (other sources)";
    }
   if ($languages=="en") $condition=$condition." AND (tweet_language='en')";
   elseif ($languages) $condition=$condition." AND (tweet_language like '%".strtolower($languages)."%')";
@@ -583,7 +594,6 @@ echo "Using cached table<br>";
                   $started=true;
           }
         $condition=$condition." $c) ";
-//echo "[$condition]"; exit;
       }
     if ($_GET['all_keywords'])
       { $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
@@ -635,7 +645,6 @@ echo "Using cached table<br>";
           $condition=" $bool_op (in_reply_to_tweet='".$_GET['response_to']."') "; 
 	  $bool_op=$_GET['bool_op'];
         }
-//            $_GET['hashtag_cloud']=1;
 
    if ($bool_op==$_GET['bool_op']) $condition=$condition." ) ";
 
@@ -661,7 +670,11 @@ if ($tops)
       $qry1="SELECT $element,$order,$table.tweet_permalink_path from $table $condition ";
       if ($point>1)
       {
-        if ($drill_level=="days")
+        if ($drill_level=="years")
+          $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-01-01 00:00:00')='$point' ";
+        elseif ($drill_level=="months")
+          $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-%m-01 00:00:00')='$point' ";
+        elseif ($drill_level=="days")
           $query="$qry1 and $table.tweet_date='$point' ";
         elseif ($drill_level=="hours")
           $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-%m-%d %H:00:00')='$point' ";
@@ -681,10 +694,6 @@ if ($tops)
           $url=preg_replace("/\&point=[\d\d]+/","&point=1",$url);
         }
 
-//echo "[1:$url]<br>";
-//echo "<hr>before: $url<hr>";
-//                $url=preg_replace('/&asc=[\d]&order.+?=[\d]&point/','&point',$url);
-//echo "<hr>after: $url<hr>";
       $url=preg_replace('/\&top_videos=[\d]/','',$url);
       $url=preg_replace('/\&top_images=[\d]/','',$url);
       $url=preg_replace('/\&top_links=[\d]/','',$url);
@@ -696,7 +705,6 @@ if ($tops)
       $url=preg_replace('/\&response_to=[\d]+/','',$url);
       $url=preg_replace('/\&\&/','&',$url);
 
-//echo "[qry:$query]<br>";
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
       if ($result = $link->query($query))
@@ -721,7 +729,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
 
       while ($row = $result->fetch_array())
        {
-//         print_r($row);
           $data=$data."<tr><td><b>".($cnt+1).")</b></td><td>";
           if ($top_images)
             {
@@ -750,7 +757,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
       $link->close();
   }
   else
-  {
+  { /// SELECT SQL_CACHE
             $qry1="SELECT SQL_CACHE 
             $table.date_time,
             $table.tweet_id,
@@ -777,6 +784,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
             users_".$table.".user_timezone
             ".hashtags($_GET['hashtag_cloud'],$table,1).
 	    ", $table.responses_to_tweeter, $table.mentions_of_tweeter ".
+	    ",100*($table.retweets/Nr_Twitter_Users(YEAR($table.date_time))) as relative_impact ".
 	    "from $table,users_".$table." $condition AND $table.user_id = users_".$table.".user_id ";
 
             $order="";
@@ -785,17 +793,15 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
             elseif ($_GET['order_t']) $order="order by $table.clear_text";
             elseif ($_GET['order_r']) $order="order by $table.retweets";
             elseif ($_GET['order_f']) $order="order by $table.favorites";
+            elseif ($_GET['order_ri']) $order="order by ($table.retweets/Nr_Twitter_Users(YEAR($table.date_time)))";
             elseif ($_GET['order_rs']) $order="order by $table.responses";
             elseif ($_GET['order_s']) $order="order by $table.source";
             elseif ($_GET['order_l']) $order="order by $table.tweet_language";
             elseif ($_GET['order_i']) $order="order by $table.media_link";
             elseif ($_GET['order_v']) $order="order by $table.user_verified";
 
-//            if (!$order) $order="order by $table.retweets";
             if (!$order) { $order="order by $table.date_time"; $_GET['asc']=1; }
 
-//echo $_GET['order_r']." ".$order; exit;
-    //echo "order is:($order),asc:".$_GET['asc']."-";
             if ($_GET['asc']) $order="$order ASC";
             else $order="$order DESC";
 	    if ($order) $order=$order.", $table.date_time ASC"; else $order="order by $table.date_time ASC";
@@ -805,7 +811,11 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
 
             if ($point>1)
             {
-              if ($drill_level=="days")
+        if ($drill_level=="years")
+          $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-01-01 00:00:00')='$point' ";
+        elseif ($drill_level=="months")
+          $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-%m-01 00:00:00')='$point' ";
+        elseif ($drill_level=="days")
                 $query="$qry1 and $table.tweet_date='$point' ";
               elseif ($drill_level=="hours")
                 $query="$qry1 and DATE_FORMAT($table.date_time,'%Y-%m-%d %H:00:00')='$point' ";
@@ -819,7 +829,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
 
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
-//echo "$query\n"; //exit;
             if ($result = $link->query($query))
               {
                 $total_rows=$result->num_rows;
@@ -837,8 +846,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                     $url=preg_replace("/\&point=[\d\d]+/","&point=1",$url);
                   }
 
-//echo "<hr>before: $url<hr>";
-//                $url=preg_replace('/&point=1&asc=[\d]&order.+?=[\d]/','&point=1',$url);
                 $url=preg_replace('/&top_videos=[\d]/','',$url);
                 $url=preg_replace('/&top_images=[\d]/','',$url);
                 $url=preg_replace('/&top_links=[\d]/','',$url);
@@ -849,8 +856,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                 $url=preg_replace('/&link=.+?\&/','&',$url);
                 $url=preg_replace('/\&response_to=[\d]+/','',$url);
 	        $url=preg_replace('/\&\&/','&',$url);
-
-//echo "<hr>after: $url<hr>";
 
                 if ($asc) $oppasc="0"; else $oppasc="1";
 
@@ -870,7 +875,9 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                 $heading=$heading."<table style='font-size:8pt; background-color:#FFFFFF; width: 950px; table-layout: fixed;'><tr><td width=25>#</td><td width=75><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)".arrowdir($oppasc,'d')."</a></td>".
                 "<td width=120><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_u=1')>Tweeter's details ".arrowdir($oppasc,'u')."</a></td><td width=150><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_t=1')>".
                 "Tweet text".arrowdir($oppasc,'t')."</a></td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("min_retweets")."&order_r=1')>retweets".arrowdir($oppasc,'r')."</a></td>".
-                "<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>favorites".arrowdir($oppasc,'f')."</a></td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
+                "<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>favorites".arrowdir($oppasc,'f')."</a>".
+		"<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_ri=1')>relative impact".arrowdir($oppasc,'ri')."</a></td>".
+		"</td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
                 "Interaction<br>(if any)".arrowdir($oppasc,'rs')."</a></td><td width=$per_page><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_s=1')>Source".arrowdir($oppasc,'s')."</a></td><td width=40><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_l=1')>Lang".arrowdir($oppasc,'l')."</a>".
                 "</td><td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("user_verified")."&order_v=1')>Verified user".arrowdir($oppasc,'v')."</a></td><td style='min-width:200px'>".
                 "<a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("image_retweets")."&order_i=1')>Image (if any)".arrowdir($oppasc,'i')."</a></td></tr>\n";
@@ -884,7 +891,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
 
               if($row = $result->fetch_assoc())
                 {
-                 // fwrite($fp,'sep=,' . "\r\n");
                   fputcsv($fp, array_keys($row));
                   $result->data_seek(0);
                 }
@@ -894,9 +900,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             {
               if (!$_GET['export'])
                {
-//                  if ($point!=1 || $_GET['any_hashtags'] || $_GET['from_accounts']) { 
-if ($_GET['hashtag_cloud']) $hashtag_cloud=$hashtag_cloud." ".$row['hashtags']; 
-//}
+		  if ($_GET['hashtag_cloud']) $hashtag_cloud=$hashtag_cloud." ".$row['hashtags']; 
                   if ($cnt+1>=$p && $cnt<$pp)
                    {
 		    $dataset=$dataset."data_set[$cnt]=[new Date(\"${row['date_time']}\"),${row['retweets']}];\n"."status[$cnt]=\"${row['tweet_id']}\";\n";
@@ -904,19 +908,16 @@ if ($_GET['hashtag_cloud']) $hashtag_cloud=$hashtag_cloud." ".$row['hashtags'];
                     $data=$data."<tr><td>".($cnt+1)."</td><td>${row['date_time']}</td><td>".
                     "<img src='${row['user_image_url']}'><a href='https://twitter.com/${row['user_screen_name']}' target=_blank onerror=\"this.style.display='none'\" width=50></a><br><a href='?id=tweets&table=$table&user_screen_name=${row['user_screen_name']}&load=1'>@${row['user_screen_name']}<br>${row['user_name']}</a><br><b>Followers:</b> ${row['user_followers']}<br><b>Following:</b> ${row['user_following']}<br><b>Created:</b> ".get_date($row['user_created'])."<br><b>Tweets:</b> ${row['user_tweets']}".profile_location($row['user_location'],$row['user_timezone'])."</td>".
                     "<td>".hyper_link($row['clear_text'])." - (<a href='${row['tweet_permalink_path']}' target=_blank>Link</a>)".location($row['location_name'],$row['location_fullname'])."</td>".
-                    "<td><center>${row['retweets']}</center></td><td><center>${row['favorites']}</center></td><td><center>$response_str<br><a href=";
+                    "<td><center>${row['retweets']}</center></td><td><center>${row['favorites']}</center></td>".
+		    "<td><center>${row['relative_impact']}</center></td><td><center>$response_str<br><a href=";
                     $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."')";
                     $inspect_link=str_replace("%0A","%20",$inspect_link);
-//echo "<hr>$inspect_link<hr>"; exit;
-//echo "($inspect_link)";
                     $data=$data.$inspect_link."><img src='images/inspect.png' alt='see connected tweets'>$response_str$dir_replies</a></center></td><td><center>${row['source']}</center></td><td><center>".answer2($row['tweet_language'])."</center></td>".
                     "<td><center>".answer($row['user_verified'])."</center></td><td>".put_img($row['tweet_permalink_path'],$row['media_link'])."</td></tr>\n";
                     $inserted++;
                   if ($inserted==$limit-1) continue;
                    }
                   $cnt++;
-//if ($_SESSION['email']==$admin_email && $row['retweets']>0) { echo "retweets: $total_retweets + ".$row['retweets']."<br>\n"; }
-//               if ($retweets && $row['retweets']) $total_retweets=$total_retweets+$row['retweets'];
               }
             else
               {
@@ -928,7 +929,11 @@ if ($retweets)
 	    $cnd=$condition;
             if ($point>1)
             {
-              if ($drill_level=="days")
+        if ($drill_level=="years")
+          $cnd="$cnd and DATE_FORMAT($table.date_time,'%Y-01-01 00:00:00')='$point' ";
+        elseif ($drill_level=="months")
+          $cnd="$cnd and DATE_FORMAT($table.date_time,'%Y-%m-01 00:00:00')='$point' ";
+        elseif ($drill_level=="days")
                 $cnd="$cnd and $table.tweet_date='$point' ";
               elseif ($drill_level=="hours")
                 $cnd="$cnd and DATE_FORMAT($table.date_time,'%Y-%m-%d %H:00:00')='$point' ";
@@ -943,7 +948,6 @@ if ($retweets)
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$qry - retweets: $total_retweets <br>\n"; }
 	}
 
-//die("HERE");
           if (!$_GET['export'])
             {
               $data=$data."</table><hr>";
@@ -984,7 +988,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
                 {
 		   if ($point==1 && !$_GET['any_hashtags'] && !$_GET['from_accounts'] && $_GET['types']!="some"
 				 && !$_GET['language'] && !$_GET['sources'] && !$_GET['startdate'] && !$_GET['enddate']) 
-		     { 
+		     {
 			$hashtag_cloud=get_cloud($table);
 	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud</center>";
 	                $part1_data=$part1_data."<center><small><a href='tmp/cache/$table-hashcloud.txt' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
@@ -1012,7 +1016,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
     $slide_file=str_replace("<!--case-->",$cases[$table]['name'],$slide_file);
     $slide_file=str_replace("<!--title-->"," Search query: <b>".$cases[$table]['query']."</b>",$slide_file);
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
-    file_put_contents("tmp/cache/$table$hashkey2-slides.txt",$slide_file);
+
     file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
     if (file_exists("tmp/cache/$table$hashkey2-slides.html"))
        {
@@ -1025,13 +1029,11 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
 function get_cloud($table)
  {  global $link;
             $query= "SELECT hashtag_cloud from cases where id='$table'";
-//echo $query;
             if ($result = $link->query($query)) 
               {
 		$row = $result->fetch_array();
 		return ($row[0]);	
 	      }
-//else die("Error in query: ". $link->error.": $query");
 	return "no hashtags";
  }
 function arrowdir($oppasc,$col)
@@ -1093,11 +1095,6 @@ function profile_location($l1,$l2)
     return $l;
   }
 
-function opp($v)
-  {
-//    if ($v==0) return 1;
-    return 1;
-  }
 function get_date($d)
 {
   $date = new DateTime($d);

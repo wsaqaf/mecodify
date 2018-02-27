@@ -10,7 +10,7 @@ $login_str = <<<END
      <form id='login'><table>
      <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
      <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
-     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > <a href='#' onclick=case_proc('signup'); >Sign up</a></td></tr></table><br>
+     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > <!--<a href='#' onclick=case_proc('signup'); >Sign up</a>--></td></tr></table><br>
      </form>
 END;
 
@@ -137,7 +137,7 @@ if ($_SESSION[basename(__DIR__)])
                      "name"=>"A brief understandable name for the case that is 5 words maximum (e.g., San Bernardin 2015 Terrorist Attack)",
                      "platform"=>"The platform that you wish to search. Currently only Twitter is fully supported. There is a plan to add other sources (e.g., YouTube, Facebook) in the future.",
 		     "search_method"=>"API Search gets only the last 7 days but is much faster. Web search is much slower but can search in the past beyond 7 days.",
-                     "query"=>"The search query used to identify relevant results (e.g., #SONA2015 OR #SONA or \"SONA 2015\" or \"2015 State of the Union Address\").<br>Click <a href='http://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519' target=_blank>here</a> for tips. If you need help to construct a proper query, contact $admin_email.",
+                     "query"=>"The search query used to identify relevant results (e.g., #SONA2015 OR #SONA OR \"SONA 2015\" OR \"2015 State of the Union Address\"). Note that boolean operators have to always be in CAPITAL letters. For example, 'and'  or 'or' will be considered search keyword since they are in small letters. But OR, FROM, AND, NOT, etc. will always be considered boolean operators.<br>Click <a href='http://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519' target=_blank>here</a> for tips. If you need help to construct a proper query, contact $admin_email.",
                      "top_only"=>"This search criteria gets a snapshot or overview by only fetching the top results based on Twitter's algorithm, which would be a small sample of the whole dataset. Uncheck if you want to get all the data, which will take much longer to fetch and process.",
                      "from"=>"The start date (inclusive) of the search. If no value is provided, the start date will default to the day Twitter was created (2006-03-21)",
                      "to"=>"The end date of the search (exclusive). If no value is provided, the end date will default to today",
@@ -363,7 +363,7 @@ if (!$case) { echo "Please select a case first"; return; }
                   $action="<tr><td style='border: none !important;'>Action</td>";
                   $public="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>".ispublic($row['private'])."</a> </td></tr>";
                  $action.="<td style='border: none !important;'>";
-                 if ($_SESSION[basename(__DIR__).'email']==$row['creator'] || $_SESSION[basename(__DIR__).'email']==$admin_email)
+                 if ($_SESSION[basename(__DIR__).'email']==$admin_email)
                   { $action.="<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)"; }
                 $action.="</td></tr>";
                 }
@@ -532,6 +532,7 @@ function top_only($top_only)
 function correct_credentials($email,$password)
     {
         global $link;
+	if (!preg_match('/^[a-zA-Z0-9\@\.\-\_]+$/', $email) OR !preg_match('/^[a-zA-Z0-9\@\!\.\-\_]+$/', $password)) return false;
         $query= "SELECT email from members where email='$email' AND password='$password'";
 //        die($query);
         if ($result = $link->query($query))
@@ -630,12 +631,6 @@ function verify_code($email,$code)
 function create_account($replace)
     {
         global $link; global $login_str;
-
-        global $enable_new_accounts;
-        if (!$enable_new_accounts) {
-          die("Account creation disabled");
-        }
-
         $query= "SELECT email from members where email='${_POST['email']}' AND verified=1";
         if ($result = $link->query($query))
           {
@@ -700,7 +695,7 @@ function email_admin($case,$user)
 	}
     if(!$mail->send())
        {
-  //      echo 'Mailer Error: ' . $mail->ErrorInfo;
+        echo 'Mailer Error: ' . $mail->ErrorInfo;
         return false;
        }
    }

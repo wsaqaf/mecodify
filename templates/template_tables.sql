@@ -54,6 +54,41 @@ CREATE TABLE IF NOT EXISTS `1_empty_all_mentions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `1_empty_user_hashtags`
+--
+
+CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
+  `tweet_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `user_screen_name` varchar(20) CHARACTER SET ascii DEFAULT NULL,
+  `hashtag1` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag2` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag3` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag4` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag5` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag6` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag7` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag8` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag9` TINYTEXT NOT NULL DEFAULT '',
+  `hashtag10` TINYTEXT NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `1_empty_user_all_hashtags`
+--
+
+CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
+  `tweet_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `user_screen_name` varchar(20) CHARACTER SET ascii DEFAULT NULL,
+  `hashtag` tinytext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `1_empty_case`
 --
 
@@ -244,23 +279,6 @@ CREATE TABLE IF NOT EXISTS `1_empty_user_mentions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Indexes for dumped tables
---
-
---
--- Indexes for table `1_empty_all_mentions`
---
-ALTER TABLE `1_empty_all_mentions`
-  ADD UNIQUE KEY `tweet_id_3` (`tweet_id`),
-  ADD UNIQUE KEY `user_id` (`user_id`),
-  ADD UNIQUE KEY `user_screen_name` (`user_screen_name`),
-  ADD KEY `tweet_id_4` (`tweet_id`),
-  ADD KEY `user_screen_name_2` (`user_screen_name`),
-  ADD KEY `user_id_2` (`user_id`),
-  ADD KEY `tweet_id` (`tweet_id`),
-  ADD KEY `user_screen_name_3` (`user_screen_name`),
-  ADD KEY `responses` (`responses`,`responses_to_tweeter`,`mentions_of_tweeter`),
-  ADD KEY `user_id_3` (`user_id`);
 
 --
 -- Indexes for table `1_empty_case`

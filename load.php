@@ -8,12 +8,10 @@ $load=$_GET['load'];
 $user_screen_name=$_GET['user_screen_name'];
 $template=file_get_contents("templates/template_"."$id.html");
 //echo "templates/template_"."$id.html";
-if ($_SESSION[basename(__DIR__)])
-  {
-   $template=str_replace('<!--cases-->',get_cases_db($_GET['table']),$template);
-   $template=str_replace('<!--url-->',$website_url,$template);
-   $template=str_replace('<!--title-->',$website_title,$template);
-  }
+$template=str_replace('<!--cases-->',get_cases_db($_GET['table']),$template);
+$template=str_replace('<!--url-->',$website_url,$template);
+$template=str_replace('<!--title-->',$website_title,$template);
+
 if ($load && $user_screen_name)
   {
     if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>");
