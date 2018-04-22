@@ -365,7 +365,6 @@ function extract_and_store_data($tweet)
 */
         $tw['tweet_id']=$tweet->id;
         $tw['raw_text']=$tweet->full_text;
-        $tw['clear_text']=strip_tags($tweet->full_text);
     //    $tmp=file_get_contents("https://api.twitter.com/1.1/statuses/oembed.json?id=".$tw['tweet_id']);
     //    $tmp2=json_decode($tmp);
     //    $tw['embeddable_text']=$tmp2->text;
@@ -447,6 +446,25 @@ function extract_and_store_data($tweet)
            if ($p->name) $tw['location_name']=$p->name;
            if ($p->place_type) $tw['location_type']=$p->place_type;
          }
+        if ($tweet->retweeted_status)
+        {
+	  $tw['is_retweet']=1;
+          $retweeted=$tweet->retweeted_status;
+          $tw['retweets']=0;
+          if ($retweeted->id) $tw['retweeted_tweet_id']=$retweeted->id;
+          if ($retweeted->full_text) 
+		{
+			preg_match('/^(.+?\: ).+/', $tweet->full_text, $pref_rw);
+			$tw['raw_text']=$pref_rw[1].$retweeted->full_text;
+		}
+//if(preg_match('/\…$/',$tweet->full_text)) { print_r($tweet); print_r($tw); }                             
+          if ($retweeted->user)
+            {
+                $ruser=$retweeted->user;
+                if ($ruser->id) $tw['retweeted_user_id']=$ruser->id;
+            }
+        }
+        else $tw['is_retweet']=0;
 if ($tweet->entities)
  {
    $en=$tweet->entities;
@@ -561,19 +579,7 @@ if ($tweet->extended_entities)
             $tw['expanded_links']=trim($tw['expanded_links']);
           }
         if ($tweet->filter_level) $tw['filter_level']=$tweet->filter_level;
-        if ($tweet->retweeted_status)
-        {
-          $tw['is_retweet']=1;
-          $retweeted=$tweet->retweeted_status;
-	  $tw['retweets']=0;
-          if ($retweeted->id) $tw['retweeted_tweet_id']=$retweeted->id;
-          if ($retweeted->user)
-            {
-                $ruser=$retweeted->user;
-                if ($ruser->id) $tw['retweeted_user_id']=$ruser->id;
-            }
-        }
-        else $tw['is_retweet']=0;
+        $tw['clear_text']=strip_tags($tw['raw_text']);
         if (strpos($tw['clear_text'],"@")===0) $tw['is_message']=1; else $tw['is_message']=0;
         if ($tweet->possibly_sensitive) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
         if ($tweet->withheld_copyright) $tw['withheld_copyright']=$tweet->withheld_copyright;
@@ -602,6 +608,7 @@ if ($tweet->extended_entities)
           { echo "No tweet found: ".$tw['user_screen_name'].": ".$tw['clear_text']."\n";
             sleep(2);
           }
+//print_r($tw);
     }
 
 function url_type($url)
