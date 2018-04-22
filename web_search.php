@@ -405,7 +405,7 @@ $query="SELECT tweet_id AS num_rows FROM `$mysql_db`.`$table` WHERE `is_protecte
         }
       if (!$row || $j==100)
       {
-    $postfields= array('id' => $records, 'include_entities'=> true, 'map' => 1);
+    $postfields= array('id' => $records, 'include_entities'=> true, 'map' => 1, 'tweet_mode'=>'extended');
 //  print_r($postfields); echo "($i:".sizeof(explode(",",$records)).")\n"; //exit;
 $records="";
 //echo "\n1\n";
@@ -565,11 +565,11 @@ echo "(fr:$from, to:$to, dt:$date)";
           }
 */
         $tw['tweet_id']=$tweet->id;
-        $tw['raw_text']=$tweet->text;
-        $tw['clear_text']=strip_tags($tweet->text);
+        $tw['raw_text']=$tweet->full_text;
+        $tw['clear_text']=strip_tags($tweet->full_text);
     //    $tmp=file_get_contents("https://api.twitter.com/1.1/statuses/oembed.json?id=".$tw['tweet_id']);
     //    $tmp2=json_decode($tmp);
-    //    $tw['embeddable_text']=$tmp2->text;
+    //    $tw['embeddable_text']=$tmp2->full_text;
         $tw['full_source']=$tweet->source;
         if ($tweet->truncated) $tw['is_truncated']=1; else $tw['is_truncated']=0;
         if ($tweet->in_reply_to_status_id) $tw['in_reply_to_tweet']=$tweet->in_reply_to_status_id;
@@ -654,7 +654,7 @@ if ($tweet->entities)
     if (sizeof($en->hashtags)>0)
        {
          foreach($en->hashtags as $h)
-            $tw['hashtags']=$tw['hashtags']." #".strtolower($h->text);
+            $tw['hashtags']=$tw['hashtags']." #".strtolower($h->full_text);
          $tw['hashtags']=trim($tw['hashtags']);
          $hash_cloud=$hash_cloud." ".$tw['hashtags'];
        }

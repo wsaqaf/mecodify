@@ -93,7 +93,7 @@ if ($step1)
    }
 if ($step2)
         {
-          get_other_fields($table,'?q='.$keywords.'&count=100&result_type='.$type.$max_id);
+          get_other_fields($table,'?q='.$keywords.'&count=100&tweet_mode=extended&result_type='.$type.$max_id);
           if ($step1)
            {
 $query= "SELECT hashtags FROM $table where hashtags is not null";
@@ -179,7 +179,7 @@ function get_tweet_ids($type, $table,$keywords)
     $count_total=0;
     while (true)
      {
-          $processed=get_other_fields($table,'?q='.$keywords.'&count=100&result_type='.$type.$max_id);
+          $processed=get_other_fields($table,'?q='.$keywords.'&count=100&tweet_mode=extended&result_type='.$type.$max_id);
           if (!$processed) break;
           $max_id="&max_id=$oldest_tweet_id";
           $tweets_done=$tweets_done+$processed;
@@ -205,7 +205,7 @@ function get_tweet_ids($type, $table,$keywords)
 */
      while (true)
       {
-           $processed=get_other_fields($table,'?q='.$keywords.'&count=100&result_type='.$type.$max_id);
+           $processed=get_other_fields($table,'?q='.$keywords.'&count=100&tweet_mode=extended&result_type='.$type.$max_id);
            if (!$processed) break;
            $max_id="&max_id=$oldest_tweet_id";
            $tweets_done=$tweets_done+$processed;
@@ -228,6 +228,7 @@ echo "Get field: $getfield\n";
 //print_r($recs);
           $records=$recs->statuses;
 //print_r($records);
+//exit;
           if (!sizeof($records)) { note("no more tweets\n"); return 0; }
 //print_r($records);
           $i=0;
@@ -363,8 +364,8 @@ function extract_and_store_data($tweet)
           }
 */
         $tw['tweet_id']=$tweet->id;
-        $tw['raw_text']=$tweet->text;
-        $tw['clear_text']=strip_tags($tweet->text);
+        $tw['raw_text']=$tweet->full_text;
+        $tw['clear_text']=strip_tags($tweet->full_text);
     //    $tmp=file_get_contents("https://api.twitter.com/1.1/statuses/oembed.json?id=".$tw['tweet_id']);
     //    $tmp2=json_decode($tmp);
     //    $tw['embeddable_text']=$tmp2->text;
@@ -452,7 +453,7 @@ if ($tweet->entities)
     if (sizeof($en->hashtags)>0)
        {
          foreach($en->hashtags as $h)
-            $tw['hashtags']=$tw['hashtags']." #".strtolower($h->text);
+            $tw['hashtags']=$tw['hashtags']." #".strtolower($h->full_text);
          $tw['hashtags']=trim($tw['hashtags']);
          $hash_cloud=$hash_cloud." ".$tw['hashtags'];
        }
