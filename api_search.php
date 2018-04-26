@@ -471,7 +471,9 @@ if ($tweet->entities)
     if (sizeof($en->hashtags)>0)
        {
          foreach($en->hashtags as $h)
-            $tw['hashtags']=$tw['hashtags']." #".strtolower($h->full_text);
+           {
+              $tw['hashtags']=$tw['hashtags']." #".strtolower($h->text);
+           }
          $tw['hashtags']=trim($tw['hashtags']);
          $hash_cloud=$hash_cloud." ".$tw['hashtags'];
        }
