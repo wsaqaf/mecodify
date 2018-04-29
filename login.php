@@ -362,10 +362,9 @@ if (!$case) { echo "Please select a case first"; return; }
                 {
                   $action="<tr><td style='border: none !important;'>Action</td>";
                   $public="<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>".ispublic($row['private'])."</a> </td></tr>";
-                 $action.="<td style='border: none !important;'>";
-                 if ($_SESSION[basename(__DIR__).'email']==$admin_email)
-                  { $action.="<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)"; }
-                $action.="</td></tr>";
+                  $action.="<td style='border: none !important;'>";
+                  $action.="<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)"; 
+                  $action.="</td></tr>";
                 }
               else $public="<td style='border: none !important;'>".ispublic($row['private'])."</td><td style='border: none !important;'></td></tr>";
               
@@ -662,6 +661,8 @@ function email_admin($case,$user)
    {
     global $admin_email; global $admin_name; global $website_title; global $website_url;
     global $smtp_host; global $smtp_user; global $smtp_port; global $smtp_secure; global $smtp_pw;
+
+    if (!$smtp_host || !$smtp_port) return;
 
     $mail = new PHPMailer;
     $mail->isSMTP();

@@ -8,18 +8,18 @@ $enable_new_accounts=1; // set to 0 to disable new accounts (signup)
 $allow_new_cases=1; //allow adding new cases (can be set when you wish to prevent altering the DB
 $max_tweets_per_case=500000; //maximum tweets per case (applies only to API Search & can be exceeded by 100 records max)
 
-$website_url=""; //e.g., https://mecodify.org . Don't end with '/'
-$website_title="";
+$website_url="http://127.0.0.1"; //e.g., https://mecodify.org . Don't end with '/'
+$website_title="My Mecodify";
 
-$admin_email="";
+$admin_email=""; //Recommended to create one as the super user (should be the first email to sign up)
 $admin_name="";
 
-$mysql_db="";
-$mysql_server = "";
-$mysql_user = "";
+$mysql_db="Mecodify";
+$mysql_server = "localhost";
+$mysql_user = "root";
 $mysql_pw = "";
 
-$smtp_host="";
+$smtp_host=""; //If you wish to receive notifications when users sign up or cases created/edited
 $smtp_secure=""; //can be "ssl" or "tls"
 $smtp_port="";
 $smtp_user="";
@@ -49,14 +49,23 @@ function connect_mysql()
   {
       global $link;
     global $mysql_db; global $mysql_server; global $mysql_user; global $mysql_pw;
-    $link = new mysqli($mysql_server, $mysql_user, $mysql_pw, $mysql_db);
 
-    if (!$link) {
-        echo "Error: Unable to connect to MySQL." . PHP_EOL;
-        echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
-        echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
-        exit;
-       }
+    $link = new mysqli($mysql_server, $mysql_user, $mysql_pw);
+      
+    if (!mysqli_select_db($link, $mysql_db)) {
+        if(mysqli_query($link, "CREATE DATABASE $mysql_db")){
+            echo "DB Successfully created";
+            mysqli_select_db($link, $mysql_db);
+        } 
+        else {
+                echo "Failed to create DB. Exiting...";
+                echo "Error: Unable to connect to MySQL." . PHP_EOL;
+                echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+                echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+                exit;
+            }
+        }
+
       $link->set_charset("utf8mb4");
       $link->query("SET sql_mode=''");
       $link->query("SET time_zone='+0:00'");

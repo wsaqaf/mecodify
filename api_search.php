@@ -102,7 +102,7 @@ $query= "SELECT hashtags FROM $table where hashtags is not null";
           if (!$result->num_rows) { echo "No hashtags in the database matched your query.<br>\n";  }
           $total=$result->num_rows;
         }
-    else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; continue; }
+    else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
 while ($row=$result->fetch_assoc())
   {
      $hash_cloud=$hash_cloud." ".$row['hashtags'];
@@ -114,7 +114,7 @@ while ($row=$result->fetch_assoc())
             $temp=$link->real_escape_string($cloud->emitCloud());
             $query= "UPDATE cases SET hashtag_cloud='$temp' where id='$table'";
             if ($result = $link->query($query)) echo "updated $table\n";
-            else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; continue; }
+            else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
            }
           tweeter_data($table);
         }
@@ -127,7 +127,7 @@ if ($step4)
             if (!$result->num_rows) { echo "No hashtags in the database matched your query.<br>\n";  }
             $total=$result->num_rows;
            }
-          else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; continue; }
+          else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
 	  while ($row=$result->fetch_assoc())
 	    {
      	      $hash_cloud=$hash_cloud." ".$row['hashtags'];
@@ -139,7 +139,7 @@ if ($step4)
           $temp=$link->real_escape_string($cloud->emitCloud());
           $query= "UPDATE cases SET hashtag_cloud='$temp' where id='$table'";
           if ($result = $link->query($query)) echo "updated $table\n";
-          else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; continue; }
+          else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
           tweeter_data($table);
 	  exit();
 

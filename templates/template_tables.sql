@@ -25,6 +25,25 @@ SET time_zone = "+00:00";
 --
 CREATE DEFINER=`<USR>`@`<SRVR>` FUNCTION `SPLIT_STRING`(str VARCHAR(255), delim VARCHAR(12), pos INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci
 RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos), LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1), delim, '');
+CREATE DEFINER=`<USR>`@`<SRVR>` FUNCTION `Nr_Twitter_Users`(year_value INT) RETURNS int(11)
+BEGIN
+   DECLARE twitter_users INT;
+   IF year_value = 2006 THEN SET twitter_users = 0.1;
+   ELSEIF year_value = 2007 THEN SET twitter_users = 1;
+   ELSEIF year_value = 2008 THEN SET twitter_users = 6;
+   ELSEIF year_value = 2009 THEN SET twitter_users = 18;
+   ELSEIF year_value = 2010 THEN SET twitter_users = 43;
+   ELSEIF year_value = 2011 THEN SET twitter_users = 92;
+   ELSEIF year_value = 2012 THEN SET twitter_users = 160;
+   ELSEIF year_value = 2013 THEN SET twitter_users = 224;
+   ELSEIF year_value = 2014 THEN SET twitter_users = 275;
+   ELSEIF year_value = 2015 THEN SET twitter_users = 305;
+   ELSEIF year_value = 2016 THEN SET twitter_users = 315;
+   ELSEIF year_value = 2017 THEN SET twitter_users = 330;
+   ELSE SET twitter_users = 330;
+   END IF;
+   RETURN twitter_users;
+ END;
 
 -- --------------------------------------------------------
 
