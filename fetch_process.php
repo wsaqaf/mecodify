@@ -65,7 +65,7 @@ elseif ($_GET['progress'] && $table)
 
 if (!$_GET['overlimit'])
   {
-   if ($pstatus=="overlimit")
+   if ($step2>=$max_tweets_per_case)
      {
       kill_process(0);
       $cmd='php '.$search_meth.'.php '.$_GET['id'].' step4 >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
@@ -132,10 +132,9 @@ if (!$_GET['overlimit'])
                     {
                       $status="<font color=green>Limit Reached</font>";
                       $html.="<hr><big><b>Limit reached!</b></big><br><br>";
-                      $html.="Your demo case contains $step2 tweets, which is beyond the allowed limit of <b>".$max_tweets_per_case."</b> tweets per case.<br>";
-                      $html.="<br>You can now <a href='".$website_url."' target=_blank>go back to the main page</a> to view your created demo case.<br>";
-                      $html.="<br><br>We have to enforce a limit to reduce the burden on our server, which is only meant for demonstration purposes.<br>";
-                      $html.="You can download Mecodify from <a href='https://github.com/wsaqaf/mecodify' target=_blank>GitHub</a> and install it on your server if you wish to create larger cases.";
+                      $html.="Your case extracted $step2 tweets, which is beyond the allowed limit of <b>".$max_tweets_per_case."</b> tweets per case.<br>";
+                      $html.="<br><br>You can ask the admin to increase the limit if you wish to. Or ";
+                      $html.="you can download Mecodify from <a href='https://github.com/wsaqaf/mecodify' target=_blank>GitHub</a> and install it on your server if you wish to create larger cases.";
                       $html.="If you need help, feel free to contact us by email on <a href='mailto:admin@mecodify.org'>admin@mecodify.org</a></BODY></HTML>";
                     }
   echo $html;
