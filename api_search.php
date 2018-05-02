@@ -107,7 +107,7 @@ while ($row=$result->fetch_assoc())
   {
      $hash_cloud=$hash_cloud." ".$row['hashtags'];
   }
-	    file_put_contents("tmp/cache/$table-hashcloud.txt",$hash_cloud);
+	    file_put_contents("tmp/cache/$table-hashcloud.html","<html><meta http-equiv='content-type' content='text/html; charset=utf-8' />\n$hash_cloud</html>");
             $cloud = new PTagCloud(100);
             $cloud->addTagsFromText($hash_cloud);
             $cloud->setWidth("900px");
@@ -132,7 +132,7 @@ if ($step4)
 	    {
      	      $hash_cloud=$hash_cloud." ".$row['hashtags'];
 	    }
-            file_put_contents("tmp/cache/$table-hashcloud.txt",$hash_cloud);
+            file_put_contents("tmp/cache/$table-hashcloud.html","<html><meta http-equiv='content-type' content='text/html; charset=utf-8' />\n$hash_cloud</html>");
           $cloud = new PTagCloud(100);
           $cloud->addTagsFromText($hash_cloud);
           $cloud->setWidth("900px");
@@ -1623,7 +1623,7 @@ echo "\n\nALL DONE\n\n";
 update_cases_table("completed");
 array_map('unlink', glob("tmp/cache/$table*.tab"));
 array_map('unlink', glob("tmp/cache/$table*.htm*"));
-array_map('unlink', glob("tmp/cache/$table?*-hashcloud*.txt"));
+array_map('unlink', glob("tmp/cache/$table?*-hashcloud*.*"));
   }
 
 function startswith($haystack, $needle) {

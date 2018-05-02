@@ -991,17 +991,17 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
 		     {
 			$hashtag_cloud=get_cloud($table);
 	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud</center>";
-	                $part1_data=$part1_data."<center><small><a href='tmp/cache/$table-hashcloud.txt' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
+	                $part1_data=$part1_data."<center><small><a href='tmp/cache/$table-hashcloud.html' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
 		     }
 		   else
 		     {
-                        file_put_contents("tmp/cache/$table$hashkey2-hashcloud.txt",$hashtag_cloud);
+                        file_put_contents("tmp/cache/$table$hashkey2-hashcloud.html",$hashtag_cloud);
    	                $cloud = new PTagCloud(50);
         	        $cloud->addTagsFromText($hashtag_cloud);
               	        $cloud->setWidth("900px");
 			$hashtag_cloud2=$cloud->emitCloud();
 	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud2</center>";
-                   	$part1_data=$part1_data."<center><small><a href='tmp/cache/$table$hashkey2-hashcloud.txt' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
+                   	$part1_data=$part1_data."<center><small><a href='tmp/cache/$table$hashkey2-hashcloud.html' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
                      }
                 }
               $part1_data=$part1_data.$data;
