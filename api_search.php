@@ -49,6 +49,8 @@ $hash_cloud="";
 
 if ($step1)
   {
+    array_map('unlink', glob("tmp/cache/$table*.tab"));
+    array_map('unlink', glob("tmp/cache/$table*.htm*"));
     $keywords=$cases[$table]['query'];
 //    $keywords=urlencode($cases[$table]['query']);
 
@@ -1621,9 +1623,6 @@ echo "\n\nSTEP 2 (replies) DONE\n\n";
 echo "\n\nSTEP 3 (mentions) DONE\n\n";
 echo "\n\nALL DONE\n\n";
 update_cases_table("completed");
-array_map('unlink', glob("tmp/cache/$table*.tab"));
-array_map('unlink', glob("tmp/cache/$table*.htm*"));
-array_map('unlink', glob("tmp/cache/$table?*-hashcloud*.*"));
   }
 
 function startswith($haystack, $needle) {
