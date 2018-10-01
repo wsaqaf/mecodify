@@ -498,7 +498,7 @@ echo "Using cached table created at ($file_updated)<br>";
 		   $row=$result->fetch_array();
 		   if ($row[0]<$file_updated)
 			{
-			  if (file_exists("tmp/cache/$table$hashkey2-slides.html")) 
+			  if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html")) 
 			     { 
 	  			echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
 			     }
@@ -1018,7 +1018,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
 
     file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
-    if (file_exists("tmp/cache/$table$hashkey2-slides.html"))
+    if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html"))
        {
                                 echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
        }
