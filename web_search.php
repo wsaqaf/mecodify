@@ -55,6 +55,7 @@ if ($step1)
   {
     array_map('unlink', glob("tmp/cache/$table*.tab"));
     array_map('unlink', glob("tmp/cache/$table*.htm*"));
+
     $keywords=urlencode($cases[$table]['query']);
     $mode="INSERT IGNORE"; if ($overwrite) $mode="REPLACE";
 
@@ -211,7 +212,9 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
 
     echo "$table, keywords: ($keywords) from: $from to: $to\n";
 
-    $separator='<div class="ProfileTweet-actionList js-actions" role="group" aria-label=';
+#    $separator='<div class="ProfileTweet-actionList js-actions" role="group" aria-label=';
+    $separator='"ProfileTweet-actionList js-actions"';
+
 
     $specific_period="%20since%3A".$from."%20until%3A".$to;
 
@@ -227,15 +230,16 @@ function get_tweet_ids($type, $table,$keywords,$from,$to)
           $html=preg_replace('/\n+/',"\n",$html);
 //echo "\n---$html---\n";
 //          if (preg_match("/data-max-position=[^\"<>]+?-([\d+])-([\d+])\"/si",$html,$t))
- 	    if (preg_match("/data-max-position=\"TWEET-(\d+)-(\d+)\"/",$html,$t))
-		{ $last_tweet_id=$t[1]; $first_tweet_id=$t[2]; echo "l_t:".$t[1]." f_t:".$t[2]."\n\n"; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
+ 	    if (preg_match("/data-max-position=\"(.+?)\"/",$html,$t))
+		{ $last_tweet_id=$t[1]; echo "l_t:".$t[1]."\n\n"; } //echo "\n\n--\n\n max:$max_position\n\n---\n\n"; }
           else { echo "problem"; }
 //exit;
 	  $first_page=1;
         }
-        elseif ($last_tweet_id && $first_tweet_id)
+        elseif ($last_tweet_id)
         {
-	   $url="https://twitter.com/i/search/timeline?$type"."vertical=default&q=".$keywords.$specific_period."%20include%3Aretweets&src=typd&include_available_features=1&include_entities=1&max_position=TWEET-".$last_tweet_id."-".$first_tweet_id."-BD1UO2FFu9QAAAAAAAAETAAAAAcAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&reset_error_state=false"; 
+	   $url="https://twitter.com/i/search/timeline?$type"."vertical=default&q=".$keywords.$specific_period."%20include%3Aretweets&src=typd&include_available_features=1&include_entities=1&max_position=".$last_tweet_id."&reset_error_state=false"; 
+
 $first_page=0;
 echo "$url\n---\n";
           note("$i $last_tweet_id $first_tweet_id\n");
@@ -272,6 +276,15 @@ echo "$url\n---\n";
                          exit;
                     }
             }
+	if (!$first_page)
+	   {	
+		$first_line=substr($json, 0, 500);	
+	        preg_match("/\"min_position\"\:\"(.+?)\"/",$first_line,$t);
+        	$last_tweet_id=$t[1];
+//		echo "$first_line";
+//	echo" \n\nFound l_t: $last_tweet_id\n";
+//	exit;
+	   }
 
           $html=preg_replace('/[[:blank:]]+/',' ',$html);
           $html=preg_replace('/\t+/',"\t",$html);
@@ -290,16 +303,14 @@ return; }
         {
     //file_put_contents("temp.htm",$html);
             $pos_step=strpos($html,$separator);
-//    if ($table=="Kas14") { echo "\n$html\n($pos_step)"; exit; }
             $block=substr($html,0,$pos_step);
             $html=substr($html,$pos_step+10);
             $tweet=array();
-//echo "\n---\n$block\n---\n";
-//exit;
 //            if (!preg_match("/retweet-id=\"[^\"<>]+?\/([\d]+)\"/",$block,$t)) { preg_match("/-tweet-id=\"[^\"<>]+?\/([\d]+)\"/",$block,$t); }
 //	    else echo "\n\n retweet:".$t[1]."\n\n";
-            if (preg_match("/data-permalink-path=\"[^\"<>]+?\/([\d]+)\"/",$block,$t))
+            if (preg_match("/data-tweet-id=[\\\"]+([\d]+)[\\\"]+/",$block,$t))
               {
+
                 $tweet['tweet_id']=$t[1];
                 echo "i:".$i." t_id: ".$t[1]." ";
                 if (!$started)
@@ -308,8 +319,6 @@ return; }
 //                    die("w:$wait_one_more, $first_tweet_id");
                     $wait_one_more=0;
                   }
-if (!$first_page) 
-   $last_tweet_id=$t[1];
 //		$list_count++;
               }
             else
