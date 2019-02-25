@@ -216,7 +216,7 @@ elseif (!empty($_POST) && $_POST['action']=='login')
 elseif (!empty($_POST) && $_POST['action']=='create_account')
      {
        connect_mysql();
-       echo create_account();
+       echo create_account("");
        exit;
     }
 elseif ($_GET['action']=='signup')
