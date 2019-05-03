@@ -6,13 +6,13 @@
 Here you will find instructions for running Mecodify on your server.
 
 ### Interdepencies
-Mecodify requires PHP, MySQL and Apache to run. Generally, most web servers already have them installed by default. But you can always double check in case. The three required interdepencies are PHP, MySQL and Apache.
+Mecodify requires PHP, MySQL and Apache to run. Generally, most web servers already have them installed by default. But you can always double check in case. The three required depencies are PHP, MySQL, Apache.
 
 1- **PHP 5.0 or higher:** If you are unsure if you have PHP 5.0 or higher, you can run the following command on the server:
 ```sh
 $ php -v
 ```
-In order to install PHP, you can refer to the official PHP installation instructions found here: [http://php.net/manual/en/install.php](http://php.net/manual/en/install.php)
+In order to install PHP, you can refer to the official PHP installation instructions found here: [http://php.net/manual/en/install.php](http://php.net/manual/en/install.php) Note that the PHP-curl (libcurl module) needs to be enabled.
 
 2- **MySQL 5.5 or higher:** Mecodify relies extensively on MySQL tables to store data. You can see if you have MySQL by running the command:
 ```sh
