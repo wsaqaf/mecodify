@@ -94,6 +94,10 @@ whereas:
 - **smtp_user** The username required for SMTP authentication
 - **smtp_pw** The SMTP password required for authentication
 
+#### Cleanup-related
+Depending on how extensively you use the service, you may consider removing old cases that are no longer used to save disk space. Deleting cases would delete database entries as well as files associated with the deleted cases from your file system. The folder tmp is generally where the static files are saved for cases and they include files for logging (under 'tmp/log'), caching (under 'tmp/cache') and for experimental services such as network visualisation (under 'tmp/network') and for Kumu integration (under 'tmp/kumu'). Removing the files from the 'tmp' folder manually can also be an option for 'tmp/log' for cases that have already had their data fetching process completed (not still ongoing). Removing the files from 'tmp/cache' would mean that every time a new view of the graph and tables is made, it would require fetching the data from the database again. Removing 'tmp/kumu' and 'tmp/network' files would cause broken file links for experimental network analysis services. Another option is to simply compress the tmp/kumu and tmp/network files for particular cases that you want to archive or don't want to do network visualisation for. Saving those compressed files elsewhere and decompressing them if you wish to access them at a later stage would save substantial space since compression will be effective given that those files are textual (not binary). 
+
+
 #### Your own logo
 Mecodify comes with a default logo available at `./images/logo.png`. However, you can of course replace it with any logo you like provided that it is of a size that could fit the upper left corner (preferably 120x750 px or smaller).
 
