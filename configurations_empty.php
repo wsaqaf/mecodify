@@ -75,6 +75,7 @@ function connect_mysql()
       if (!$result->num_rows)
 	{
         $sql = file_get_contents('templates/template_tables.sql');
+        $sql=str_replace("<DBS>",$mysql_db,$sql);
         $sql=str_replace("<USR>",$mysql_user,$sql);
         $sql=str_replace("<SRVR>",$mysql_server,$sql);
         $query_array = explode(';', $sql);

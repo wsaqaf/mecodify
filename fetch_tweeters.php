@@ -120,7 +120,7 @@ if ($row['a'])
         echo "</td></tr><tr><td>Joined Twitter:</td><td><b>${row['user_created']}</b></td><tr><td>Contributed</td><td><b>".number_format($row['user_tweets'])." tweets</b></td></tr>\n";
         echo "<tr><td>Followers</td><td><b>".number_format($row['user_followers'])."</b></td></tr><tr><td>Following</td><td><b>".number_format($row['user_following'])."</b></td></tr>\n";
         echo "<tr><td>Favorites</td><td><b>".number_format($row['user_favorites'])."</b></td></tr><tr><td>Lists</td><td><b>".number_format($row['user_lists'])."</b></td></td>\n";
-        echo "</table><br>In connection to <b> ".$cases[$table]['name']." during <b>(".get_period($table).")</b>";
+        echo "</table><br>In connection to <b> ".$cases[$table]['name'];
         echo "<table style='font-size:10pt; width:600px; background-color:#FFFFFF; border:1px; margin-left:30px'><tr><td>Tweets</td><td><b>".number_format($row['a'])."</b></td></tr>";
         echo "<tr><td>Retweets by others</td><td><b>".number_format($row['b'])."</b></td></tr>\n";
 //        if ($row['c']) echo "<tr><td>Responses to others</td><td><b>".number_format($row['c'])."</b></td></tr>\n";
@@ -229,7 +229,7 @@ function get_top($type,$limit)
     elseif ($type=="retweets")
         {
           $title="Top retweeted tweeters for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total number of retweets during ".get_period($table);
+          $subtitle="Total number of retweets";
           $yaxis="retweets";
           $name="Top retweeted tweeters";
           if ($_GET['export'])
@@ -243,7 +243,7 @@ function get_top($type,$limit)
     elseif ($type=="responses")
         {
           $title="Top tweeters who responded to others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total number of responses sent during ".get_period($table);
+          $subtitle="Total number of responses sent";
           $yaxis="responses sent";
           $name="Top responding tweeters";
           if ($_GET['export'])            
@@ -257,7 +257,7 @@ function get_top($type,$limit)
     elseif ($type=="responders")
         {
           $title="Top tweeters with highest responses from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total total number of responses received during ".get_period($table);
+          $subtitle="Total total number of responses received";
           $yaxis="responses received";
           $name="Top responded to tweeters ";
           if ($_GET['export'])
@@ -270,7 +270,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
     elseif ($type=="mention")
         {
           $title="Top tweeters (active) with highest number of mentions from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total total number of  mentions during ".get_period($table);
+          $subtitle="Total total number of  mentions";
           $yaxis="number of mentions";
           $name="Top mentioned tweeters ";
           $condition=preg_replace("/\s*WHERE/i"," AND ",$condition);
@@ -284,7 +284,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
     elseif ($type=="all_mentions")
         {
           $title="Top accounts (all) with highest number of mentions from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total total number of  mentions during ".get_period($table);
+          $subtitle="Total total number of  mentions";
           $yaxis="number of mentions";
           $name="Top mentioned tweeters ";
 	  if ($_GET['export'])
@@ -299,7 +299,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
     elseif ($type=="quotes")
         {
           $title="Top tweeters with highest number of quoted tweets for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total total number of quoted tweets during ".get_period($table);
+          $subtitle="Total total number of quoted tweets";
           $yaxis="quoted tweets";
           $name="Top tweeters with quoted tweets";
           if ($_GET['export'])                        
