@@ -1,15 +1,16 @@
-# Mecodify 
+# Mecodify
 ![N|Solid](images/logo3.png)
 
-## User Manual
+**The below documentation is out-of-date. We are going to add updated documentaiton for V 2.0 soon**
 
+## User Manual
 Mecodify is an open-source tool to extract, analyse and visualise the usage of twitter for particular queries (e.g., a hashtag, a user account, keywords, etc.) It remains under development and the plan is to add other data sources (e.g., Facebook, YouTube, and other API-enabled websites and services).
 
 #### What is Mecodify for?
 Among other uses, Mecodify can be used by researchers to measure the usage of twitter hashtags for example. It can also be used to compare real events with twitter activity. Since Mecodify has a way to connect twitter users with each other using mentions and replies, it can also be used to do some network analysis to identify influential tweeters involved in a particular subject.
 
 #### How did Mecodify start?
-Mecodify was created by [Walid Al-Saqaf](http://al-saqaf.se) for the [MeCoDEM EU-FP7 project](http://mecodem.eu) as a tool to allow MeCoDEM researchers to extract, analyse and visualise tweets in relation to particular conflicts in Egypt, Serbia, South Africa and Kenya. Since social science researchers were the main target group, the interface was built in such a way that allows users to utilise its service without having to learn coding or acquire any technical skills. 
+Mecodify was created by [Walid Al-Saqaf](http://al-saqaf.se) for the [MeCoDEM EU-FP7 project](http://mecodem.eu) as a tool to allow MeCoDEM researchers to extract, analyse and visualise tweets in relation to particular conflicts in Egypt, Serbia, South Africa and Kenya. Since social science researchers were the main target group, the interface was built in such a way that allows users to utilise its service without having to learn coding or acquire any technical skills.
 
 **Note:** *Mecodify is at its initial stages and currently only supports Twitter but aims at expanding to support other platforms that have APIs for data extraction.*
 ___
@@ -19,18 +20,18 @@ ___
 This section is meant for allowing users to use a fully installed and functional Mecodify instance. For installation instructions, go to http://github.com/wsaqaf/mecodify/install.md
 
 #### Creating a new account
-Only if you are registered as a user can you use Mecodify. To register, simply click on 'Sign up' and enter the requested information as shown. 
+Only if you are registered as a user can you use Mecodify. To register, simply click on 'Sign up' and enter the requested information as shown.
 
 ![N|Solid](images/signup.png)
 
 Make sure you read *the terms and conditions of use* before accepting since it is important to understand the potential implications from using the software.
 
-Once you create an account, you can then log in and start creating cases or inspect cases that have already been created by other members. 
+Once you create an account, you can then log in and start creating cases or inspect cases that have already been created by other members.
 
 ![N|Solid](https://mecodify.org/images/signin.png)
 
 #### Creating a new case
-The most common cases that Mecodify users create are around hashtags. For example, if #FreedomFest16 is the official hashtag for the Freedom Festival 2016 conference, then you can simply create a new case with that as the main query. The case will then include tweets that include that hashtag. 
+The most common cases that Mecodify users create are around hashtags. For example, if #FreedomFest16 is the official hashtag for the Freedom Festival 2016 conference, then you can simply create a new case with that as the main query. The case will then include tweets that include that hashtag.
 
 To create a new case follow the following instructions:
 1. Click on "Add a new case". The below form will then appear.
@@ -39,27 +40,27 @@ To create a new case follow the following instructions:
 
 2. Fill in the **ID** field with a unique alphanumeric code of your choice so as to be associated with this case (e.g., westgate2013, ombudsman2015, SanBernardin2015)
 3. Fill in the **Name** field with a name of your choice, something readable for you to remember what the case is about (e.g., Tweets on #FreedomFest16 between 1 and 10 Oct 2016)
-4. Select the **Platform** to get the data from, as of Nov 2016, this is only confined to Twitter.
-5. For Twitter, there are two **search methods** to choose from. 'API Search' gets only results from the last 7 days and is much faster. The other is 'Web Search', which is much slower but can search in the past beyond 7 days. If you choose 'Web Search', you will have the option of deciding the start and end date of the search.
-6. For Search criteria, select **'Top results only'** only if you want to get a snapshot or overview of the results based on the specific platform's algorithm. The result will often just be a small sample of the whole dataset. Uncheck if you want to get all the data, which may take longer to fetch and process depending on the amount of the matching results. For cases that are expected to produce fewer than 200,000 results, it is advised to leave this option unchecked.
+4. Select the **Platform** to get the data from, as of now, this is only confined to Twitter.
+5. For Twitter, there are two **search methods** to choose from. 'API Search' gets only results from the last 7 days and is much faster.
+6. For Search options, select **'Top results only'** only if you want to get a snapshot or overview of the results based on the specific platform's algorithm. The result will often just be a small sample of the whole dataset. Uncheck if you want to get all the data, which may take longer to fetch and process depending on the amount of the matching results. For cases that are expected to produce fewer than 200,000 results, it is advised to leave this option unchecked.
 7. Enter the **case search query**, which is basically the search term (e.g., "#SONA2015 OR #SONA" or "SONA 2015" or "2015 State of the Union Address"). For twitter, check out [those tips](http://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519) on using operators for the best results.
 8. You can then enter optional **Details** on the case. This is a helpful field to provide a background about this particular case and why you think it is important to study.
 9. Enter the optional **URL** value if you wish to add an external reference.
 10. You can also enter the **Flags** value, which is a JSON set of flagged times and dates where you want to mark on the timeline. The below example shows how three flags can be added. You can insert as many flags as you want but please follow the given format:
-{"flags": [{ 
-"date_and_time": "YYYY-MM-DD HH:MM:SS", 
-"title": "title1", 
-"description": "description1" 
-}, 
-{ 
-"date_and_time": "YYYY-MM-DD HH:MM:SS", 
-"title": "title2", 
-"description": "description2" 
-}, 
-{ 
-"date_and_time": "YYYY-MM-DD HH:MM:SS", 
-"title": "title3", 
-"description": "description3" 
+{"flags": [{
+"date_and_time": "YYYY-MM-DD HH:MM:SS",
+"title": "title1",
+"description": "description1"
+},
+{
+"date_and_time": "YYYY-MM-DD HH:MM:SS",
+"title": "title2",
+"description": "description2"
+},
+{
+"date_and_time": "YYYY-MM-DD HH:MM:SS",
+"title": "title3",
+"description": "description3"
 }]}
 **Note:** Before submitting any flags field, please validate it using a JSON validator such as [JSONlint](http://jsonlint.com).
 11. Finally, decide on the **Privacy** settings by selecting whther it will only be you who is able to view the case or if you wish to have other members see it. To have it shared with peers, it is probably better to have it 'public'. But if it is only you who is concerned with it, then keeping it as 'private' may be the better option. Note that no one except you -as the owner- is able to edit or delete the case regardless of this setting.
@@ -67,14 +68,14 @@ To create a new case follow the following instructions:
 
 ![N|Solid](https://mecodify.org/images/process-case.png)
 
-13. By clicking on 'Click here', you will then allow Mecodify to start extracting data from the particular platform using the selected method. A new tab will then open showing progress in extracting data as shown below. You have the option of clicking on "Stop" to interrupt the extraction process, which can be resumed later by clicking on "Resume". 
+13. By clicking on 'Click here', you will then allow Mecodify to start extracting data from the particular platform using the selected method. A new tab will then open showing progress in extracting data as shown below. You have the option of clicking on "Stop" to interrupt the extraction process, which can be resumed later by clicking on "Resume".
 
-![N|Solid](https://mecodify.org/images/case-progress.png) 
+![N|Solid](https://mecodify.org/images/case-progress.png)
 
 The 'Created' field indicates the time and date the case was created. Status can be 'In progress', 'Stopped' (when the process is halted either intentionally or due to some other technical reason), or 'Completed', which means that all relevant data for the case has been successfully fetched. The 'Last process started' is self-explanatory and is useful in case of multiple interruptions to identify when the last time the process was resumed. Last activity refers to the last time there was an update to the database. The Period covered indicates the first and last data entries. For example, for a case that is meant to cover a full week, it is helpful to see how far the process is in terms of days and hours. Records fetched refers to the entries that have been retrieved as mere index (pointer) while the 'Detailed records fetched' refers to the full details that are associated with the pointer. For twitter, records fetched means the tweet id, and the full record refers to the full data associated with that tweet id (e.g., tweet text, tweeter's information, etc.)
 
 #### Getting info about a case
-To check progress of any case, all you need to do is to go to the main page and click on the drop down menu under **Cases - Select a case from below** as shown below. 
+To check progress of any case, all you need to do is to go to the main page and click on the drop down menu under **Cases - Select a case from below** as shown below.
 
 ![N|Solid](https://mecodify.org/images/select-case.png)
 
@@ -87,7 +88,7 @@ There are two domains that Mecodify allows to analyse twitter data. The first is
 
 ### Analysis and visualisation of tweets
 
-To analyse tweets of a particular case, you will need to select the case and then apply any of the available filters (to be described later) if needed. You then can click on the **Visualise** button, which will plot a graph with the default settings showing the total number of tweets and retweets for the period covered by the case as shown below. 
+To analyse tweets of a particular case, you will need to select the case and then apply any of the available filters (to be described later) if needed. You then can click on the **Visualise** button, which will plot a graph with the default settings showing the total number of tweets and retweets for the period covered by the case as shown below.
 
 ![N|Solid](https://mecodify.org/images/graph.png)
 
@@ -99,7 +100,7 @@ Furthermore, a hashtag cloud representing the most frequent hashtags will also b
 
 ![N|Solid](images/hashtags-and-table.png)
 
-You will notice that above the table, there are links to the most shared/retweeted images, videos and links. Those links help assess which of the tweets gained traction and received the highest number of retweets. When clicking on any of those links, you will get a new table listing the photos, videos or links (based on what you chose) as shown below. 
+You will notice that above the table, there are links to the most shared/retweeted images, videos and links. Those links help assess which of the tweets gained traction and received the highest number of retweets. When clicking on any of those links, you will get a new table listing the photos, videos or links (based on what you chose) as shown below.
 
 ![N|Solid](images/top-images.png)
 
@@ -120,11 +121,11 @@ For each row in the table, there are the following pieces of information:
 - Source: this refers to the application that was used to post on twitter (e.g., Twitter Web Client, Twitter for iPhone, Twitter for Android, TweetDeck, etc.)
 - Language: this is the two-letter language value that Twitter returns based on its own language-detection algorithm (can sometimes be incaccurate)
 - Verified user: This indicates whether the tweeter has been [verified by twitter](https://support.twitter.com/articles/119135)
-- Image (if any): This includes the image or set of images that the tweet includes 
+- Image (if any): This includes the image or set of images that the tweet includes
 
 It is possible to sort the table based on any of the column values. To identify the top tweets in terms of retweets, clicking on the **retweets** column sorts them from highest to lowest. One can also sort them based on the level of interactivity. etc.
 
-Exporting the table into a CSV file is also possible by clicking on the 'Export all X records to CSV file' (where X is the total number of tweets fetched), which appears just above the top right corner of the table. The data can then be imported to other software such as MS Excel or [Tableau](http://tableau.com) for further processing. 
+Exporting the table into a CSV file is also possible by clicking on the 'Export all X records to CSV file' (where X is the total number of tweets fetched), which appears just above the top right corner of the table. The data can then be imported to other software such as MS Excel or [Tableau](http://tableau.com) for further processing.
 
 #### Filtering of tweets
 
@@ -219,14 +220,14 @@ One of the most interesting research questions that one could ask is who are the
 - **Highest in number of followers:** Know those who were involved in the case and had the highest number of followers.
 - **Highest in number of mentions (active):** Know the account holders who have mentioned the most but who have also tweeted something.
 - **Highest in number of mentions (all):** Know the accounts of tweeters who were mentioned the most but who have not necessarily tweeted anything in the case. *This is useful in cases where one wants to measure the strong appeal to certain accounts to respond*
-- **Highest in number of quoted tweets:** Know the tweeters who were quoted most frequently (using twitter's built-in feature in quoting full tweets). 
+- **Highest in number of quoted tweets:** Know the tweeters who were quoted most frequently (using twitter's built-in feature in quoting full tweets).
 - **Highest in number of responses sent to others:** Know the tweeters who tend to respond most frequently to others.
 
 Once you decide which of the above factor you want to apply, you will get a horizontal bar chart along ordered from highest to lowest (as shown). By clicking on any of the bars, you'll get a box on top of the chart with more information about that individual tweeters. Additionally, you'll notice a link saying "Export to CSV file (full list of X tweeters)", which allows you to download the full list of tweeters sorted based on the particular metric you chose. The list can then be used for further processing using other software such as Tableau and MS Excel.
 
 ![N|Solid](images/most-tweeters.png)
 
-Below the chart, you will see the list of tweeters with their ranking along with their profile information. Additionally, you will notice a separate small table entitled "In connection to <CASE id>" having couple of lines reflecting the number of tweets within the case and number of retweets by others. Below that, the *'See the tweets'* link takes you to the Tweets tab where you can view a graph with only the tweets that were posted by that particular account. 
+Below the chart, you will see the list of tweeters with their ranking along with their profile information. Additionally, you will notice a separate small table entitled "In connection to <CASE id>" having couple of lines reflecting the number of tweets within the case and number of retweets by others. Below that, the *'See the tweets'* link takes you to the Tweets tab where you can view a graph with only the tweets that were posted by that particular account.
 
 ![N|Solid](images/tweeter-info.png)
 
@@ -246,14 +247,14 @@ While having the list of tweeters helps you identify who is influential in pure 
 
 ![N|Solid](images/network.png)
 
-- **By replies:** This corresponds to the relationship between tweeters in terms of having a tweeter replying to the other directly through the twitter platform. This information is obtained via a twitter API and a reply does not necessarily require having a mention of the original tweeter. 
+- **By replies:** This corresponds to the relationship between tweeters in terms of having a tweeter replying to the other directly through the twitter platform. This information is obtained via a twitter API and a reply does not necessarily require having a mention of the original tweeter.
 - **By mentions:** This corresponds to the relationship between tweeters purely in terms of who mentions who. It does not necessarily entail a particular reply but just the pure mention of one or more tweeter constitutes a relationship.
 *Note:* The network connection strength level refers to the number of times in total each of the tweeters responded to or mentioned the other. If you have 1 as the level, then all tweeters who mentioned or replied to another at least once will be displayed. But if you have 5, only those who have mentioned or responded to a particular tweeter at least 5 times will be displayed, which means that only the strongest bonds are shown.
 An example network would look something like this:
 
 ![N|Solid](images/network-graph.png)
 
-The graph is actually interactive so you can click on any of the nodes to have it zoom and color the edges so that red means that the link is inward (a response/mention of that particular node) and a blue is outgoing (the node is responding/mentioning the node it connects to). 
+The graph is actually interactive so you can click on any of the nodes to have it zoom and color the edges so that red means that the link is inward (a response/mention of that particular node) and a blue is outgoing (the node is responding/mentioning the node it connects to).
 For example, when you click on the tweeter @rsapolitics, you will notice that two edges to @presidencyza and @sabreakingnews turned blue, which means that @rsapolitics has responded to each of the other tweeters. Simultaneously, one edge turns red indicating that @teamcopesa has in fact responded to @rsapolitics as shown below.
 
 ![N|Solid](images/network-graph-eg.png)
@@ -309,5 +310,3 @@ ___
 #### Questions or comments?
 
 If you have any questions or concerns, feel free to contact the Mecodify team on [admin@mecodify.org](mailto:admin@mecodify.org) and we will be glad to come back to you.
-
-

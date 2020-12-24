@@ -3,9 +3,21 @@
 
 Mecodify is an open-source tool created as part of the Media Conflict and Democratization Project (http://mecodem.eu) to help gather, analyse and visualise Twitter data for use by social science scholars. The name describes what it does, i.e., Message Codification by converting messages to systematic structures, tables, graphs and quantifiable content.
 
-The platform remains in constant development and the first version (1.0) has been used for the research purposes indicated in the website above. This new version is adapted to use Twitter's new V2 API.
+The platform remains in constant development and the first version (1.0) has been used for the research purposes indicated in the website above. This new version (V2.0) is adapted to use Twitter's new V2 API.
 
 The software mainly uses PHP and Javascript and has used several open-source libraries including but not limited to HighCharts, D3Js for various components of the platform.
+
+### What's new in version 2.0
+
+- Compatible with Twitter's new API 2.0
+- Allows using API credentials for sandbox or premium API access
+- More flexible period options with the ability to add exact times to the second for each case
+- Allows deciding whether to include retweets and/or asociated tweets (such as the original tweet, whose reply is among the results)
+- Allows expanding the period even after it was created. However, limiting the period does not filter out fetched results
+- If dates are not specified, it is possible to run the case again to get fresh tweets since the last search
+- Adding the ability to see the number of reply and quote tweets for each tweet
+
+**Note** The new release remains in constant development so reports of bugs or issues are welcome
 
 ###### Installation instructions can be found [here](install.md)
 
@@ -26,6 +38,6 @@ The developer of Mecodify is not liable or responsible for anything that may res
 
 For more information, feel free to contact us on [admin@mecodify.org](mailto:admin@mecodify.org)
 
-###### [Walid Al-Saqaf](http://al-saqaf.se), PhD
+###### [Walid Al-Saqaf](http://al-saqaf.se)
 
 developer

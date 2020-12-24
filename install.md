@@ -1,4 +1,4 @@
-# Mecodify 
+# Mecodify
 ![N|Solid](images/logo3.png)
 
 # Installation
@@ -19,21 +19,21 @@ In order to install PHP, you can refer to the official PHP installation instruct
 $ mysql --version
 ```
 
-3- **Apache 2.0 or higher:** Since Mecodify requires to run as a web service, your server needs to have Apache. You can check your Apache version by running the following:
+3- **Web server: recommended Apache 2.0 or higher :** Since Mecodify assumes your server has a web service, your server needs to have a service running. If you use Apache, you can confirm your version by running the following:
 ```sh
 $ httpd -v
 ```
 
 # Installation steps
 
-### 1- Download the latest release: 
+### 1- Download the latest release:
 You should ensure that you have the latest version of Mecodify by checking the latest release on GitHub at [https://github.com/wsaqaf/mecodify/releases/](https://github.com/wsaqaf/mecodify/releases/). You can click on "Source code (zip)" and upon downloading it to the folder where you wish to have it installed on your server, you can decompress it.
 
 ### 2- Configure Mecodify:
 In the main folder, you will find the file named `configurations_empty.php`. With any text editor, go into the file and add the missing values for each of the following variables:
 
 #### Performance-related
-You may want to adjust the following variables 
+You may want to adjust the following variables
 ```sh
 $allow_new_cases=1;
 $max_tweets_per_case=500000;
@@ -95,7 +95,7 @@ whereas:
 - **smtp_pw** The SMTP password required for authentication
 
 #### Cleanup-related
-Depending on how extensively you use the service, you may consider removing old cases that are no longer used to save disk space. Deleting cases would delete database entries as well as files associated with the deleted cases from your file system. The folder tmp is generally where the static files are saved for cases and they include files for logging (under 'tmp/log'), caching (under 'tmp/cache') and for experimental services such as network visualisation (under 'tmp/network') and for Kumu integration (under 'tmp/kumu'). Removing the files from the 'tmp' folder manually can also be an option for 'tmp/log' for cases that have already had their data fetching process completed (not still ongoing). Removing the files from 'tmp/cache' would mean that every time a new view of the graph and tables is made, it would require fetching the data from the database again. Removing 'tmp/kumu' and 'tmp/network' files would cause broken file links for experimental network analysis services. Another option is to simply compress the tmp/kumu and tmp/network files for particular cases that you want to archive or don't want to do network visualisation for. Saving those compressed files elsewhere and decompressing them if you wish to access them at a later stage would save substantial space since compression will be effective given that those files are textual (not binary). 
+Depending on how extensively you use the service, you may consider removing old cases that are no longer used to save disk space. Deleting cases would delete database entries as well as files associated with the deleted cases from your file system. The folder tmp is generally where the static files are saved for cases and they include files for logging (under 'tmp/log'), caching (under 'tmp/cache') and for experimental services such as network visualisation (under 'tmp/network') and for Kumu integration (under 'tmp/kumu'). Removing the files from the 'tmp' folder manually can also be an option for 'tmp/log' for cases that have already had their data fetching process completed (not still ongoing). Removing the files from 'tmp/cache' would mean that every time a new view of the graph and tables is made, it would require fetching the data from the database again. Removing 'tmp/kumu' and 'tmp/network' files would cause broken file links for experimental network analysis services. Another option is to simply compress the tmp/kumu and tmp/network files for particular cases that you want to archive or don't want to do network visualisation for. Saving those compressed files elsewhere and decompressing them if you wish to access them at a later stage would save substantial space since compression will be effective given that those files are textual (not binary).
 
 
 #### Your own logo
@@ -103,26 +103,16 @@ Mecodify comes with a default logo available at `./images/logo.png`. However, yo
 
 ### 3- Configure Twitter API credentials:
 Since Mecodify relies heavily on the Twitter API, you need to set up its credentials. If you haven't yet created a Twitter API credentials before, then you are recommended to check the API tutorial here:
-https://www.slickremix.com/docs/how-to-get-api-keys-and-tokens-for-twitter/
+https://developer.twitter.com/en/docs/authentication/oauth-2-0/application-only
 
 Once ready, you will need to fill in the values for the following variables:
-`oauth_access_token`, `oauth_access_token_secret`,`consumer_key`,`consumer_secret`
-which will need to be put directly in the below array. Note that you are free to  have as many API credentials as you wish. This helps you deal with a high demand of queries by rotating through the various credentials since each API has its own rate limitations.
+'bearer' and 'is_premium'
+
 ```sh
-$twitter_api_settings=array( 
+$twitter_api_settings=array(
          array(
-          'oauth_access_token' => "/*access_token1*/",
-          'oauth_access_token_secret' => "/*access_token_secret1*/",
-          'consumer_key' => "/*consumer_key1*/",
-          'consumer_secret' => "/*consumer_secret1*/"
-          ),
-         array(
-          'oauth_access_token' => "/*access_token2*/",
-          'oauth_access_token_secret' => "/*access_token_secret2*/",
-          'consumer_key' => "/*consumer_key2*/",
-          'consumer_secret' => "/*consumer_secret2*/"
-          ),
-/*here you can add as many additional entries as you want*/
+          'bearer' => "/*brearer token for your Twitter APP to access Twitter's API V2.0 */",
+          'is_premium' => /*true if you are using a premium account or false if you are using a free sandbox account
         );
 ```
 ### 4- Rename configurations_empty.php to configurations.php
@@ -131,7 +121,7 @@ $twitter_api_settings=array(
 The tmp folder and its subfolders need to be writable by the webserver for caching, etc.:
 From the command prompt, you can change ownership of the folders recursively using the command
 ```sh
-sudo chown -R _www ./tmp
+sudo chown -R www-data:www-data ./tmp
 ```
 obviously, the name of the webserver account could be different (e.g., apache, www-data, nobody, www...). So make sure you apply the correct credentials.
 
@@ -143,8 +133,7 @@ ___
 Depending on the problem you are trying to fix, there may be a host of things that you could do:
 
 ###### 1- Check if the installation steps are done exactly as required
-###### 2- Ensure that PHP, MySQL and Apache are all functioning normally
+###### 2- Ensure that PHP, MySQL and web service (e.g., Apache) are all functioning normally
 ###### 3- Ensure that folder permissions are in their original status except for the folders that  require to be writable (step 5)
-###### 4- See if your server configurations allow PHP to execute binary files, which is a requirement in `fetch_process.php`
+###### 4- See if your server configurations allow PHP to execute shell commands, which is a requirement in `fetch_process.php`
 ###### 5- If all fails, email us on [admin@mecodify.org](mailto:admin@mecodify.org) to investigate further.
-
