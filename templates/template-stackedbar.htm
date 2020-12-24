@@ -1,0 +1,28 @@
+<pre>$(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: '<!--title-->'
+        },
+        xAxis: {
+            categories: <!--categories-->
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: '<!--yaxis-->'
+            }
+        },
+        legend: {
+            reversed: true
+        },
+        plotOptions: {
+            series: {
+                stacking: 'normal'
+            }
+        },
+        series: [<!--data-->]
+    });
+});</pre>

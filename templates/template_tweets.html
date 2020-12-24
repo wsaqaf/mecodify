@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+	<head>
+ <link rel="shortcut icon" href="images/favicon.ico" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>Mecodify</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/template.css" type="text/css" />
+	<link rel="stylesheet" href="css/tweets.css" type="text/css" />
+        <script type='text/javascript' src='js/jquery.min.js'></script>
+        <script type='text/javascript' src='js/tweets.js'></script>
+		<meta name="msapplication-TileColor" content="#2b5797">
+<script type='text/javascript'>
+//auto load
+</script>
+	</head>
+
+	<body style="background-color:#FFFFFF">
+		<div id="menu">
+			<nav class="navbar navbar-default" role="navigation">
+				<div class="container">
+					<div class="navbar-header">
+                                                <a href="<!--url-->" title="<!--title-->">
+                                                        <img src="images/logo.png" alt="<!--title-->" /></a>
+					</div>
+				</div>
+			</nav>
+		</div>
+								<div id="hs-component">
+						<div class="container">
+				<div id="wrap" class="sidebar-wrapper">
+	<div id="comp-menu" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 hidden-xs">
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-9"></div>
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 cont">
+			<h2 class="demo-name"><!--title--></h2>
+<div class="btn-group theme">
+																				<a class="btn btn-theme disabled" href="#">The Tweets</a>
+																																					<a class="btn btn-theme" href="index.php?id=tweeters">The Tweeters</a>
+													</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-9 sidebar" id="login_status" style=' min-height: 500px;'>
+
+		<span class="login_status"></span>
+    <span id="left_menu" style='display:none;'>
+			<ul class="nav nav-sidebar" >
+										<li class="">
+								<div> Cases</div>
+													<li class="" >
+															<span class="cases_block">
+<!--cases-->
+															</span>
+									</li>
+								</li>
+								<li class="">
+									<span class="options_block"></span>
+			<!--start options-->
+								<div class="show_hide2">Tweet Type</div>
+							<ul style="display: block; font-size:14px; font-weight:normal;">
+												<li class="">
+													<div style=" ;">
+													  <div  id="type_of_content" class="slidingDiv2" style="display: block;">
+															<input type="radio" name="content_types" id="all_types" value="all" checked onclick=show_or_hide(document.getElementById('specify_types'),"none")> All types<br>
+															<input type="radio" name="content_types" id="specific_types" value="some" onclick=show_or_hide(document.getElementById('specify_types'),"block")> Specific types<br><br>
+
+<div id="specify_types" style="display:none;">
+																Tweets MUST*:<br>
+
+Boolean operator: <select id="bool_op" style='color:black; background-color:white'>
+<option value="AND">AND</option>
+<option value="OR" selected>OR</option>
+<option value="NOT">NOT</option>
+</select><br>
+
+<input type="checkbox" id="image_tweets" name="image_tweets" value=1> Include an image<br>
+<input type="checkbox" id="video_tweets" name="video_tweets" value=1> Include a video<br>
+<input type="checkbox" id="link_tweets" name="link_tweets" value=1> Include a link<br>
+<input type="checkbox" id="user_verified" name="user_verified" value=1> From a verified user<br>
+<input type="checkbox" id="retweet_tweets" name="retweet_tweets" value=1> Is a retweet<br>
+<input type="checkbox" id="quoting_tweets" name="quoting_tweets" value=1> Is a quote tweet<br>
+<input type="checkbox" id="response_tweets" name="response_tweets" value=1> Is a response<br>
+<input type="checkbox" id="responded_tweets" name="responded_tweets" value=1> Has a response<br>
+
+<input type="checkbox" id="mentions_tweets" name="mentions_tweets" value=1> Has mentions<br>
+
+Has any of those hashtags:<br><input type="text" id="any_hashtags" name="any_hashtags" size=30 style="color:#4F471F !important;"><br>
+Has any of those keywords:<br><input type="text" id="any_keywords" name="any_keywords" size=30 style="color:#4F471F !important;"><br>
+Has all of those keywords:<br><input type="text" id="all_keywords" name="all_keywords" size=30 style="color:#4F471F !important;"><br>
+Has this exact phrase:<br><input type="text" id="exact_phrase" name="exact_phras=" size=30 style="color:#4F471F !important;"><br>
+
+Sent from those users: <br><input type="text" id="from_accounts" name="from_accounts" placeholder="@user1 @user2..." size=30 style="color:#4F471F !important;"><br>
+In reply to this tweet id: <br><input type="text" id="in_reply_to_tweet_id" name="in_reply_to_tweet_id" placeholder="<must be the tweet id number>" size=30 style="color:#4F471F !important;"><br>
+
+Any of those locations (if known)<br><input type="text" id="location" name="location" size=30 style="color:#4F471F !important;"><br>
+Was retweeted at least this many times<br><input type="text" id="min_retweets" name="min_retweets" size=5 style="color:#4F471F !important;"><br>
+															</div>
+													  </div>
+													</div>
+
+												</li>
+											</ul>
+						</li>
+									<li class="">
+							<div class="show_hide3">Graph metrics</div>
+							<ul style="display: block; font-size:14px; font-weight:normal;">
+												<li class="">
+													<div  id="type_of_content" class="slidingDiv3" style="display: block;">
+														<input type="radio" id="include_retweets" name="graph_metrics" value="retweets" checked> Add retweets to the count<br>
+														<input type="radio" id="not_include_retweets" name="graph_metrics" value="only_tweets"> Count only original tweets<br>
+
+<input type="radio" id="unique_retweers" name="graph_metrics" value="unique_tweeters"> Count only unique tweeters<br>
+
+<input type="radio" id="normalized_tweets" name="graph_metrics" value="normalized_tweets"> Count original tweets per tweeter<br>
+
+<input type="radio" id="normalized_retweets" name="graph_metrics" value="normalized_retweets"> Count tweets & retweets per tweeter<br>
+
+<input type="radio" id="relative_tweets" name="graph_metrics" value="relative_tweets"> Relative impact (original tweets)*<br>
+
+<input type="radio" id="relative_retweets" name="graph_metrics" value="relative_retweets"> Relative impact (tweets & retweets)*<br>
+
+<input type="radio" id="relative_tweeters" name="graph_metrics" value="relative_tweeters"> Relative impact (tweeters)*<br>
+<br>
+<i>* Relative impact is measured by dividing the number of corresponding value (tweets, retweets or tweeters) by the total number of Twitter users at the time based on publicly available statistics.</i>
+
+													</div>
+												</li>
+											</ul>
+						</li>
+									<li class="">
+							<div class="show_hide4">Period</div>
+							<ul style="display: block; font-size:14px; font-weight:normal;">
+												<li class="">
+													<div id="type_of_content" class="slidingDiv4" style="display: block;">
+														<input type="radio" name="period1" id="all_periods" value="all" checked onclick=show_or_hide(document.getElementById('specify_period'),"none")> Cover the whole period<br>
+														<input type="radio" name="period1" id="specific_period" value="some" onclick=add_date_details();> Cover a specific period only<br><br>
+													<div id="specify_period" style="display:none;">
+														<span id="daterange"></span><br>
+														<br>Start Date*: <input type="text" placeholder="dd/mm/yyyy" id="startdate" name="startdate" size=10 style="color:#4F473F !important;"> <i><small>will start from beginning if blank</small></i>
+														<br>Start Time: <input type="text" placeholder="hh:mm" id="starttime" name="starttime" size=5 style="color:#4F472F !important;"> <i><small>will use 00:00 if blank</small></i>
+														<br>End Date*: <input type="text" placeholder="dd/mm/yyyy" id="enddate" name="enddate" size=10 style="color:#4F474F !important;"> <i><small>will go to the end if blank</small></i>
+														<br>End Time: <input type="text" placeholder="hh:mm" id="endtime" name="endtime" size=5 style="color:#4F471F !important;"> <i><small>will use 00:00 if blank</small></i>
+														<br><i>*Whole period processed if left blank</i><br>
+													</div>
+			<br>Graph timeseries unit<br><br>
+			<select id="time_unit" style='color:black; background-color:white'>
+                         <option value="years">Years</option>
+                          <option value="months">Months</option>
+ 			  <option value="days" selected>Days</option>
+				<option value="hours">Hours</option>
+			  <option value="minutes">Minutes</option>
+			  <option value="seconds">Seconds</option>
+			</select>
+													</div>
+												</li>
+											</ul>
+						</li>
+									<li class="">
+										<div class="show_hide5">Languages</div>
+										<ul style="display: block; font-size:14px; font-weight:normal;">
+															<li class="">
+																<div id="type_of_content" class="slidingDiv5" style="display: block;">
+																<input type="radio" name="languages" id="all_languages" value="" checked onclick=show_or_hide(document.getElementById('specify_lang'),"none")> Tweets in all languages<br>
+																<input type="radio" name="languages" id="only_eng" value="en" onclick=show_or_hide(document.getElementById('specify_lang'),"none")> Tweets in English only<br>
+																<input type="radio" name="languages" id="specific_langs" value="some" onclick=show_or_hide(document.getElementById('specify_lang'),"block")> Tweets in specific languages<br><br>
+															<div id="specify_lang" style="display:none;">
+																<div  id="type_of_content" class="slidingDiv5" style="display: block;">
+																	Language codes separated by commas:<br>
+																	<input type="text" id="language" name="other_language" placeholder="ar,fr,de..." size=20 style="color:#4F471F !important;">
+																	<br><small><i>See the list of supported language codes <a href="http://www.andiamo.co.uk/resources/iso-language-codes" target=_blank>here</a></i></small><br>
+															  </div>
+															</div>
+														</div>
+															</li>
+														</ul>
+						</li>
+									<li class="">
+										<div class="show_hide6">Twitter Source</div>
+										<ul style="display: block; font-size:14px; font-weight:normal;">
+															<li class="">
+																<div id="type_of_content" class="slidingDiv6" style="display: block;">
+																A 'source' is software used to post the tweet<br>
+																<input type="radio" name="sources" id="all_clients" value="" checked onclick=show_or_hide(document.getElementById('specify_client'),"none")> All<br>
+																<input type="radio" name="sources" id="only_web" value="only_web" onclick=show_or_hide(document.getElementById('specify_client'),"none")> Web (Windows, Mac, Linux...)<br>
+																<input type="radio" name="sources" id="only_mobile" value="only_mobile" onclick=show_or_hide(document.getElementById('specify_client'),"none")> Mobile (Android, iPhone, iPad...)<br>
+																<input type="radio" name="sources" id="specific_client" value="some" onclick=show_or_hide(document.getElementById('specify_client'),"block")> Specific sources<br><br>
+															<div id="specify_client" style="display:none;">
+																	<input type="checkbox" id="web_client" name="other_source" value="Twitter Web Client">Twitter Web Client<br>
+															 	  <input type="checkbox" id="android" name="other_source" value="Twitter for Android">Twitter for Android<br>
+																  <input type="checkbox" id="iphone" name="other_source" value="Twitter for iPhone">Twitter for iPhone<br>
+																  <input type="checkbox" id="mobile_web" name="other_source" value="Mobile Web (M2)">Mobile Web (M2)<br>
+																  <input type="checkbox" id="tweetdeck" name="other_source" value="TweetDeck">TweetDeck<br>
+																	<input type="checkbox" id="blackberry" name="other_source" value="Twitter for BlackBerry">Twitter for BlackBerry<br>
+																	<input type="checkbox" id="ipad" name="other_source" value="Twitter for iPad">Twitter for iPad<br>
+															 	  <input type="checkbox" id="twitter_for_websites" name="other_source" value="Twitter for Websites">Twitter for Websites<br>
+																  <input type="checkbox" id="facebook" name="other_source" value="Facebook">Facebook<br>
+																  <input type="checkbox" id="tweetcaster_for_android" name="other_source" value="TweetCaster for Android">TweetCaster for Android<br>
+																  Other sources (coma-separated):<br><input type="text" id="other_source" name="other_source" size=30 style="color:#4F471F !important;"><br>
+															  </div>
+															</div>
+															</li>
+														</ul>
+						</li>
+						<li class="">
+							<div class="table"><div class="tr"><div class="td">
+							&nbsp;&nbsp;<input type="checkbox" id="toptweets" name="toptweets" checked value=1> <small><small><small>Show tweets</small></small></small><br>
+							&nbsp;&nbsp;<input type="checkbox" id="hashtag_cloud" name="hashtag_cloud" checked value=1> <small><small><small>Show hashtag cloud</small></small></small><br>
+							&nbsp;&nbsp;<input type="checkbox" id="stackgraph" name="stackgraph" value=1> <small><small><small>Overlay on current graph</small></small></small><br>
+						</div>
+						<div class="td" style="width:20px"></div><div class="td">
+							<center><a class="btn2" href="#" onclick="visualize();">Visualise</a>
+							</center></div></div></div>
+				</li>
+			</div>
+			</ul>
+		</span>
+
+
+	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 sidebar-eq demo">
+		<div class="chart-container">
+                <script src="js/highstock.js"></script>
+                <script src="js/exporting.js"></script>
+                <script src="js/export-csv.js"></script>
+
+			<span id="chartcontainer"><form><input type='hidden' id='last_graph_hash' value=''></form></span>
+<div id="loadingchart" style="display:none;"><br><center>Loading chart... <img src="images/ajax-loader.gif"><br></center></div>
+<div id="loadingtweets" style="display:none;"><br><center>Loading tweets... <img src="images/ajax-loader.gif"><br></center></div>
+			<span id="tweetcontainer"></span>
+</div>
+	</div>
+	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 sidebar-eq-fill"></div>
+	<div class="clearfix"></div>
+</div>
+
+			</div>
+					</div>
+			</div>
+		</div>
+	</body>
+</html>
