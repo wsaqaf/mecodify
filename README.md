@@ -7,17 +7,18 @@ The platform remains in constant development and the first version (1.0) has bee
 
 The software mainly uses PHP and Javascript and has used several open-source libraries including but not limited to HighCharts, D3Js for various components of the platform.
 
-### What's new in version 2.0
+### What's new in Mecodify 2.0
 
-- Compatible with Twitter's new API 2.0
+- Compatible with the next generation Twitter API (2.0), which has a rich set of new functions and features
 - Allows using API credentials for sandbox or premium API access
 - More flexible period options with the ability to add exact times to the second for each case
 - Allows deciding whether to include retweets and/or asociated tweets (such as the original tweet, whose reply is among the results)
 - Allows expanding the period even after it was created. However, limiting the period does not filter out fetched results
-- If dates are not specified, it is possible to run the case again to get fresh tweets since the last search
+- If dates are not specified, it allows rerunning the case again to get fresh tweets since the last search
 - Adding the ability to see the number of reply and quote tweets for each tweet
+- Plus some other improvements in security and stability
 
-**Note** The new release remains in constant development so reports of bugs or issues are welcome
+**Note** The new release remains in constant development so reports of bugs or issues are welcome...
 
 ###### Installation instructions can be found [here](install.md)
 
