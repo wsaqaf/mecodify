@@ -225,7 +225,7 @@ $name=$name." (other sources)";
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
-          if ($_GET['response_tweets']) { $condition=$condition." $bool_op (AND is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (are quote tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op (clear_text like '@%') ";  $name=$name." (are responses)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (replies is not null AND replies>0) ";  $name=$name." (are responsed to)"; $bool_op=$_GET['bool_op'];}

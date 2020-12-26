@@ -143,7 +143,7 @@ function get_other_fields($table,$getfield)
   {
     global $link; global $mysql_db; global $j; global $twitter_api_settings; global $last_setting;
     global $oldest_tweet_id; global $last_tweet_id; global $count_total;
-    global $added_users; global $next_token;
+    global $added_users; global $next_token; global $max_tweets_per_case;
 
     $last_setting=rand(0,sizeof($twitter_api_settings)-1);
 
@@ -175,7 +175,7 @@ function get_other_fields($table,$getfield)
         extract_and_store_data($record,$recs,true);
         $i++;
         $count_total++;
-        if ($count_total==100000) { tweeter_data($table); $count_total=0; }
+        if ($count_total%100000==0 || $count_total>=$max_tweets_per_case) { tweeter_data($table); }
         $last_tweet_id=$record->id;
       }
     note("\nProcessed $i records ($oldest_tweet_id - $last_tweet_id) in $table\n");// for ($tweet_updated_rows tweets, $user_updated_rows users updated)\n";
