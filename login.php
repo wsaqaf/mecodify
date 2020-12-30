@@ -31,7 +31,7 @@ $submit_case_form = <<<END
 <tr><td style="border: none !important;">Name<sup><font color=red>*</font></sup></td><td style="border: none !important;">  <input  maxlength=100 type='text' size=35 id='case_name'> <img src='images/info.png'  onclick=showtip('name');> (maximum 100 characters)</td></tr>
 <tr><td style="border: none !important;">Platform<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <select id='case_platform'><option value=1 id='twitter' selected>Twitter</option><option value=2 id='facebook' disabled>Facebook</option><option value=3 id='YouTube' disabled>Youtube</option></select> <img src='images/info.png'  onclick=showtip('platform'); ></td></tr>
 <tr><td style="border: none !important;">Include retweets</td><td style="border: none !important;"> <input type='checkbox' id='case_include_retweets'> If checked, retweets matching the criteria will be included. <img src='images/info.png' onclick=showtip('include_retweets'); ></td></tr>
-<tr><td style="border: none !important;">Include response tweets</td><td style="border: none !important;"> <input type='checkbox' id='case_top_only'> If checked, responses associated with matched tweets will be included.<img src='images/info.png'  onclick=showtip('top_only'); ></td></tr>
+<tr><td style="border: none !important;">Include referenced tweets</td><td style="border: none !important;"> <input type='checkbox' id='case_top_only'> If checked, tweets referenced by matched tweets will be included.<img src='images/info.png'  onclick=showtip('top_only'); ></td></tr>
 <tr><td style="border: none !important;">Case search query<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input type='search' size=50 id='case_query'> <img src='images/info.png'  onclick=showtip('query'); ></td></tr>
 <tr><td style="border: none !important;">From (<small>e.g. 2016-12-20 23:55:30</small>) in UTC</td><td style="border: none !important;">  <input maxlength=20  onfocusout=ValidateDateTime('case_from') id='case_from'><span class='case_from'></span><img src='images/info.png'  onclick=showtip('from'); ></td></tr>
 <tr><td style="border: none !important;">To (<small>e.g. 2016-12-31 23:55:30</small>) in UTC</td><td style="border: none !important;">  <input type=20 onfocusout=ValidateDateTime('case_to') id='case_to'><span class='case_to'></span><img src='images/info.png' onclick=showtip('to'); ></td></tr>
@@ -328,17 +328,24 @@ function submit_case($replace)
 
         if (!isValidTime($_POST['case_from'],$_POST['case_to'])) die();
 
-        $query= "SELECT id from cases where id='${_POST['case_id']}'";
+        $query= "SELECT id,from_date,to_date from cases where id='${_POST['case_id']}'";
         if ($result = $link->query($query))
           {
             if ($result->num_rows && !$replace) die("There is already a case with the same id (${_POST['case_id']}).<br> Please delete the old case if it is yours or choose another id.<br>");
+            $row=$result->fetch_assoc();
           }
         else die("Error in query: ". $link->error.": $query");
        if ($replace)
         {
+          $new_status="";
+          if ($row['from_date']>$_POST['case_from'] && $row['to_date']==$_POST['case_to']) { $new_status=" status='expanded_left',"; }
+          elseif (($row['to_date']<$_POST['case_to'] || !$_POST['case_to']) && $row['from_date']==$_POST['case_from']) { $new_status=" status='expanded_right',"; }
+          elseif ($row['from_date']>$_POST['case_from'] && $row['to_date']<$_POST['case_to']){ die("You cannot change both start and end dates values at once. Start with updating one (either start or end) and run the process. Once finished, you can expand by changing the other value."); }
+          elseif ($row['from_date']<$_POST['case_from'] || $row['to_date']>$_POST['case_to']
+              || (!$row['case_to'] && $_POST['case_to']) || (!$row['case_from'] && $_POST['case_from'])) { die("You cannot make the period shorter, but can only expand it. Start a new case with the shorter time period instead."); }
           $query="UPDATE cases set name='".$link->real_escape_string($_POST['case_name'])."', ".
           "include_retweets='${_POST['case_include_retweets']}', top_only='${_POST['case_top_only']}', from_date='${_POST['case_from']}', to_date='${_POST['case_to']}', details='".
-          $link->real_escape_string($_POST['case_details'])."', details_url='".$link->real_escape_string($_POST['case_details_url'])."', flags='".$link->real_escape_string($_POST['case_flags'])."', private='${_POST['case_private']}' WHERE id='${_POST['case_id']}'";
+          $link->real_escape_string($_POST['case_details'])."',$new_status details_url='".$link->real_escape_string($_POST['case_details_url'])."', flags='".$link->real_escape_string($_POST['case_flags'])."', private='${_POST['case_private']}' WHERE id='${_POST['case_id']}'";
           $returned="Your case has now been updated successfully.<br><br><a href='fetch_process.php?id=".$_POST['case_id']."' target=_blank>Click here</a> to use the new settings to populate the database in the background. <br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>It will continue until all the results are fetched or when the maximum number of retreived (one million) record is reached. <br><br>You will receive an email once the process is completed.";
         }
        else
@@ -446,7 +453,7 @@ if (!$case) { echo "Please select a case first"; return; }
               "<tr><td style='border: none !important;'>Name</td><td style='border: none !important;'>${row['name']}</td></tr>".
               "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Platform</td><td style='border: none !important;'>".platform($row['platform'])."</td></tr>".
               "<tr><td style='border: none !important;'>Include retweets?</td><td style='border: none !important;'>".top_only($row['include_retweets'])."</td></tr>".
-              "<tr><td style='border: none !important;'>Include response tweets?</td><td style='border: none !important;'>".top_only($row['top_only'])."</td></tr>".
+              "<tr><td style='border: none !important;'>Include referenced tweets?</td><td style='border: none !important;'>".top_only($row['top_only'])."</td></tr>".
               "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Search query</td><td style='border: none !important;'>${row['query']}</td></tr>".
               "<tr><td style='border: none !important;'>From</td><td style='border: none !important;'>${row['from_date']}</td></tr>".
               "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>To</td><td style='border: none !important;'>${row['to_date']}</td>".

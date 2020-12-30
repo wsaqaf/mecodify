@@ -152,6 +152,7 @@ CREATE TABLE IF NOT EXISTS `1_empty_case` (
   `is_retweet` tinyint(1) NOT NULL,
   `is_quote` tinyint(1) NOT NULL,
   `is_reply` tinyint(1) NOT NULL,
+  `is_referenced` tinyint(1) NOT NULL,
   `retweeted_tweet_id` bigint(20) unsigned DEFAULT NULL,
   `retweeted_user_id` bigint(20) unsigned DEFAULT NULL,
   `retweeter_ids` mediumtext,

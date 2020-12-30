@@ -318,11 +318,11 @@ $name=$name." (other sources)";
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
-         elseif ($normalized_tweets) $name=$name." of original tweets per tweeter";
-         elseif ($normalized_retweets) $name=$name." of (tweets+retweets) per tweeter";
-         elseif ($relative_tweeters) $name=$name." relative impact (tweeters)";
-         elseif ($relative_tweets) $name=$name." relative impact (original tweets)";
-         elseif ($relative_retweets) $name=$name." relative impact (tweets+retweets)";
+   elseif ($normalized_tweets) $name=$name." of original tweets per tweeter";
+   elseif ($normalized_retweets) $name=$name." of (tweets+retweets) per tweeter";
+   elseif ($relative_tweeters) $name=$name." relative impact (tweeters)";
+   elseif ($relative_tweets) $name=$name." relative impact (original tweets)";
+   elseif ($relative_retweets) $name=$name." relative impact (tweets+retweets)";
 	 else  $name=$name." of tweets ";
 	 foreach (array_keys($_GET) as $g)
 		{
@@ -384,7 +384,7 @@ $name=$name." (other sources)";
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*((count(tweet_id)+sum(retweets))/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($relative_tweets)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(tweet_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
-        elseif ($retweets && !$cases[$table]['include_retweets'])
+        elseif ($retweets)
 	         $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id)+sum(retweets) from $table $condition group by $param2";
       	else
       	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
@@ -983,7 +983,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
                       $url=preg_replace('/\&p=[\d]+\&pp=[\d]+/','',$url);
                       $results= $results."<br><p align=right><a href='$url&export=1')><b>Export</b></a> all $total_rows records to CSV file</p>";
                       $results=$results."<b>Showing results $p - $total_rows of $total_rows";
-                      if ($retweets && !$cases[$table]['include_retweets']) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
+                      if ($retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
                       elseif ($retweets) $results=$results." [".($total_rows)." with retweets] ";
 
                       if ($p>$per_page)
@@ -1002,7 +1002,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
                     $url=preg_replace('/\&p=[\d]+\&pp=[\d]+/','',$url);
                     $results= $results."<br><p align=right><a href='$url&export=1')><b>Export</b></a> all $total_rows records to CSV file</p>";
                     $results=$results."<b>Showing results $p - $pp of $total_rows ";
-                    if ($retweets && !$cases[$table]['include_retweets']) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
+                    if ($retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
                     elseif ($retweets) $results=$results." [".($total_rows)." with retweets] ";
                     if (!(($p-$per_page==1) && ($pp-$per_page==$per_page))) $ppstr="&p=".($p-$per_page)."&pp=".($pp-$per_page); else $ppstr="";
                     if ($p>$per_page) $results=$results."<center> <a href='#' onclick=javascript:GetDetails('$url$ppstr')> &lt; </a>  &nbsp;&nbsp; <a href='#' onclick=javascript:GetDetails('$url')><small>Back to first page</small></a> ";

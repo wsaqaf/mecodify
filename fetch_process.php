@@ -18,15 +18,13 @@ if ($result = $link->query($query))
         $last_process_updated=$row['last_process_updated'];
         $last_process_completed=$row['last_process_completed'];
         $platform=$row['platform'];
-	$pstatus=$row['status'];
+	      $pstatus=$row['status'];
      }
-    if ($platform==1)
+if ($platform==1)
      {
       $search_meth="api_search";
       $cmd='php '.$search_meth.'.php '.$_GET['id'].' >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
      }
-
-//die("(s:".$last_process_started.",u:".$last_process_updated.",c:".$row['last_process_completed'].")");
 
 if (!$_GET['progress'] && $table && !$_GET['stop'] && !$_GET['overlimit'])
   {
@@ -34,8 +32,6 @@ if (!$_GET['progress'] && $table && !$_GET['stop'] && !$_GET['overlimit'])
       if ($status) $status="status='$status',";
       $query="update cases set $status last_process_started='".gmdate("Y-m-d H:i:s")."', last_process_updated='".gmdate("Y-m-d H:i:s")."' where id='${_GET['id']}'";
       $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-
-//die($cmd);
 
     shell_exec($cmd);
     echo "<HTML><HEAD><meta http-equiv=\"refresh\" content=\"0; URL='fetch_process.php?progress=1&id=".$_GET['id']."'\">";
@@ -58,7 +54,7 @@ if (!$_GET['overlimit'])
      {
       kill_process(0);
       $cmd='php '.$search_meth.'.php '.$_GET['id'].' step4 >> tmp/log/'.$_GET['id'].'-'.$search_meth.'.log &';
-//die($cmd);
+
       shell_exec($cmd);
       $refresh=" <meta http-equiv=\"refresh\" content=\"10; URL='fetch_process.php?progress=1&id=$table&overlimit=1'\">";
      }
@@ -67,7 +63,7 @@ if (!$_GET['overlimit'])
     $html="</HEAD><BODY>Progress with extracting and saving data for case ($table)<br><br>";
     $period_covered='NA';
     $pstatus2=process_status($table);
-//echo "($pstatus)";
+
     if ($pstatus2)
           {
 	    $status="<img src='images/in_progress.gif'> <font color=orange>In progress - <a href='fetch_process.php?id=$table&stop=1'>Stop</a></font>";
@@ -171,14 +167,12 @@ function kill_process($verbose)
     $match=$search_meth.'.php '.$_GET['id'];
     $match = escapeshellarg($match)."\$";
     $str="ps x|grep $match|grep -v grep|awk '{print $1}'";
-//echo "($search_meth:$str)";
-//exit;
+
     $ret=shell_exec($str);
     if($ret && $verbose) echo "Process found, trying to stop it!<br>\n";
     system('kill '. $ret, $k);
     $ret=shell_exec($str);
     if(!$ret) {
-//    if(posix_kill($ret,SIGKILL)) {
 	    if ($step2)
    	        echo "<HTML><HEAD><meta http-equiv=\"refresh\" content=\"0; URL='fetch_process.php?progress=1&id=".$_GET['id']."&overlimit=1'\">";
 	    else
@@ -195,9 +189,6 @@ function process_status($table)
     $match=$search_meth.'.php '.$table;
     $match = escapeshellarg($match)."\$";
     $str="ps x|grep $match|grep -v grep|awk '{print $1}'";
-//echo "(str:$str ".shell_exec($str).")";
-//echo "(".shell_exec('ps -aux').")";
-//die();
     exec($str, $output, $ret);
     if($ret && $verbose) echo 'Error: Could not check the process. Contact admin!<br>\n';
     while(list(,$t) = each($output))
