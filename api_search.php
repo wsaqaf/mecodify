@@ -124,12 +124,8 @@ function get_tweet_ids($table,$keywords)
         if ($next_token=="start") $next_token="";
 
 note("Starting page $pg\n");
-        $processed=get_other_fields($table,$keywords);
+        $processed=get_all_fields($table,$keywords);
         $pg++;
-//    if (!$processed) break;
-//    $max_id="&max_id=$oldest_tweet_id";
-//    $tweets_done=$tweets_done+$processed;
-//die("debug 3 - exiting");
      }
     if (!$tweets_done)
       {
@@ -139,7 +135,7 @@ note("Starting page $pg\n");
     note("Processed total of $tweets_done tweets\n");
   }
 
-function get_other_fields($table,$getfield)
+function get_all_fields($table,$getfield)
   {
     global $link; global $mysql_db; global $j; global $twitter_api_settings; global $last_setting;
     global $oldest_tweet_id; global $last_tweet_id; global $count_total;
@@ -425,7 +421,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
             $tw['has_link']=1;
             foreach($en->urls as $ur)
               {
-                //echo "Checking:".$ur->expanded_url."\n";
                 if (isset($ur->unwound_url)) $ur->expanded_url=$ur->unwound_url;
                 if (strpos($tw['links'],$ur->url)===true || strpos($tw['expanded_links'],$ur->expanded_url)===true) continue;
                 if (strpos($tw['links']=$tw['links'],$ur->url)===false) $tw['links']=$tw['links']." ".$ur->url;
@@ -487,9 +482,8 @@ function url_type($url)
 
 function put_tweet_in_database($tweet)
   {
-    global $table; global $i; //global $tweet_updated_rows; global $user_updated_rows;
+    global $table; global $i;
     global $link; global $fix_utf8;
-//    echo "($tweet)\n"; exit;
     if ($tweet)
      {
         $query = "REPLACE INTO `$table` ";
@@ -502,13 +496,9 @@ function put_tweet_in_database($tweet)
         $names=rtrim($names,","); $values=rtrim($values,",");
         $query="$query ($names) VALUES($values)";
 
-//echo "\ntweet query:\n\n$query\n"; //exit;
 
        $result = $link->query($query);
        if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-  //   echo "Affected rows: ".mysql_affected_rows()."\n"; exit;
-  //   $a_rows=$link->affected_rows;
-  //   if ($link->affected_rows==1) $tweet_updated_rows++;
       }
  }
 function update_response_mentions()
@@ -548,7 +538,7 @@ function update_response_mentions()
         "SPLIT_STRING($table.user_mentions, ' ', 4),SPLIT_STRING($table.user_mentions, ' ', 5),SPLIT_STRING($table.user_mentions, ' ', 6),".
         "SPLIT_STRING($table.user_mentions, ' ', 7),SPLIT_STRING($table.user_mentions, ' ', 8),SPLIT_STRING($table.user_mentions, ' ', 9),".
         "SPLIT_STRING($table.user_mentions, ' ', 10) from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null)";
-//echo "\n\n$query\n\n";
+
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         for ($i=1; $i<=10; $i++)
@@ -567,8 +557,6 @@ function update_response_mentions()
 
         $query="update $table,$all_m set $table.mentions_of_tweeter=$all_m.mentions_of_tweeter where LOWER($table.user_screen_name)=LOWER($all_m.user_screen_name) and $all_m.user_screen_name is not null";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-
-//        $link->query("DROP TABLE $all_m");
 
         $query="UPDATE user_mentions_".$table.",$table "."
         SET user_mentions_".$table.".in_response_to_tweet=$table.in_reply_to_tweet,user_mentions_".$table.".in_response_to_user_id=$table.in_reply_to_user
@@ -945,32 +933,9 @@ function complete_url($qry)
   $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
   $status = $result->fetch_assoc();
 
-//die ("status:(".$status['status'].")");
-
   if ($fresh_start)
     {
-      if ($status['status']=="expanded_left")
-        {
-          $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id ASC";
-          if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
-          else die("Error in query: ". $link->error.": $query");
-          $row = $result->fetch_assoc();
-
-          if ($row)
-            {
-              $oldest_tweet_id=$row['tweet_id'];
-              $oldest_tweet_time=$row['date_time'];
-
-              if ($start_time) $st=str_replace(".00Z","",str_replace("T"," ",$start_time));
-              else { $st = new DateTime(gmdate("Y-m-d H:i:s")); $st->modify('-7 day'); $st=$st->format('Y-m-d H:i:s'); }
-              if ($oldest_tweet_time>$st)
-                {
-                    $end_time=str_replace(" ","T",$oldest_tweet_time).".00Z";
-                    note("Getting tweets before ".$oldest_tweet_time."\n");
-                }
-            }
-        }
-      elseif ($status['status']=="expanded_right")
+      if ($status['status']=="expanded_right")
         {
           $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id DESC";
           if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
@@ -987,12 +952,32 @@ function complete_url($qry)
 
               if ($newest_tweet_time<$et)
                 {
-        //                      $since_id="&since_id=$newest_tweet_id";
                   $start_time=str_replace(" ","T",$newest_tweet_time).".00Z";
                   note("Continuing to get tweets posted after $newest_tweet_id at ".$newest_tweet_time."\n");
                 }
             }
         }
+      elseif ($status['status']=="expanded_left" || $status['status']!="completed")
+          {
+            $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id ASC";
+            if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
+            else die("Error in query: ". $link->error.": $query");
+            $row = $result->fetch_assoc();
+
+            if ($row)
+              {
+                $oldest_tweet_id=$row['tweet_id'];
+                $oldest_tweet_time=$row['date_time'];
+
+                if ($start_time) $st=str_replace(".00Z","",str_replace("T"," ",$start_time));
+                else { $st = new DateTime(gmdate("Y-m-d H:i:s")); $st->modify('-7 day'); $st=$st->format('Y-m-d H:i:s'); }
+                if ($oldest_tweet_time>$st)
+                  {
+                      $end_time=str_replace(" ","T",$oldest_tweet_time).".00Z";
+                      note("Getting tweets before ".$oldest_tweet_time."\n");
+                  }
+              }
+          }
       update_cases_table("started");
       $fresh_start=false;
     }
