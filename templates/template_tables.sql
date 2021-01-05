@@ -117,7 +117,6 @@ CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
 --
 
 CREATE TABLE IF NOT EXISTS `1_empty_case` (
-  `index_on_page` int(10) unsigned NOT NULL,
   `tweet_id` bigint(10) unsigned NOT NULL,
   `tweet_permalink_path` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `in_reply_to_user` bigint(20) unsigned DEFAULT NULL,
