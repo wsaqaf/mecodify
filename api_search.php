@@ -260,9 +260,9 @@ function not_blank($var)
       {
         if ($var)
           {
-            return false;
+            return true;
           }
-        else return true;
+        else return false;
       }
     return false;
   }
