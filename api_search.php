@@ -11,7 +11,7 @@ date_default_timezone_set('UTC');
 
 //example: egypt 1 2011-09-25ß
 
-if (!isset($argv[1])) $argv[1]=null;
+if (!not_blank($argv[1])) $argv[1]=null;
 
 if (!$argv[1]) die("Missing case...\n\n");
 
@@ -166,7 +166,7 @@ function get_all_fields($table,$getfield)
     foreach($records as $record)
       {
         if (!$oldest_tweet_id) $oldest_tweet_id=$record->id;
-        if (isset($record->id))
+        if (not_blank($record->id))
           {
             note("Doing #: $i with id [".$record->id."]\n");
           }
@@ -178,7 +178,7 @@ function get_all_fields($table,$getfield)
         $last_tweet_id=$record->id;
       }
     note("\nProcessed $i records ($oldest_tweet_id - $last_tweet_id) in $table\n");// for ($tweet_updated_rows tweets, $user_updated_rows users updated)\n";
-    if (isset($recs->meta->next_token)) $next_token="&next_token=".$recs->meta->next_token;
+    if (not_blank($recs->meta->next_token)) $next_token="&next_token=".$recs->meta->next_token;
     else $next_token="";
 
     return $i;
@@ -195,10 +195,10 @@ function add_user($u)
       if ($u->username) $user['user_screen_name']=$u->username;
       if ($u->name) $user['user_name']=$u->name;
       if ($u->location) $user['user_location']=$u->location;
-      if (isset($u->public_metrics->followers_count)) $user['user_followers']=$u->public_metrics->followers_count;
-      if (isset($u->public_metrics->following_count)) $user['user_following']=$u->public_metrics->following_count;
-      if (isset($u->public_metrics->tweet_count)) $user['user_tweets']=$u->public_metrics->tweet_count;
-      if (isset($u->public_metrics->listed_count)) $user['user_lists']=$u->public_metrics->listed_count;
+      if (not_blank($u->public_metrics->followers_count)) $user['user_followers']=$u->public_metrics->followers_count;
+      if (not_blank($u->public_metrics->following_count)) $user['user_following']=$u->public_metrics->following_count;
+      if (not_blank($u->public_metrics->tweet_count)) $user['user_tweets']=$u->public_metrics->tweet_count;
+      if (not_blank($u->public_metrics->listed_count)) $user['user_lists']=$u->public_metrics->listed_count;
       if ($u->protected) $user['user_protected']=$u->protected; else  $user['user_protected']=0;
       $user['user_created']=str_replace("T"," ",substr($u->created_at,0,19));
       if ($u->geo_enabled) $user['user_geo_enabled']=1; else $user['user_geo_enabled']=0;
@@ -219,9 +219,9 @@ function add_user($u)
             }
           }
        }
-      if (!isset($user['user_url']))
+      if (!not_blank($user['user_url']))
         {
-          if (isset($u->url)) $user['user_url']=$u->url;
+          if (not_blank($u->url)) $user['user_url']=$u->url;
           else $user['user_url']="https://twitter.com/".$user['user_screen_name'];
         }
       /******resume twitter data******/
@@ -254,6 +254,19 @@ function init_tw()
     return $tmp;
  }
 
+function not_blank($var)
+  {
+    if (isset($var))
+      {
+        if ($var)
+          {
+            return false;
+          }
+        else return true;
+      }
+    return false;
+  }
+
 function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
   {
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
@@ -267,29 +280,29 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     $user=array();
     $tw['tweet_id']=$tweet->id;
     $tw['is_referenced']=$is_referenced;
-    if (isset($tweet->created_at))
+    if (not_blank($tweet->created_at))
       {
         $tw['date_time']=str_replace("T"," ",substr($tweet->created_at,0,19));
         $tw['tweet_date']=date('Y-m-d',strtotime($tw['date_time']));
       }
-    if (isset($tweet->source))
+    if (not_blank($tweet->source))
       {
         $tw['full_source']=$tweet->source;
         $tw['source']=preg_replace('/.+>([^<>]+?)<.+/','$1',$tweet->source);
       }
-    if (isset($tweet->text)) $tw['raw_text']=$tweet->text;
-    if (isset($tweet->lang)) $tw['tweet_language']=$tweet->lang;
-    if (isset($tweet->author_id)) $tw['user_id']=$tweet->author_id;
-    if (isset($tweet->conversation_id)) $tw['conversation_id']=$tweet->conversation_id;
-    if (isset($tweet->context_annotations)) $tw['context_annotations']=$tweet->context_annotations;
-    if (isset($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
-    if (isset($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
-    if (isset($tweet->public_metrics->retweet_count)) $tw['retweets']=$tweet->public_metrics->retweet_count;
-    if (isset($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
-    if (isset($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
-    if (isset($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
+    if (not_blank($tweet->text)) $tw['raw_text']=$tweet->text;
+    if (not_blank($tweet->lang)) $tw['tweet_language']=$tweet->lang;
+    if (not_blank($tweet->author_id)) $tw['user_id']=$tweet->author_id;
+    if (not_blank($tweet->conversation_id)) $tw['conversation_id']=$tweet->conversation_id;
+    if (not_blank($tweet->context_annotations)) $tw['context_annotations']=$tweet->context_annotations;
+    if (not_blank($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
+    if (not_blank($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
+    if (not_blank($tweet->public_metrics->retweet_count)) $tw['retweets']=$tweet->public_metrics->retweet_count;
+    if (not_blank($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
+    if (not_blank($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
+    if (not_blank($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
 
-    if (isset($tweet->referenced_tweets))
+    if (not_blank($tweet->referenced_tweets))
      {
        foreach ($tweet->referenced_tweets as $rtw)
         {
@@ -299,7 +312,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
       				$tw['is_retweet']=1;
               $tw['retweeted_tweet_id']=$rtw->id;
               $tw['retweets']=0;
-              if (isset($parent->includes->tweets))
+              if (not_blank($parent->includes->tweets))
                 {
           				foreach ($parent->includes->tweets as $subt)
           				  {
@@ -350,7 +363,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
          }
      }
 /******user data******/
-    if (isset($parent->includes->users))
+    if (not_blank($parent->includes->users))
       {
         foreach ($parent->includes->users as $subt)
           {
@@ -373,7 +386,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
       }
 
 /******geo data of tweet (if any)******/
-    if (isset($tweet->geo))
+    if (not_blank($tweet->geo))
       {
     		if (sizeof($parent->includes->places)>0)
           {
@@ -391,7 +404,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
           }
       }
 
-    if (isset($tweet->attachments->media_keys))
+    if (not_blank($tweet->attachments->media_keys))
      {
        foreach($tweet->attachments->media_keys as $media_key)
         {
@@ -410,10 +423,10 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
      }
 
 /******resume twitter data******/
-    if (isset($tweet->entities))
+    if (not_blank($tweet->entities))
      {
        $en=$tweet->entities;
-        if (isset($en->hashtags))
+        if (not_blank($en->hashtags))
            {
              foreach($en->hashtags as $h)
                {
@@ -422,7 +435,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
              $tw['hashtags']=trim($tw['hashtags']);
              $hash_cloud=$hash_cloud." ".$tw['hashtags'];
            }
-        if (isset($en->mentions))
+        if (not_blank($en->mentions))
           {
             foreach($en->mentions as $men)
                {
@@ -430,28 +443,28 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                }
                $tw['user_mentions']=trim($tw['user_mentions']);
            }
-        if (isset($en->urls))
+        if (not_blank($en->urls))
           {
             $tw['has_link']=1;
             foreach($en->urls as $ur)
               {
-                if (isset($ur->unwound_url)) $ur->expanded_url=$ur->unwound_url;
+                if (not_blank($ur->unwound_url)) $ur->expanded_url=$ur->unwound_url;
                 if (strpos($tw['links'],$ur->url)===true || strpos($tw['expanded_links'],$ur->expanded_url)===true) continue;
                 if (strpos($tw['links']=$tw['links'],$ur->url)===false) $tw['links']=$tw['links']." ".$ur->url;
                 if (strpos($tw['expanded_links'],$ur->expanded_url)===false) $tw['expanded_links']=$tw['expanded_links']." ".$ur->expanded_url;
-                if (isset($ur->title))
+                if (not_blank($ur->title))
                   {
-                    if (isset($ur->description))
+                    if (not_blank($ur->description))
                       {
                         $tw['raw_text']=$tw['raw_text']." ".$tw['expanded_links']."[".$ur->title." ".$ur->description."]";
                       }
                   }
-                if (isset($ur->images))
+                if (not_blank($ur->images))
                   {
                     foreach ($ur->images as $img)
                       {
                          $tw['has_image']=1;
-                         if (isset($img->url))
+                         if (not_blank($img->url))
                           {
                             if (strpos($tw['media_link'],$img->url)===false) $tw['media_link']=$tw['media_link']." ".$img->url;
                           }
@@ -463,14 +476,14 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
               $tw['media_link']=trim($tw['media_link']);
           }
       }
-    if (isset($tweet->withheld))
+    if (not_blank($tweet->withheld))
      {
-      if (isset($tweet->withheld->copyright)) $tw['withheld_copyright']=$tweet->withheld->copyright;
-      if (isset($tweet->withheld->country_codes)) $tw['withheld_in_countries']=$tweet->withheld->country_codes;
+      if (not_blank($tweet->withheld->copyright)) $tw['withheld_copyright']=$tweet->withheld->copyright;
+      if (not_blank($tweet->withheld->country_codes)) $tw['withheld_in_countries']=$tweet->withheld->country_codes;
      }
 
-    if (isset($tw['links'])) $tw['links']=trim($tw['links']);
-    if (isset($tw['expanded_links'])) $tw['expanded_links']=trim($tw['expanded_links']);
+    if (not_blank($tw['links'])) $tw['links']=trim($tw['links']);
+    if (not_blank($tw['expanded_links'])) $tw['expanded_links']=trim($tw['expanded_links']);
 
     $tw['clear_text']=strip_tags($tw['raw_text']);
     if (strpos($tw['clear_text'],"@")===0) $tw['is_message']=1; else $tw['is_message']=0;
@@ -726,8 +739,8 @@ function update_kumu_files($table)
           $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
           $new_row['From']=ltrim($row['screen_name'],'@');
           $new_row['To']=ltrim($row['response_screen_name'],'@');
-      		if (!isset($valid_users[$row['screen_name']])) { /*echo "Skipping (${row[0]})...";*/ continue; }
-      		if (!isset($valid_users[$row['response_screen_name']])) { /*echo "Skipping (${row[1]})...";*/ continue; }
+      		if (!not_blank($valid_users[$row['screen_name']])) { /*echo "Skipping (${row[0]})...";*/ continue; }
+      		if (!not_blank($valid_users[$row['response_screen_name']])) { /*echo "Skipping (${row[1]})...";*/ continue; }
       		if ($row['is_retweet']) { $new_row['Type']="Retweet"; }
           elseif ($row['is_quote']) { $new_row['Type']="Quote of a tweet"; }
           elseif ($row['is_reply']) { $new_row['Type']="Reply to tweet"; }
@@ -738,8 +751,8 @@ function update_kumu_files($table)
           if ($row['hashtags']) $new_row['Tags']=preg_replace("/\s+/","|",$row['hashtags']);
           if ($row['user_mentions']) $new_row['Mentions']=preg_replace("/\s+/","|",$row['user_mentions']);
       		$all_responses[$row['tweet_id']]=1;
-      		if (!isset($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
-      		if (!isset($all_users[$row['response_screen_name']])) $all_users[$row['response_screen_name']]=1;
+      		if (!not_blank($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
+      		if (!not_blank($all_users[$row['response_screen_name']])) $all_users[$row['response_screen_name']]=1;
 
           $new_row['Date']=$row['tweet_datetime'];
           $new_row['Link']=$row['tweet_permalink_path'];
@@ -794,11 +807,11 @@ function update_kumu_files($table)
           $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
           $new_row['From']=ltrim($row['screen_name'],'@');
       		$new_row['To']=ltrim($row['mention1'],'@');
-      		if (!isset($valid_users[$row['screen_name']])) continue;
-	        if (!isset($all_responses[$row['tweet']]))
+      		if (!not_blank($valid_users[$row['screen_name']])) continue;
+	        if (!not_blank($all_responses[$row['tweet']]))
       		   {
           			$mention="mention only";
-          			if (!isset($all_mentions[$row['tweet']])) $all_mentions[$row[$row['tweet']]]=1;
+          			if (!not_blank($all_mentions[$row['tweet']])) $all_mentions[$row[$row['tweet']]]=1;
       		   }
       		else
       		   {
@@ -808,7 +821,7 @@ function update_kumu_files($table)
           if ($row['hashtags']) $new_row['Tags']=preg_replace("/\s+/","|",$row['hashtags']);
           if ($row['user_mentions']) $new_row['Mentions']=preg_replace("/\s+/","|",$row['user_mentions']);
           $new_row['Content']=str_replace("\"","'",preg_replace("/[\r\n]+/"," ",$row['raw_text']));
-          if (!isset($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
+          if (!not_blank($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
 
           $new_row['Position']=1;
           $new_row['Date']=$row['tweet_datetime'];
@@ -828,9 +841,9 @@ function update_kumu_files($table)
           $new_row['Favorites']=$row['favorites'];
           $new_row['Tweet_ID']=$row['tweet_id'];
 
-          if (isset($valid_users[$row['mention1']]))
+          if (not_blank($valid_users[$row['mention1']]))
             {
-               if (!isset($all_users[$row['mention1']])) $all_users[$row['mention1']]=1;
+               if (!not_blank($all_users[$row['mention1']])) $all_users[$row['mention1']]=1;
         		   fputcsv($fp, $new_row);
       		  }
       		for($i=2; $i<=10; $i++)
@@ -838,8 +851,8 @@ function update_kumu_files($table)
               $m_i="mention".(string)$i;
       		    if (!$row[$m_i]) break;
               $row[$m_i]=ltrim($row[$m_i],'@');
-      		    if (!isset($valid_users[$row[$m_i]])) continue;
-              if (!isset($all_users[$row[$m_i]])) $all_users[$row[$m_i]]=1;
+      		    if (!not_blank($valid_users[$row[$m_i]])) continue;
+              if (!not_blank($all_users[$row[$m_i]])) $all_users[$row[$m_i]]=1;
               $new_row['To']=$row[$m_i];
               $new_row['Type']="mention only";
               $new_row['Position']=$i;
@@ -872,7 +885,7 @@ function update_kumu_files($table)
 
       while ($row = $result->fetch_array(MYSQLI_NUM))
         {
-          if (!isset($all_users[$row[0]])) continue;
+          if (!not_blank($all_users[$row[0]])) continue;
       		$row[13]="https://twitter.com/".$row[0];
           $row[4]=preg_replace("/[\r\n]+/"," ",$row[4]);
   		    $row[4]=str_replace("\"","'",$row[4]);
@@ -1024,7 +1037,7 @@ function getapi_record($getfield)
     $response = cUrlGetData($url);
     $record=json_decode($response);
 
-    if (isset($record->status))
+    if (not_blank($record->status))
       {
         echo "Status error getapi_record: \n";
         note("\n---Header-----\n$full_header\n-------\n");
@@ -1033,7 +1046,7 @@ function getapi_record($getfield)
         return "";
       }
 
-    if (isset($record->errors))
+    if (not_blank($record->errors))
       {
         echo "Error getapi_record: \n";
         var_dump($record->errors);
@@ -1046,7 +1059,7 @@ function getapi_record($getfield)
             }
       }
 
-    if (isset($record->meta->result_count))
+    if (not_blank($record->meta->result_count))
       {
         if ($record->meta->result_count===0)
           {
