@@ -243,6 +243,17 @@ function tweeter_data($table)
     draw_network($table);
  }
 
+function init_tw()
+ {
+    $tmp=array();
+    $vars=array("user_verified", "is_retweet", "is_quote", "is_reply", "is_referenced", "is_message", "has_video", "retweets", "mentions_of_tweeter", "possibly_sensitive", "withheld_copyright", "is_protected_or_deleted");
+    foreach ($var as $v)
+      {
+        $tmp[$v]=0;
+      }
+    return $tmp;
+ }
+
 function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
   {
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
@@ -252,7 +263,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
 
     if (startsWith($tweet->text,"RT @") && !$include_retweets) return;
 
-    $tw=array();
+    $tw=init_tw();
     $user=array();
     $tw['tweet_id']=$tweet->id;
     $tw['is_referenced']=$is_referenced;
