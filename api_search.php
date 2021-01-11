@@ -110,7 +110,7 @@ $link->close();
 
 function get_tweet_ids($table,$keywords)
   {
-    global $link; global $mode; global $mysql_db; global $i; global $step2;
+    global $link; global $mode; global $mysql_db; global $i; global $step2; global $max_tweets_per_case;
     global $global_step;  global $oldest_tweet_id; global $last_tweet_id;  global $max_list;
     global $list_count; global $start_from; global $added; global $skipped; global $include_referenced;
     global $global_step_limit; global $max_per_page; global $count_total; global $next_token;
@@ -123,14 +123,18 @@ function get_tweet_ids($table,$keywords)
      {
         if ($next_token=="start") $next_token="";
 
-note("Starting page $pg\n");
+        note("Starting page $pg\n");
         $processed=get_all_fields($table,$keywords);
+        if ($count_total>=$max_tweets_per_case)
+          {
+            note("Number of tweets exceeds total per case ($max_tweets_per_case), exiting...\n");
+            break;
+          }
         $pg++;
      }
     if (!$tweets_done)
       {
           note("No more tweets found, exiting...\n");
-          update_cases_table("completed"); /*exit;*/
       }
     note("Processed total of $tweets_done tweets\n");
   }
@@ -171,7 +175,6 @@ function get_all_fields($table,$getfield)
         extract_and_store_data($record,$recs,true,0);
         $i++;
         $count_total++;
-        if ($count_total%100000==0 || $count_total>=$max_tweets_per_case) { tweeter_data($table); }
         $last_tweet_id=$record->id;
       }
     note("\nProcessed $i records ($oldest_tweet_id - $last_tweet_id) in $table\n");// for ($tweet_updated_rows tweets, $user_updated_rows users updated)\n";
