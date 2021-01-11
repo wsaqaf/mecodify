@@ -488,7 +488,8 @@ if (!$case) { echo "Please select a case first"; return; }
 
 function edit_from_db($email,$menu,$case)
   {
-      global $link; global $submit_case_form; global $platforms;
+      global $link; global $submit_case_form; global $platforms; global $allow_new_cases;
+
       if ($email)
         {
           $condition="where creator='$email'";
