@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS `1_empty_case` (
   `retweeter_ids` mediumtext,
   `is_message` tinyint(1) NOT NULL DEFAULT '0',
   `has_image` tinyint(1) NOT NULL DEFAULT '0',
-  `media_link` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `media_link` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `has_video` tinyint(1) NOT NULL DEFAULT '0',
   `has_link` tinyint(1) NOT NULL DEFAULT '0',
   `links` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
