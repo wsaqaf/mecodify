@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
 --
 
 CREATE TABLE IF NOT EXISTS `1_empty_case` (
+  `index_on_page` int(10) unsigned NOT NULL DEFAULT '0',
   `tweet_id` bigint(10) unsigned NOT NULL,
   `tweet_permalink_path` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `in_reply_to_user` bigint(20) unsigned DEFAULT NULL,
@@ -148,19 +149,19 @@ CREATE TABLE IF NOT EXISTS `1_empty_case` (
   `user_mentions` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `tweet_language` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `filter_level` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `is_retweet` tinyint(1) NOT NULL,
-  `is_quote` tinyint(1) NOT NULL,
-  `is_reply` tinyint(1) NOT NULL,
-  `is_referenced` tinyint(1) NOT NULL,
+  `is_retweet` tinyint(1) NOT NULL DEFAULT '0',
+  `is_quote` tinyint(1) NOT NULL DEFAULT '0',
+  `is_reply` tinyint(1) NOT NULL DEFAULT '0',
+  `is_referenced` tinyint(1) NOT NULL DEFAULT '0',
   `retweeted_tweet_id` bigint(20) unsigned DEFAULT NULL,
   `retweeted_user_id` bigint(20) unsigned DEFAULT NULL,
   `retweeter_ids` mediumtext,
-  `is_message` tinyint(1) NOT NULL,
-  `has_image` tinyint(1) NOT NULL,
+  `is_message` tinyint(1) NOT NULL DEFAULT '0',
+  `has_image` tinyint(1) NOT NULL DEFAULT '0',
   `media_link` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `has_video` tinyint(1) NOT NULL,
-  `has_link` tinyint(1) NOT NULL,
-  `links` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `has_video` tinyint(1) NOT NULL DEFAULT '0',
+  `has_link` tinyint(1) NOT NULL DEFAULT '0',
+  `links` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `expanded_links` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `retweets` int(10) unsigned NOT NULL DEFAULT '0',
   `quotes` int(10) unsigned NOT NULL DEFAULT '0',
@@ -202,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `cases` (
   `last_process_updated` datetime DEFAULT '0000-00-00 00:00:00',
   `last_process_completed` datetime DEFAULT '0000-00-00 00:00:00',
   `status` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `hashtag_cloud` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hashtag_cloud` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `flags` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
