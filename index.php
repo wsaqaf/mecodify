@@ -34,7 +34,9 @@ function get_cases_db($case)
         {
           if (!$result->num_rows)
             {
-              return "<font size=-1 color=red>There are no cases available.</font>";
+              $output="<font size=-1 color=red>There are no cases available.</font>";
+              if ($allow_new_cases) $output=$output."<br><a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+              return $output;
             }
           $total=$result->num_rows;
         }

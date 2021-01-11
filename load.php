@@ -23,16 +23,19 @@ echo $template;
 
 function get_cases_db($case)
   {
-      global $link; global $allow_new_cases; 
+      global $link; global $allow_new_cases;
 
       $cond="";
 
       $query= "SELECT * from cases $cond order by date_created";
+      $output="";
       if ($result = $link->query($query))
         {
           if (!$result->num_rows)
             {
-              return "<font size=-1 color=red>There are no cases available.</font>";
+              $output="<font size=-1 color=red>There are no cases available.</font>";
+              if ($allow_new_cases) $output=$output."<br><a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+              return $output;
             }
           $total=$result->num_rows;
         }
@@ -46,7 +49,7 @@ function get_cases_db($case)
 	  if ($case==$row['id']) $sel="SELECTED"; else $sel="";
           $is_yours=isyours($row['creator'],$_SESSION[basename(__DIR__).'email']);
           if ($is_yours=="*") $is_yours1=1; else $is_yours1=0;
-	  if (!$row['private'] || $is_yours1) 
+	  if (!$row['private'] || $is_yours1)
             { $list.="<option value='${row['id']}' id='${row['id']}' style='color:blacki; background-color:white' $sel>".tops($row['top_only'])."${row['name']}<sup>$is_yours</sup>"; }
           $cnt++;
         }
