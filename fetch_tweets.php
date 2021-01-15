@@ -83,7 +83,7 @@ if ($_GET['inspect'])
     $data=$data."<div class='alert alert-first'>";
     $data=$data."<h4 class='alert-heading'><a href='".$_GET['tweet_permalink_path']."' target=_blank>Original tweet</a></h4><br><a href='https://twitter.com/".$_GET['user_screen_name']."' target=_blank>";
     $data=$data."<img src='".$_GET['user_image_url']."' alt='".$_GET['user_screen_name']."' align=left style='margin:10px;' onerror=\"this.style.display='none'\" width=50><br> &nbsp;<font color=white>";
-    $data=$data.urldecode($_GET['user_name'])." (".$_GET['user_screen_name'].")</font></a><br><blockquote><font color=black>".$_GET['clear_text']."</font></blockquote><hr><br>";
+    $data=$data.urldecode($_GET['user_name'])." (".$_GET['user_screen_name'].")</font></a><br><blockquote><font color=black><div class='td'>".$_GET['clear_text']."</font></blockquote><hr></div><br>";
     $data=$data."<a href='?id=tweets&table=$table&user_screen_name=".$_GET['user_screen_name']."&load=1'><font color=white>More from this tweeter</font></a> in connection to (".$cases[$table]['name'].")<br></div>";
 
     $first_part=$data;
@@ -920,7 +920,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                      $dataset=$dataset."data_set[$cnt]=[new Date(\"${row['date_time']}\"),${row['retweets']}];\n"."status[$cnt]=\"${row['tweet_id']}\";\n";
                      $data=$data."<tr><td>".($cnt+1)."</td><td>${row['date_time']}</td><td>".
                      "<img src='${row['user_image_url']}'><a href='https://twitter.com/${row['user_screen_name']}' target=_blank onerror=\"this.style.display='none'\" width=50></a><br><a href='?id=tweets&table=$table&user_screen_name=${row['user_screen_name']}&load=1'>@${row['user_screen_name']}<br>${row['user_name']}</a><br><b>Followers:</b> ${row['user_followers']}<br><b>Following:</b> ${row['user_following']}<br><b>Created:</b> ".get_date($row['user_created'])."<br><b>Tweets:</b> ${row['user_tweets']}".profile_location($row['user_location'],$row['user_timezone'])."</td>".
-                     "<td>".hyper_link($row['clear_text'])." - (<a href='${row['tweet_permalink_path']}' target=_blank>Link</a>)".location($row['location_name'],$row['location_fullname'])."</td>".
+                     "<td><div class='td'>".hyper_link($row['clear_text'])." - (<a href='${row['tweet_permalink_path']}' target=_blank>Link</a>)".location($row['location_name'],$row['location_fullname'])."</div></td>".
                      "<td><center>${row['retweets']}</center></td><td><center>${row['quotes']}</center></td><td><center>${row['favorites']}</center></td>".
  		                 "<td><center>${row['relative_impact']}</center></td>";
                      if ($row['replies'])
