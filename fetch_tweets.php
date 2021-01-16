@@ -884,16 +884,17 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                 if ($_GET['response_to']) { $url=$old_url; }
 		$orig_url=$url;
 		$url=preg_replace('/&asc=[\d]&order.+?=[\d]/','',$url);
+    $ri="";
+    if ($show_relative_impact>1) $ri="<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_ri=1')>relative impact".arrowdir($oppasc,'ri')."</a></td>";
 
-                $heading=$heading."<table style='font-size:8pt; background-color:#FFFFFF; width: 950px; table-layout: fixed;'><tr><td width=25>#</td><td width=75><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)".arrowdir($oppasc,'d')."</a></td>".
+                $heading=$heading."<table style='font-size:8pt; background-color:#FFFFFF; width: 1000px; table-layout: fixed;'><tr><td width=25>#</td><td width=75><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)".arrowdir($oppasc,'d')."</a></td>".
                 "<td width=120><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_u=1')>Tweeter's details ".arrowdir($oppasc,'u')."</a></td><td width=150><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_t=1')>".
-                "Tweet text".arrowdir($oppasc,'t')."</a></td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("min_retweets")."&order_r=1')>retweets".arrowdir($oppasc,'r')."</a></td>".
-                "<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_q=1')>quotes".arrowdir($oppasc,'q')."</a>".
-                "<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>favorites".arrowdir($oppasc,'f')."</a>".
-		"<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_ri=1')>relative impact".arrowdir($oppasc,'ri')."</a></td>".
-		"</td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
-                "Replies<br>".arrowdir($oppasc,'rs')."</a></td><td width=$per_page><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_s=1')>Source".arrowdir($oppasc,'s')."</a></td><td width=40><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_l=1')>Lang".arrowdir($oppasc,'l')."</a>".
-                "</td><td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("user_verified")."&order_v=1')>Verified user".arrowdir($oppasc,'v')."</a></td><td style='min-width:200px'>".
+                "Tweet text".arrowdir($oppasc,'t')."</a></td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("min_retweets")."&order_r=1')>Retweets".arrowdir($oppasc,'r')."</a></td>".
+                "<td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_q=1')>Quotes".arrowdir($oppasc,'q')."</a>".
+                "<td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>Favorites".arrowdir($oppasc,'f')."</a>$ri".
+		            "</td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
+                "Replies<br>".arrowdir($oppasc,'rs')."</a></td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_s=1')>Source".arrowdir($oppasc,'s')."</a></td><td width=40><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_l=1')>Lang".arrowdir($oppasc,'l')."</a>".
+                "</td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("user_verified")."&order_v=1')>Verified user".arrowdir($oppasc,'v')."</a></td><td width=200>".
                 "<a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("image_retweets")."&order_i=1')>Image (if any)".arrowdir($oppasc,'i')."</a></td></tr>\n";
 		$url=$orig_url;
              }
@@ -917,12 +918,13 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
 		              if ($_GET['hashtag_cloud']) $hashtag_cloud=$hashtag_cloud." ".$row['hashtags'];
                   if ($cnt+1>=$p && $cnt<$pp)
                    {
+                     $ri="";
+                     if ($show_relative_impact) $ri="<td><center>${row['relative_impact']}</center></td>";
                      $dataset=$dataset."data_set[$cnt]=[new Date(\"${row['date_time']}\"),${row['retweets']}];\n"."status[$cnt]=\"${row['tweet_id']}\";\n";
                      $data=$data."<tr><td>".($cnt+1)."</td><td>${row['date_time']}</td><td>".
                      "<img src='${row['user_image_url']}'><a href='https://twitter.com/${row['user_screen_name']}' target=_blank onerror=\"this.style.display='none'\" width=50></a><br><a href='?id=tweets&table=$table&user_screen_name=${row['user_screen_name']}&load=1'>@${row['user_screen_name']}<br>${row['user_name']}</a><br><b>Followers:</b> ${row['user_followers']}<br><b>Following:</b> ${row['user_following']}<br><b>Created:</b> ".get_date($row['user_created'])."<br><b>Tweets:</b> ${row['user_tweets']}".profile_location($row['user_location'],$row['user_timezone'])."</td>".
                      "<td>".hyper_link($row['clear_text'])." - (<a href='${row['tweet_permalink_path']}' target=_blank>Link</a>)".location($row['location_name'],$row['location_fullname'])."</td>".
-                     "<td><center>${row['retweets']}</center></td><td><center>${row['quotes']}</center></td><td><center>${row['favorites']}</center></td>".
- 		                 "<td><center>${row['relative_impact']}</center></td>";
+                     "<td><center>${row['retweets']}</center></td><td><center>${row['quotes']}</center></td><td><center>${row['favorites']}</center></td>$ri";
                      if ($row['replies'])
                        {
                          $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."')";

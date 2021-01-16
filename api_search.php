@@ -8,10 +8,7 @@ ini_set('max_input_time', -1);
 ini_set('memory_limit', '1024M');
 date_default_timezone_set('UTC');
 
-
-//example: egypt 1 2011-09-25ß
-
-if (!not_blank($argv[1])) $argv[1]=null;
+if (!isset($argv[1])) $argv[1]=null;
 
 if (!$argv[1]) die("Missing case...\n\n");
 
@@ -51,16 +48,12 @@ $fresh_start=true;
 
 $retweet_keys=array("clear_text","raw_text","has_image","has_video","media_link","has_link","urls","expanded_links","context_annotations","tweet_language","hashtags","user_mentions");
 
-//note("\nhi!\n");
-
 array_map('unlink', glob("tmp/cache/$table*.tab"));
 array_map('unlink', glob("tmp/cache/$table*.htm*"));
 $keywords=rawurlencode($cases[$table]['query']);
-//$keywords=$cases[$table]['query'];
 
 $mode="INSERT IGNORE"; if ($overwrite) $mode="REPLACE";
 
-//$type=""; //top tweets
 if ($mode=="log") $log=1; else $log=0;
 if ($starting_point=="purge") $resume=0; else $resume=1;
 $log=0;
@@ -81,7 +74,6 @@ $dates=array();
 $c=0;
 
 if (!$include_retweets) { $keywords=($keywords)."%20-is:retweet%20-is:quote"; }
-#if (!$include_referenced) { $keywords=($keywords)."%20-filter:replies"; }
 
 get_tweet_ids($table,$keywords);
 tweeter_data($table);
@@ -466,7 +458,11 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                          $tw['has_image']=1;
                          if (not_blank($img->url))
                           {
-                            if (strpos($tw['media_link'],$img->url)===false) $tw['media_link']=$tw['media_link']." ".$img->url;
+                            if (!(substr($img->url, 0, strlen("https://pbs.twimg.com/news_img")) === "https://pbs.twimg.com/news_img"
+                                && substr($img->url, -strlen("name=150x150")) === "name=150x150"))
+                                {
+                                  if (strpos($tw['media_link'],$img->url)===false) $tw['media_link']=$tw['media_link']." ".$img->url;
+                                }
                           }
                       }
                   }
@@ -864,10 +860,6 @@ function update_kumu_files($table)
       fclose($fp);
       echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."mentions.csv'>file ($table"."_"."mentions.csv)</a><br>\n";
 
-#echo "\n---\nResponse tweets"; print_r($all_responses);
-#echo "\n---\nMentions tweets:\n"; print_r($all_mentions);
-#echo "\n---\nUsers:\n"; print_r($all_users);
-
       echo "\nKumu: Creating elements for users...";
       $first_line=array("Label","Image","User Verified","Link","Bio","Language","Location","Tweets","Followers",
 		  "Following","Favorites","Lists","Created Date","Profile Page");
@@ -1094,7 +1086,6 @@ function GetRealURL( $url )
       $errmsg  = curl_error( $ch );
       $header  = curl_getinfo( $ch );
       curl_close( $ch );
-  //      print_r($header);
       if ($header['header_size'])
         return $header['url']." ".$header['content_type'];
       return "";
@@ -1106,15 +1097,7 @@ function url_get_contents($url)
     if (!function_exists('curl_init')) die('CURL is not installed!');
     $header = array(
     'accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8');
-//    'accept-language:en-US,en;q=0.8,sv;q=0.6,ar;q=0.4',
-//    'user-agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36');
     $ch = curl_init();
-/*    if (!$failed_proxy)
-	{
-	   curl_setopt($ch, CURLOPT_PROXY, "127.0.0.1:9050");
-    	   curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-	}
-*/
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -1161,11 +1144,8 @@ function put_user_in_database($user)
            }
        }
       $query="$insert_part ($names) values ($values) $update_part $query;";
-//echo "\nuser query:\n\n$query\n"; //exit;
      $result = $link->query($query);
      if (!$result) die("Invalid query: " . $link->sqlstate. "<hr>$query<hr>");
-  //   if ($link->affected_rows>$a_rows) $user_updated_rows++;
-  //   echo "\n---\n".$tweet_updated_rows." ".$user_updated_rows." (".$link->affected_rows.")\n---\n";
     }
 
 function draw_network($table)
@@ -1185,7 +1165,6 @@ function draw_network($table)
 
     $query = "$qry $condition order by user_followers desc";
 
-//echo "($query)\n";
     if ($result = $link->query($query))
         {
           if (!$result->num_rows) echo "No results in the database matched your query.<br>\n";
@@ -1215,7 +1194,6 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
     else die("Error in query: ". $link->error.": $query");
     if ($result->num_rows)
      {
-//echo $result->num_rows." DB Records found\n";
       $all_nodes=array_keys($all_nodes1);
       $header="source,target,value\n";
       $edges=array(); $edges[0]=$header; $edges[1]=$header; $edges[2]=$header;
@@ -1232,7 +1210,6 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
             if (!in_array($row[2],$all_nodes)) continue;
             $edges[$i]=$edges[$i].$all_nodes1[$row[0]].",".$all_nodes1[$row[2]].",".$row[3]."\n";
           }
-//                  echo "- $ii) working on ${row[0]} (i:$i)<br>\n";
        }
       for ($i=$maximum_strength; $i>$minimum_strength; $i--)
         {
@@ -1260,9 +1237,7 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
          $edges[3]=$header; $edges[4]=$header; $edges[5]=$header;
          $connected_nodes=array();
          $ii=0;
-//echo "\n$query\n<br>";
-//print_r($all_nodes1);
-//exit;
+
          while ($row = $result->fetch_array())
           {
            for ($kk=1; $kk<=10; $kk++)
@@ -1272,10 +1247,8 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
               if (!in_array($row[$kk],$all_nodes1)) continue;
               if (!$edges[$row[0].",".$row[$kk]]) $edges[$row[0].",".$row[$kk]]=0;
               $edges[$row[0].",".$row[$kk]]++;
-//echo "Adding: ".$row[0].",".$row[$kk]."\n<br>";
             }
           }
-//print_r($edges); exit;
         $edge_arr=array();
         for ($i=$maximum_strength; $i>$minimum_strength; $i--) { $edge_arr[$i]=$header; }
         $edges_keys=array_keys($edges);
@@ -1284,7 +1257,6 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
           for ($i=$maximum_strength; $i>$minimum_strength; $i--)
              { if ($edges[$edg]>$i) $edge_arr[$i]=$edge_arr[$i].$edg.",".$edges[$edg]."\n"; }
          }
-//print_r($edges_arr); exit;
         for ($i=$maximum_strength; $i>$minimum_strength; $i--)
          {
             if (!$edge_arr[$i]) { echo "No $i-level connections\n<br>"; continue; }
@@ -1298,7 +1270,6 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
   }
 
 function startswith($haystack, $needle) {
-    // search backwards starting from haystack length characters from the end
     return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
 }
 
