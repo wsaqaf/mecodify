@@ -448,7 +448,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                   {
                     if (not_blank($ur->description))
                       {
-                        $tw['raw_text']=$tw['raw_text']." ".$tw['expanded_links']."[".$ur->title." ".$ur->description."]";
+                        $tw['raw_text']=$tw['raw_text']." --- ".$tw['expanded_links']." [".$ur->title." ".$ur->description."]---";
                       }
                   }
                 if (not_blank($ur->images))

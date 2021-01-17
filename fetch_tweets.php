@@ -887,14 +887,14 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
     $ri="";
     if ($show_relative_impact>1) $ri="<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_ri=1')>relative impact".arrowdir($oppasc,'ri')."</a></td>";
 
-                $heading=$heading."<table style='font-size:8pt; background-color:#FFFFFF; width: 1000px; table-layout: fixed;'><tr><td width=25>#</td><td width=75><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)".arrowdir($oppasc,'d')."</a></td>".
+                $heading=$heading."<table style='font-size:8pt; background-color:#FFFFFF; width: 1000px; table-layout: fixed;'><tr><td width=25>#</td><td width=65><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)".arrowdir($oppasc,'d')."</a></td>".
                 "<td width=120><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_u=1')>Tweeter's details ".arrowdir($oppasc,'u')."</a></td><td width=150><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_t=1')>".
-                "Tweet text".arrowdir($oppasc,'t')."</a></td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("min_retweets")."&order_r=1')>Retweets".arrowdir($oppasc,'r')."</a></td>".
-                "<td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_q=1')>Quotes".arrowdir($oppasc,'q')."</a>".
-                "<td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>Favorites".arrowdir($oppasc,'f')."</a>$ri".
-		            "</td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
-                "Replies<br>".arrowdir($oppasc,'rs')."</a></td><td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_s=1')>Source".arrowdir($oppasc,'s')."</a></td><td width=40><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_l=1')>Lang".arrowdir($oppasc,'l')."</a>".
-                "</td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("user_verified")."&order_v=1')>Verified user".arrowdir($oppasc,'v')."</a></td><td width=200>".
+                "Tweet text".arrowdir($oppasc,'t')."</a></td><td width=55><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("min_retweets")."&order_r=1')>Retweets".arrowdir($oppasc,'r')."</a></td>".
+                "<td width=45><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_q=1')>Quotes".arrowdir($oppasc,'q')."</a>".
+                "<td width=55><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_f=1')>Favorites".arrowdir($oppasc,'f')."</a>$ri".
+		            "</td><td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("responded_tweets")."&order_rs=1')>".
+                "Replies<br>".arrowdir($oppasc,'rs')."</a></td><td width=60><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_s=1')>Source".arrowdir($oppasc,'s')."</a></td><td width=35><a href='#' onclick=javascript:GetDetails('$url&asc=".$oppasc."&order_l=1')>Lang".arrowdir($oppasc,'l')."</a>".
+                "</td><td width=50><a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("user_verified")."&order_v=1')>Verified user".arrowdir($oppasc,'v')."</a></td><td width=200>".
                 "<a href='#' onclick=javascript:GetDetails('$url&asc=".proper_order("image_retweets")."&order_i=1')>Image (if any)".arrowdir($oppasc,'i')."</a></td></tr>\n";
 		$url=$orig_url;
              }
