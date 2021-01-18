@@ -608,7 +608,7 @@ function update_response_mentions()
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         $query="UPDATE `users_".$table."` SET `users_".$table."`.`not_in_search_results`=1 ".
-                "WHERE EXISTS (SELECT 1 FROM `".$table."` WHERE `".$table."`.`user_screen_name`=`users_".$table."`.`user_screen_name`)";
+                "WHERE NOT EXISTS (SELECT 1 FROM `".$table."` WHERE `".$table."`.`user_screen_name`=`users_".$table."`.`user_screen_name`)";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         echo "\nDone with updating user mentions and replies...\n";
