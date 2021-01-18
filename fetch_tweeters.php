@@ -94,7 +94,7 @@ function show_profile($rank,$table,$user_screen_name)
 
     $qry= "SELECT users_".$table.".user_id,users_".$table.".user_name,users_".$table.".user_image_url,users_".$table.".user_lang,users_".$table.".user_location,users_".$table.".user_timezone,users_".$table.".user_tweets,".
     "users_".$table.".user_followers,users_".$table.".user_following,users_".$table.".user_favorites,users_".$table.".user_lists,users_".$table.".user_verified,users_".$table.".user_bio,users_".$table.".user_created,count($table.tweet_id) as a,".
-    "sum($table.retweets) as b,count($table.in_reply_to_user) as c,count($table.quoted_tweet_id) as d FROM $table , users_".$table." ";
+    "sum($table.retweets) as b,sum($table.replies) as c,sum($table.quotes) as d,sum($table.favorites) as e FROM $table , users_".$table." ";
     $condition="WHERE users_".$table.".user_screen_name='".$user_screen_name."' AND $table.user_screen_name='".$user_screen_name."'" ;
     $query="$qry $condition";
     if ($result = $link->query($query))
@@ -104,11 +104,27 @@ function show_profile($rank,$table,$user_screen_name)
           }
         else die("Error in query: ". $link->error.": $query");
 
-        $row = $result->fetch_assoc();
+   $row = $result->fetch_assoc();
+   echo "<table style='font-size:10pt; width:600px; background-color:#FFFFFF; border:1px; margin-left:30px'><tr><td colspan=2><h1><center>$rank</center></h1></td></tr>";
 
-        echo "<table style='font-size:10pt; width:600px; background-color:#FFFFFF; border:1px; margin-left:30px'><tr><td colspan=2><h1><center>$rank</center></h1></td></tr>";
-if ($row['a'])
-   {
+   if (!$row['a'])
+    {
+     $qry= "SELECT users_".$table.".user_id,users_".$table.".user_name,users_".$table.".user_image_url,users_".$table.".user_lang,users_".$table.".user_location,users_".$table.".user_timezone,users_".$table.".user_tweets,".
+     "users_".$table.".user_followers,users_".$table.".user_following,users_".$table.".user_favorites,users_".$table.".user_lists,users_".$table.".user_verified,users_".$table.".user_bio,users_".$table.".user_created FROM users_".$table." ";
+
+     $condition="WHERE users_".$table.".user_screen_name='".$user_screen_name."'" ;
+     $query="$qry $condition";
+     if ($result = $link->query($query))
+           {
+             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
+             $total=$result->num_rows;
+           }
+         else die("Error in query: ". $link->error.": $query");
+         $row = $result->fetch_assoc();
+         if ($row['user_name']) $row['a']=0;
+     }
+   if ($row['a']===0 || $row['a'])
+    {
         echo "<tr><td><img src='".str_replace("_normal.","_200x200.",$row['user_image_url'])."' alt='$user_screen_name profile image' style='display: inline-block;' width=200></td><td>\n";
         if ($row['user_verified']) echo "<img src='images/twitter-verified.jpg' width=100 alt='$user_screen_name verified' style='display: inline-block;'>\n";
         echo "<a href='https://www.twitter.com/$user_screen_name' target=_blank><b>${row['user_name']} ($user_screen_name)</b></a></td></tr>\n";
@@ -116,22 +132,24 @@ if ($row['a'])
         if ($row['user_location']) echo "<tr><td>Based in <b></td><td></b>${row['user_location']}</b> <i>(as indicated in profile)</i></td></tr>";
         if ($row['user_timezone']) echo "<tr><td>Timezone: </td><td><b>${row['user_timezone']}</b></td></tr>";
         if ($row['user_lang']) echo "</td></tr><tr><td>Language:</td><td><b>${row['user_lang']}</b> <i>(as indicated in profile)</i></td></tr>\n";
-//        if ($row['user_lang']) { if ($languages[$row['user_lang']]) echo "Speaks ".$languages[$row['user_lang']]."<br>\n"; else echo "Speaks ".$row['user_lang']."<br>\n"; }
         echo "</td></tr><tr><td>Joined Twitter:</td><td><b>${row['user_created']}</b></td><tr><td>Contributed</td><td><b>".number_format($row['user_tweets'])." tweets</b></td></tr>\n";
         echo "<tr><td>Followers</td><td><b>".number_format($row['user_followers'])."</b></td></tr><tr><td>Following</td><td><b>".number_format($row['user_following'])."</b></td></tr>\n";
         echo "<tr><td>Lists</td><td><b>".number_format($row['user_lists'])."</b></td></td>\n";
-        echo "</table><br>In connection to <b> ".$cases[$table]['name'];
+        echo "</table><br>In connection to this case only <b> (".$cases[$table]['name'].")";
         echo "<table style='font-size:10pt; width:600px; background-color:#FFFFFF; border:1px; margin-left:30px'><tr><td>Tweets</td><td><b>".number_format($row['a'])."</b></td></tr>";
         echo "<tr><td>Retweets by others</td><td><b>".number_format($row['b'])."</b></td></tr>\n";
-//        if ($row['c']) echo "<tr><td>Responses to others</td><td><b>".number_format($row['c'])."</b></td></tr>\n";
-        echo "<tr><td colspan=2><center><b><a href='index.php?id=tweets&table=$table&user_screen_name=$user_screen_name&load=1' target=_blank>See the tweets</a></b></center></td></tr>\n";
-   }
-else
-   {
-	echo "<tr><td>@$user_screen_name has no tweets in the database.<br><br>You can <a href='https://twitter.com/$user_screen_name' target=_blank>go to the twitter profile page</a> directly instead.</a></td></tr>";
-   }
-        echo "</table></center>\n";
-  }
+        echo "<tr><td>Responses from others</td><td><b>".number_format($row['c'])."</b></td></tr>\n";
+        echo "<tr><td>Quotes by others</td><td><b>".number_format($row['d'])."</b></td></tr>\n";
+        echo "<tr><td>Favorites by others</td><td><b>".number_format($row['e'])."</b></td></tr>\n";
+        if ($row['a']>0)
+          { echo "<tr><td colspan=2><center><b><a href='index.php?id=tweets&table=$table&user_screen_name=$user_screen_name&load=1' target=_blank>See the tweets</a></b></center></td></tr>\n"; }
+    }
+   else
+    {
+  	 echo "<tr><td>@$user_screen_name has no tweets in the database.<br><br>You can <a href='https://twitter.com/$user_screen_name' target=_blank>go to the twitter profile page</a> directly instead.</a></td></tr>";
+    }
+   echo "</table></center>\n";
+}
 
 function get_top($type,$limit)
   {
@@ -225,7 +243,7 @@ function get_top($type,$limit)
 	        else
             $qry= "SELECT user_screen_name,user_followers AS followers FROM users_".$table." ";
           if (substr($condition,0,5)==="WHERE") $condition=$condition." AND in_search_results=1";
-          else $condition="WHERE in_search_results=1";
+          else $condition="WHERE not_in_search_results IS NULL ";
           $query = "$qry $condition order by user_followers desc";
         }
     elseif ($type=="retweets")
