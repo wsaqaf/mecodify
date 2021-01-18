@@ -135,7 +135,7 @@ function get_all_fields($table,$getfield)
   {
     global $link; global $mysql_db; global $j; global $twitter_api_settings; global $last_setting;
     global $oldest_tweet_id; global $last_tweet_id; global $count_total;
-    global $added_users; global $next_token; global $max_tweets_per_case;
+    global $next_token; global $max_tweets_per_case;
 
     $last_setting=rand(0,sizeof($twitter_api_settings)-1);
 
@@ -152,7 +152,6 @@ function get_all_fields($table,$getfield)
       }
 
     $i=0;
-    $added_users=false;
 
     $oldest_tweet_id="";
     foreach($records as $record)
@@ -262,7 +261,7 @@ function not_blank($var)
 function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
   {
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
-    global $hash_cloud; global $from; global $to; global $added_users; global $added_tweets; global $include_retweets;
+    global $hash_cloud; global $from; global $to; global $added_tweets; global $include_retweets;
 
     if (in_array($tweet->id, $added_tweets_list)) return;
 
@@ -293,89 +292,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     if (not_blank($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
     if (not_blank($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
     if (not_blank($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
-
-    if (not_blank($tweet->referenced_tweets))
-     {
-       foreach ($tweet->referenced_tweets as $rtw)
-        {
-		      switch($rtw->type)
-            {
-      			  case "retweeted":
-      				$tw['is_retweet']=1;
-              $tw['retweeted_tweet_id']=$rtw->id;
-              $tw['retweets']=0;
-              if (not_blank($parent->includes->tweets))
-                {
-          				foreach ($parent->includes->tweets as $subt)
-          				  {
-          				    if ($subt->id == $rtw->id)
-              					{
-              					  $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
-                          foreach ($retweet_keys as $rk) { $tw[$rk]=$tmp_tw[$rk]; }
-                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
-                          $tw['clear_text']="RT ".$tw['clear_text'];
-                          $tw['raw_text']="RT ".$tw['raw_text'];
-              					  break;
-              					}
-                      else extract_and_store_data($subt,$parent,$include_referenced,1);
-          				  }
-                }
-              else
-                {
-                  die("Included tweets missing, exiting...\n");
-                }
-      				continue 2;
-              case "quoted":
-                $tw['is_quote']=1;
-                $tw['quoted_tweet_id']=$rtw->id;
-                foreach ($parent->includes->tweets as $subt)
-                  {
-                    if ($subt->id == $rtw->id)
-                        {
-                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
-                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
-                          break;
-                        }
-                  }
-              continue 2;
-              case "replied_to":
-                $tw['is_reply']=1;
-                $tw['in_reply_to_tweet']=$rtw->id;
-                foreach ($parent->includes->tweets as $subt)
-                  {
-                    if ($subt->id == $rtw->id)
-                        {
-                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
-                          $tw['in_reply_to_user']=$tmp_tw['user_id'];
-                          break;
-                        }
-                  }
-              continue 2;
-            }
-         }
-     }
-/******user data******/
-    if (not_blank($parent->includes->users))
-      {
-        foreach ($parent->includes->users as $subt)
-          {
-            if ($subt->id == $tw['user_id'])
-               {
-                 $tw['user_screen_name']=$subt->username;
-                 $tw['user_name']=$subt->name;
-                 $tw['user_location']=$subt->location;
-                 $tw['user_bio']=$subt->description;
-                 $tw['user_image_url']=str_replace("_400x400.jpg","_200x200.jpg", str_replace("_normal.jpg","_200x200.jpg",$subt->profile_image_url));
-                 $tw['user_verified']=$subt->verified;
-                 $tw['tweet_permalink_path']="https://twitter.com/".$subt->username."/status/".$tweet->id;
-                 add_user($subt); $added_users=true;
-               }
-            else
-              {
-                  if (!$added_users && $include_referenced) { add_user($subt); $added_users=true; }
-              }
-          }
-      }
 
 /******geo data of tweet (if any)******/
     if (not_blank($tweet->geo))
@@ -483,6 +399,92 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
 
     $tw['clear_text']=strip_tags($tw['raw_text']);
     if (strpos($tw['clear_text'],"@")===0) $tw['is_message']=1; else $tw['is_message']=0;
+
+    /******user data******/
+
+    if (not_blank($parent->includes->users))
+      {
+        foreach ($parent->includes->users as $subt)
+          {
+            if ($subt->id == $tw['user_id'])
+               {
+                 $tw['user_screen_name']=$subt->username;
+                 $tw['user_name']=$subt->name;
+                 $tw['user_location']=$subt->location;
+                 $tw['user_bio']=$subt->description;
+                 $tw['user_image_url']=str_replace("_400x400.jpg","_200x200.jpg", str_replace("_normal.jpg","_200x200.jpg",$subt->profile_image_url));
+                 $tw['user_verified']=$subt->verified;
+                 $tw['tweet_permalink_path']="https://twitter.com/".$subt->username."/status/".$tweet->id;
+                 add_user($subt);
+               }
+            else
+              {
+                  add_user($subt);
+              }
+          }
+      }
+
+    if (not_blank($tweet->referenced_tweets))
+     {
+       foreach ($tweet->referenced_tweets as $rtw)
+        {
+		      switch($rtw->type)
+            {
+      			  case "retweeted":
+      				$tw['is_retweet']=1;
+              $tw['retweeted_tweet_id']=$rtw->id;
+              $tw['retweets']=0;
+              if (not_blank($parent->includes->tweets))
+                {
+          				foreach ($parent->includes->tweets as $subt)
+          				  {
+          				    if ($subt->id == $rtw->id)
+              					{
+              					  $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
+                          foreach ($retweet_keys as $rk) { $tw[$rk]=$tmp_tw[$rk]; }
+                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
+                          $tw['clear_text']="RT ".$tw['clear_text'];
+                          $tw['raw_text']="RT ".$tw['raw_text'];
+              					  break;
+              					}
+                      else extract_and_store_data($subt,$parent,$include_referenced,1);
+          				  }
+                }
+              else
+                {
+                  die("Included tweets missing, exiting...\n");
+                }
+      				continue 2;
+              case "quoted":
+                $tw['is_quote']=1;
+                $tw['quoted_tweet_id']=$rtw->id;
+                foreach ($parent->includes->tweets as $subt)
+                  {
+                    if ($subt->id == $rtw->id)
+                        {
+                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
+                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
+                          break;
+                        }
+                  }
+              continue 2;
+              case "replied_to":
+                $tw['is_reply']=1;
+                $tw['in_reply_to_tweet']=$rtw->id;
+                foreach ($parent->includes->tweets as $subt)
+                  {
+                    if ($subt->id == $rtw->id)
+                        {
+                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
+                          $tw['in_reply_to_user']=$tmp_tw['user_id'];
+                          break;
+                        }
+                  }
+              continue 2;
+            }
+         }
+     }
+
 
     if ($save_to_db)
       {
@@ -603,6 +605,10 @@ function update_response_mentions()
 
         $query="UPDATE `user_mentions_".$table."`,`".$table."` SET `user_mentions_".$table.
         "`.`tweet_datetime`=`".$table."`.`date_time` WHERE `user_mentions_".$table."`.`tweet_id`=`".$table."`.`tweet_id`";
+        $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
+
+        $query="UPDATE `users_".$table."` SET `users_".$table."`.`not_in_search_results`=1 ".
+                "WHERE EXISTS (SELECT 1 FROM `".$table."` WHERE `".$table."`.`user_screen_name`=`users_".$table."`.`user_screen_name`)";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         echo "\nDone with updating user mentions and replies...\n";

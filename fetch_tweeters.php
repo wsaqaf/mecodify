@@ -222,8 +222,10 @@ function get_top($type,$limit)
           $name="Top followed tweeters";
           if ($_GET['export'])
             $qry= "SELECT user_screen_name,user_name AS full_name,user_followers AS followers, user_verified, user_location, user_lang AS user_language, user_bio,CONCAT('https://twitter.com/',user_screen_name) AS user_twitter_page  FROM users_".$table." ";
-	  else
+	        else
             $qry= "SELECT user_screen_name,user_followers AS followers FROM users_".$table." ";
+          if (substr($condition,0,5)==="WHERE") $condition=$condition." AND in_search_results=1";
+          else $condition="WHERE in_search_results=1";
           $query = "$qry $condition order by user_followers desc";
         }
     elseif ($type=="retweets")
@@ -237,7 +239,7 @@ function get_top($type,$limit)
           else
             $qry= "SELECT $table.user_screen_name,sum($table.retweets) AS retweets FROM $table ";
           $condition=preg_replace("/\s*WHERE/i"," AND ",$condition);
-          $condition="WHERE retweets>0 ".$condition." AND (is_retweet<>1)";
+          $condition="WHERE (is_retweet<>1) ".$condition." ";
           $query = "$qry $condition group by $table.user_screen_name order by sum($table.retweets) desc";
         }
     elseif ($type=="responses")
