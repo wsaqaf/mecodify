@@ -489,14 +489,12 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 			 	{
 					var params=["followers","retweets","responses","responders","all_mentions","mention","quotes","tweets"];
 					var limit=getSelectedValue('limit');
-					var lang=document.getElementById("language").value;
 					var loc=document.getElementById("location").value;
 					var bio=document.getElementById("bio").value;
 
 					var url='fetch_tweeters.php?overview=1&limit='+limit+'&table='+table;
 
 					var t;var j=0;var i;for(i=0;i<params.length;++i){t=getBoxValue(params[i]);if(t){url=url+'&'+params[i]+'='+t; j++; }}
-					if (lang) url=url+'&language='+lang;
 					if (loc) url=url+'&location='+loc;
 					if (bio) url=url+'&bio='+bio;
 

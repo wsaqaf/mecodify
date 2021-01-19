@@ -72,43 +72,18 @@ CREATE TABLE IF NOT EXISTS `1_empty_all_mentions` (
   `mention7` int(10) unsigned NOT NULL DEFAULT '0',
   `mention8` int(10) unsigned NOT NULL DEFAULT '0',
   `mention9` int(10) unsigned NOT NULL DEFAULT '0',
-  `mention10` int(10) unsigned NOT NULL DEFAULT '0'
+  `mention10` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention11` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention12` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention13` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention14` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention15` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention16` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention17` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention18` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention19` int(10) unsigned NOT NULL DEFAULT '0',
+  `mention20` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `1_empty_user_hashtags`
---
-
-CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
-  `tweet_id` bigint(20) unsigned DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `user_screen_name` varchar(20) CHARACTER SET ascii DEFAULT NULL,
-  `hashtag1` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag2` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag3` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag4` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag5` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag6` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag7` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag8` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag9` TINYTEXT NOT NULL DEFAULT '',
-  `hashtag10` TINYTEXT NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `1_empty_user_all_hashtags`
---
-
-CREATE TABLE IF NOT EXISTS `1_empty_user_all_hashtags` (
-  `tweet_id` bigint(20) unsigned DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `user_screen_name` varchar(20) CHARACTER SET ascii DEFAULT NULL,
-  `hashtag` tinytext NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -287,7 +262,6 @@ CREATE TABLE IF NOT EXISTS `1_empty_user_mentions` (
   `in_response_to_user_verified` tinyint(1) DEFAULT NULL,
   `responses_to_tweet` int(10) unsigned DEFAULT NULL,
   `responses_to_tweeter` int(10) unsigned DEFAULT NULL,
-  `mentions_of_tweeter` int(10) unsigned DEFAULT NULL,
   `mention1` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mention2` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mention3` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -297,7 +271,17 @@ CREATE TABLE IF NOT EXISTS `1_empty_user_mentions` (
   `mention7` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mention8` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mention9` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mention10` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `mention10` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention11` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention12` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention13` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention14` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention15` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention16` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention17` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention18` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention19` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mention20` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

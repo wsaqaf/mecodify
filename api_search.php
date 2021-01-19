@@ -538,7 +538,8 @@ function update_response_mentions()
         $query="TRUNCATE TABLE $all_m";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        	$query="INSERT INTO $all_m (tweet_id,replies) (SELECT $table.in_reply_to_tweet,count($table.tweet_id) FROM $table WHERE $table.is_protected_or_deleted is null and $table.date_time is not null AND $table.in_reply_to_tweet is not null group by $table.in_reply_to_tweet order by count($table.tweet_id) desc)";
+/*** Add reply data (to tweets and to tweeter) ***/
+        $query="INSERT INTO $all_m (tweet_id,replies) (SELECT $table.in_reply_to_tweet,count($table.tweet_id) FROM $table WHERE $table.is_protected_or_deleted is null and $table.date_time is not null AND $table.in_reply_to_tweet is not null group by $table.in_reply_to_tweet order by count($table.tweet_id) desc)";
       	$result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
       	$query="UPDATE IGNORE $all_m,$table SET $all_m.user_screen_name = LOWER($table.user_screen_name), $all_m.user_id = $table.user_id  WHERE $all_m.tweet_id = $table.tweet_id";
@@ -558,29 +559,33 @@ function update_response_mentions()
 
         $query="CREATE FUNCTION SPLIT_STRING(str VARCHAR(255), delim VARCHAR(12), pos INT) RETURNS VARCHAR(255) RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos), LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1), delim, '')";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-        $query="INSERT INTO $u_m(tweet_id,user_id,user_screen_name, mention1, mention2, mention3, mention4, mention5, mention6, mention7, mention8, mention9, mention10) select $table.tweet_id, $table.user_id, LOWER($table.user_screen_name), ".
-        "SPLIT_STRING($table.user_mentions, ' ', 1),SPLIT_STRING($table.user_mentions, ' ', 2),SPLIT_STRING($table.user_mentions, ' ', 3),".
-        "SPLIT_STRING($table.user_mentions, ' ', 4),SPLIT_STRING($table.user_mentions, ' ', 5),SPLIT_STRING($table.user_mentions, ' ', 6),".
-        "SPLIT_STRING($table.user_mentions, ' ', 7),SPLIT_STRING($table.user_mentions, ' ', 8),SPLIT_STRING($table.user_mentions, ' ', 9),".
-        "SPLIT_STRING($table.user_mentions, ' ', 10) from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null)";
+        $mentions="mention1"; $mentions2="SPLIT_STRING($table.user_mentions, ' ', 1)";
+        for ($i=2; $i<=20; $i++) { $mentions=$mentions.", mention$i"; $mentions2=$mentions2.",SPLIT_STRING($table.user_mentions, ' ', $i)"; }
+
+/*** Add mention data (upto 20 mentions per tweet) ***/
+
+        $query="INSERT INTO $u_m(tweet_id,user_id,user_screen_name, $mentions) select $table.tweet_id, $table.user_id, LOWER($table.user_screen_name), $mentions2 ".
+        "from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null)";
 
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        for ($i=1; $i<=10; $i++)
+        for ($i=1; $i<=20; $i++)
           {
             $query="INSERT INTO `$all_m` (user_screen_name,mention$i) (SELECT SUBSTR($u_m.mention$i,2),count($u_m.tweet_id) AS counts FROM $u_m WHERE $u_m.mention$i<>'' group by $u_m.mention$i order by count($u_m.tweet_id) desc) on duplicate key update $all_m.mention$i=VALUES(mention$i)";
             $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
           }
-        $query="UPDATE $all_m SET mentions_of_tweeter=(mention1+mention2+mention3+mention4+mention5+mention6+mention7+mention8+mention9+mention10)";
+        $mentions="sum(mention1)";
+        for ($i=2; $i<=20; $i++) { $mentions=$mentions."+sum(mention$i)"; }
+        $query="UPDATE $all_m r JOIN (SELECT user_screen_name,$mentions as mt FROM $all_m group by user_screen_name) u ON r.user_screen_name=u.user_screen_name SET r.mentions_of_tweeter=u.mt";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         $query="update $table,$all_m set $table.replies=$all_m.replies where $table.tweet_id=$all_m.tweet_id and $all_m.tweet_id is not null";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        $query="update $table,$all_m set $table.responses_to_tweeter=$all_m.responses_to_tweeter where $table.user_id=$all_m.user_id and $all_m.user_id is not null";
+        $query="update $table,$all_m set $table.responses_to_tweeter=$all_m.responses_to_tweeter where $table.user_id=$all_m.user_id";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        $query="update $table,$all_m set $table.mentions_of_tweeter=$all_m.mentions_of_tweeter where LOWER($table.user_screen_name)=LOWER($all_m.user_screen_name) and $all_m.user_screen_name is not null";
+        $query="update $table,$all_m set $table.mentions_of_tweeter=$all_m.mentions_of_tweeter where LOWER($table.user_screen_name)=LOWER($all_m.user_screen_name)";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         $query="UPDATE user_mentions_".$table.",$table "."
@@ -782,9 +787,11 @@ function update_kumu_files($table)
       fclose($fp);
       echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."responses.csv'>file ($table"."_"."responses.csv)</a><br>\n";
 
-      $query= "SELECT LOWER($t.user_screen_name) as screen_name,$t.mention1,$t.mention2,$t.mention3,$t.mention4,$t.mention5,$t.mention6,$t.mention7,".
-  		"$t.mention8,$t.mention9,$t.mention10,".
-  		"$t.tweet_datetime,$table.is_retweet,$table.is_quote,$table.is_reply,$table.tweet_permalink_path,$table.user_verified,$table.has_image,$table.has_video,".
+      $mentions="mention1";
+      for ($i=2; $i<=20; $i++) { $mentions=$mentions.",$t.mention$i"; }
+
+      $query= "SELECT LOWER($t.user_screen_name) as screen_name,$mentions,$t.tweet_datetime,$table.is_retweet,$table.is_quote,".
+  		"$table.is_reply,$table.tweet_permalink_path,$table.user_verified,$table.has_image,$table.has_video,".
       "$table.has_link,$table.media_link,$table.expanded_links,$table.source,$table.location_name,$table.country,".
       "$table.tweet_language,$table.raw_text,$table.hashtags,$table.user_mentions,$table.retweets,$table.quotes,$table.replies,$table.favorites,$t.tweet_id ".
       "FROM $t,$table WHERE $t.mention1>'' and $t.user_screen_name is not null and $t.tweet_id=$table.tweet_id ".
@@ -848,7 +855,7 @@ function update_kumu_files($table)
                if (!not_blank($all_users[$row['mention1']])) $all_users[$row['mention1']]=1;
         		   fputcsv($fp, $new_row);
       		  }
-      		for($i=2; $i<=10; $i++)
+      		for($i=2; $i<=20; $i++)
       		  {
               $m_i="mention".(string)$i;
       		    if (!$row[$m_i]) break;
@@ -1226,8 +1233,10 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
       }
       echo "\n\nSTEP 2 (replies) DONE\n\n";
 
-      $qry= "select user_screen_name,mention1,mention2,mention3,mention4,mention5,
-             mention6,mention7,mention8,mention9,mention10 from user_mentions_".$table;
+      $mentions="mention1";
+      for ($i=2; $i<=20; $i++) { $mentions=$mentions.",mention$i"; }
+
+      $qry= "select user_screen_name,$mentions from user_mentions_".$table;
           $condition="WHERE mention1 is not null";
           $query = "$qry $condition";
       if ($result = $link->query($query))
