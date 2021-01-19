@@ -532,6 +532,10 @@ function update_response_mentions()
         $all_m="user_all_mentions_"."$table"; $u_m="user_mentions_".$table;
         echo "Adding replies, replies to tweeter and mentions of tweeter data to table ...<br>\n";
 
+        $query="UPDATE `users_".$table."` SET `users_".$table."`.`not_in_search_results`=1 ".
+                "WHERE NOT EXISTS (SELECT 1 FROM `".$table."` WHERE `".$table."`.`user_screen_name`=`users_".$table."`.`user_screen_name`)";
+        $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
+
         $query="CREATE TABLE IF NOT EXISTS $all_m like 1_empty_all_mentions";
         $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
@@ -559,10 +563,11 @@ function update_response_mentions()
 
         $query="CREATE FUNCTION SPLIT_STRING(str VARCHAR(255), delim VARCHAR(12), pos INT) RETURNS VARCHAR(255) RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos), LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1), delim, '')";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-        $mentions="mention1"; $mentions2="SPLIT_STRING($table.user_mentions, ' ', 1)";
-        for ($i=2; $i<=20; $i++) { $mentions=$mentions.", mention$i"; $mentions2=$mentions2.",SPLIT_STRING($table.user_mentions, ' ', $i)"; }
 
 /*** Add mention data (upto 20 mentions per tweet) ***/
+
+        $mentions="mention1"; $mentions2="SPLIT_STRING($table.user_mentions, ' ', 1)";
+        for ($i=2; $i<=20; $i++) { $mentions=$mentions.", mention$i"; $mentions2=$mentions2.",SPLIT_STRING($table.user_mentions, ' ', $i)"; }
 
         $query="INSERT INTO $u_m(tweet_id,user_id,user_screen_name, $mentions) select $table.tweet_id, $table.user_id, LOWER($table.user_screen_name), $mentions2 ".
         "from $table where $table.user_mentions is not null or ($table.in_reply_to_tweet is not null and $table.in_reply_to_user is not null AND $table.is_protected_or_deleted is null and $table.date_time is not null)";
@@ -610,10 +615,6 @@ function update_response_mentions()
 
         $query="UPDATE `user_mentions_".$table."`,`".$table."` SET `user_mentions_".$table.
         "`.`tweet_datetime`=`".$table."`.`date_time` WHERE `user_mentions_".$table."`.`tweet_id`=`".$table."`.`tweet_id`";
-        $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-
-        $query="UPDATE `users_".$table."` SET `users_".$table."`.`not_in_search_results`=1 ".
-                "WHERE NOT EXISTS (SELECT 1 FROM `".$table."` WHERE `".$table."`.`user_screen_name`=`users_".$table."`.`user_screen_name`)";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
         echo "\nDone with updating user mentions and replies...\n";
