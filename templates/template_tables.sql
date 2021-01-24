@@ -85,6 +85,11 @@ CREATE TABLE IF NOT EXISTS `1_empty_all_mentions` (
   `mention20` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+ALTER TABLE `1_empty_all_mentions`
+  ADD KEY `user_screen_name` (`user_screen_name`),
+  ADD KEY `mentions_of_tweeter` (`mentions_of_tweeter`);
+COMMIT;
+
 -- --------------------------------------------------------
 
 --
