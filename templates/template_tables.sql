@@ -332,7 +332,7 @@ ALTER TABLE `1_empty_user_mentions`
   ADD KEY `tweet_id_2` (`tweet_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `in_response_to_user_id` (`in_response_to_user_id`),
-  ADD KEY `in_response_to_tweet` (`in_response_to_tweet`,`in_response_to_user_screen_name`,`responses_to_tweet`,`responses_to_tweeter`,`mentions_of_tweeter`);
+  ADD KEY `in_response_to_tweet` (`in_response_to_tweet`,`in_response_to_user_screen_name`,`responses_to_tweet`,`responses_to_tweeter`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
