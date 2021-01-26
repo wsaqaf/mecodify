@@ -344,7 +344,10 @@ function submit_case($replace)
               elseif (($row['to_date']<$_POST['case_to'] || !$_POST['case_to']) && $row['from_date']==$_POST['case_from']) { $new_status=" status='expanded_right',"; }
               elseif ($_POST['case_from'] && $row['from_date']>$_POST['case_from'] && $row['to_date']<$_POST['case_to']){ die("You cannot change both start and end dates values at once. Start with updating one (either start or end) and run the process. Once finished, you can expand by changing the other value."); }
               elseif ($row['from_date']<$_POST['case_from'] || ($row['to_date']>$_POST['case_to'] && $_POST['case_to'])
-                  || (!$row['case_to'] && $_POST['case_to']) || (!$row['case_from'] && $_POST['case_from'])) { die("You cannot make the period shorter, but can only expand it. Start a new case with the shorter time period instead."); }
+                  || (!$row['to_date'] && $_POST['case_to']) || (!$row['from_date'] && $_POST['case_from']))
+                  {
+                    die("You cannot make the period shorter, but can only expand it. Start a new case with the shorter time period instead.");
+                  }
             }
           $query="UPDATE cases set name='".$link->real_escape_string($_POST['case_name'])."', ".
           "include_retweets='${_POST['case_include_retweets']}', top_only='${_POST['case_top_only']}', from_date='${_POST['case_from']}', to_date='${_POST['case_to']}', details='".
