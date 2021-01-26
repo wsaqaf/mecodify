@@ -76,29 +76,35 @@ $c=0;
 if (!$include_retweets) { $keywords=($keywords)."%20-is:retweet%20-is:quote"; }
 
 get_tweet_ids($table,$keywords);
+get_hashtag_cloud($tabe);
 tweeter_data($table);
 
-$query= "SELECT hashtags FROM $table where hashtags is not null";
-if ($result = $link->query($query))
-    {
-      if (!$result->num_rows) { echo "No hashtags in the database matched your query.<br>\n";  }
-      $total=$result->num_rows;
-    }
-else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
-while ($row=$result->fetch_assoc())
-  {
-     $hash_cloud=$hash_cloud." ".$row['hashtags'];
-  }
-file_put_contents("tmp/cache/$table-hashcloud.html","<html><meta http-equiv='content-type' content='text/html; charset=utf-8' />\n$hash_cloud</html>\n");
-$cloud = new PTagCloud(100);
-$cloud->addTagsFromText($hash_cloud);
-$cloud->setWidth("900px");
-$temp=$link->real_escape_string($cloud->emitCloud());
-$query= "UPDATE cases SET hashtag_cloud='$temp' where id='$table'";
-if ($result = $link->query($query)) echo "updated $table\n";
-else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
-
 $link->close();
+
+function get_hashtag_cloud($tabe)
+  { global $link;
+    $query= "SELECT hashtags FROM $table where hashtags is not null";
+    if ($result = $link->query($query))
+        {
+          if (!$result->num_rows) { echo "No hashtags in the database matched your query.<br>\n";  }
+          $total=$result->num_rows;
+        }
+    else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
+    $hash_cloud="";
+    while ($row=$result->fetch_assoc())
+      {
+         $hash_cloud=$hash_cloud." ".$row['hashtags'];
+      }
+    $hash_cloud=trim($hash_cloud);
+    file_put_contents("tmp/cache/$table-hashcloud.html","<html><meta http-equiv='content-type' content='text/html; charset=utf-8' />\n$hash_cloud</html>\n");
+    $cloud = new PTagCloud(100);
+    $cloud->addTagsFromText($hash_cloud);
+    $cloud->setWidth("900px");
+    $temp=$link->real_escape_string($cloud->emitCloud());
+    $query= "UPDATE cases SET hashtag_cloud='$temp' where id='$table'";
+    if ($result = $link->query($query)) echo "updated $table with hashtag_cloud\n";
+    else { echo "Error in query: ". $link->error.": $query... Skipping\n\n"; exit; }
+  }
 
 function get_tweet_ids($table,$keywords)
   {
