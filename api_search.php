@@ -76,7 +76,7 @@ $c=0;
 if (!$include_retweets) { $keywords=($keywords)."%20-is:retweet%20-is:quote"; }
 
 get_tweet_ids($table,$keywords);
-get_hashtag_cloud($tabe);
+get_hashtag_cloud($table);
 tweeter_data($table);
 
 $link->close();
