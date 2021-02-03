@@ -81,7 +81,7 @@ tweeter_data($table);
 
 $link->close();
 
-function get_hashtag_cloud($tabe)
+function get_hashtag_cloud($table)
   { global $link;
     $query= "SELECT hashtags FROM $table where hashtags is not null";
     if ($result = $link->query($query))
