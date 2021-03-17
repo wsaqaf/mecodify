@@ -269,7 +269,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
     global $hash_cloud; global $from; global $to; global $added_tweets; global $include_retweets;
 
-    if (in_array($tweet->id, $added_tweets_list)) return;
+    if (in_array($tweet->id, $added_tweets_list)) { echo "found in DB already, skipping\n"; return; }
 
     if (startsWith($tweet->text,"RT @") && !$include_retweets) return;
 
@@ -430,46 +430,54 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
           }
       }
 
-    if (not_blank($tweet->referenced_tweets))
+    if (not_blank($tweet->referenced_tweets) && !$is_referenced)
      {
        foreach ($tweet->referenced_tweets as $rtw)
         {
-		      switch($rtw->type)
+	   switch($rtw->type)
             {
-      			  case "retweeted":
-      				$tw['is_retweet']=1;
-              $tw['retweeted_tweet_id']=$rtw->id;
-              $tw['retweets']=0;
-              if (not_blank($parent->includes->tweets))
-                {
-          				foreach ($parent->includes->tweets as $subt)
-          				  {
-          				    if ($subt->id == $rtw->id)
-              					{
-              					  $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
-                          foreach ($retweet_keys as $rk) { $tw[$rk]=$tmp_tw[$rk]; }
-                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
-                          $tw['clear_text']="RT ".$tw['clear_text'];
-                          $tw['raw_text']="RT ".$tw['raw_text'];
-              					  break;
-              					}
-                      else extract_and_store_data($subt,$parent,$include_referenced,1);
-          				  }
-                }
+      	      case "retweeted":
+      		  $tw['is_retweet']=1;
+                  $tw['retweeted_tweet_id']=$rtw->id;
+                  $tw['retweets']=0;
+                  if (not_blank($parent->includes->tweets))
+                    {
+          		foreach ($parent->includes->tweets as $subt)
+          		  {
+          		    if ($subt->id == $rtw->id)
+				    {
+           				  note("Doing sub rt id [".$subt->id."]\n");
+              				  $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
+                          		  foreach ($retweet_keys as $rk) { $tw[$rk]=$tmp_tw[$rk]; }
+                          		  $tw['retweeted_user_id']=$tmp_tw['user_id'];
+                          		  $tw['clear_text']="RT ".$tw['clear_text'];
+                          		  $tw['raw_text']="RT ".$tw['raw_text'];
+              				  break;
+              		   	    }
+			    else    {
+				        note("Doing sub id [".$subt->id."]\n");
+				        extract_and_store_data($subt,$parent,$include_referenced,1);
+				    }  
+			  }
+                    }
               else
                 {
                   die("Included tweets missing, exiting...\n");
                 }
-      				continue 2;
+      	      continue 2;
               case "quoted":
                 $tw['is_quote']=1;
-                $tw['quoted_tweet_id']=$rtw->id;
+		$tw['quoted_tweet_id']=$rtw->id;
+		$tw['retweeted_tweet_id']=$rtw->id;
                 foreach ($parent->includes->tweets as $subt)
                   {
                     if ($subt->id == $rtw->id)
-                        {
+		    {
+			  note("Doing sub q id [".$subt->id."]\n");
                           $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
-                          $tw['retweeted_user_id']=$tmp_tw['user_id'];
+			  $tw['retweeted_user_id']=$tmp_tw['user_id'];
+			  $tw['raw_text']=$tw['raw_text']." '".$tmp_tw['raw_text']."'";
+                          $tw['clear_text']=$tw['clear_text']." '".$tmp_tw['clear_text']."'";
                           break;
                         }
                   }
@@ -480,7 +488,8 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                 foreach ($parent->includes->tweets as $subt)
                   {
                     if ($subt->id == $rtw->id)
-                        {
+		    {
+			  note("Doing sub rp id [".$subt->id."]\n");
                           $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
                           $tw['in_reply_to_user']=$tmp_tw['user_id'];
                           break;
@@ -753,9 +762,9 @@ function update_kumu_files($table)
           $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
           $new_row['From']=ltrim($row['screen_name'],'@');
           $new_row['To']=ltrim($row['response_screen_name'],'@');
-      		if (!not_blank($valid_users[$row['screen_name']])) { /*echo "Skipping (${row[0]})...";*/ continue; }
-      		if (!not_blank($valid_users[$row['response_screen_name']])) { /*echo "Skipping (${row[1]})...";*/ continue; }
-      		if ($row['is_retweet']) { $new_row['Type']="Retweet"; }
+      	  if (!not_blank($valid_users[$row['screen_name']])) { /*echo "Skipping (${row[0]})...";*/ continue; }
+      	  if (!not_blank($valid_users[$row['response_screen_name']])) { /*echo "Skipping (${row[1]})...";*/ continue; }
+      	  if ($row['is_retweet']) { $new_row['Type']="Retweet"; }
           elseif ($row['is_quote']) { $new_row['Type']="Quote of a tweet"; }
           elseif ($row['is_reply']) { $new_row['Type']="Reply to tweet"; }
           else $new_row['Type']="Regular tweet";
@@ -764,9 +773,9 @@ function update_kumu_files($table)
           $new_row['Content']=str_replace("\"","'",preg_replace("/[\r\n]+/"," ",$row['raw_text']));
           if ($row['hashtags']) $new_row['Tags']=preg_replace("/\s+/","|",$row['hashtags']);
           if ($row['user_mentions']) $new_row['Mentions']=preg_replace("/\s+/","|",$row['user_mentions']);
-      		$all_responses[$row['tweet_id']]=1;
-      		if (!not_blank($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
-      		if (!not_blank($all_users[$row['response_screen_name']])) $all_users[$row['response_screen_name']]=1;
+      	  $all_responses[$row['tweet_id']]=1;
+      	  if (!not_blank($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
+      	  if (!not_blank($all_users[$row['response_screen_name']])) $all_users[$row['response_screen_name']]=1;
 
           $new_row['Date']=$row['tweet_datetime'];
           $new_row['Link']=$row['tweet_permalink_path'];
@@ -798,12 +807,12 @@ function update_kumu_files($table)
       for ($i=2; $i<=20; $i++) { $mentions=$mentions.",$t.mention$i"; }
 
       $query= "SELECT LOWER($t.user_screen_name) as screen_name,$mentions,$t.tweet_datetime,$table.is_retweet,$table.is_quote,".
-  		"$table.is_reply,$table.tweet_permalink_path,$table.user_verified,$table.has_image,$table.has_video,".
+      "$table.is_reply,$table.tweet_permalink_path,$table.user_verified,$table.has_image,$table.has_video,".
       "$table.has_link,$table.media_link,$table.expanded_links,$table.source,$table.location_name,$table.country,".
       "$table.tweet_language,$table.raw_text,$table.hashtags,$table.user_mentions,$table.retweets,$table.quotes,$table.replies,$table.favorites,$t.tweet_id ".
       "FROM $t,$table WHERE $t.mention1>'' and $t.user_screen_name is not null and $t.tweet_id=$table.tweet_id ".
-  		"AND $table.is_protected_or_deleted is null and $table.date_time is not null ".
-  		"order by $table.retweets DESC";
+      "AND $table.is_protected_or_deleted is null and $table.date_time is not null ".
+      "order by $table.retweets DESC";
 
       if ($result = $link->query($query))
           {
@@ -822,14 +831,14 @@ function update_kumu_files($table)
         {
           $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
           $new_row['From']=ltrim($row['screen_name'],'@');
-      		$new_row['To']=ltrim($row['mention1'],'@');
-      		if (!not_blank($valid_users[$row['screen_name']])) continue;
-	        if (!not_blank($all_responses[$row['tweet']]))
+      	  $new_row['To']=ltrim($row['mention1'],'@');
+      	  if (!not_blank($valid_users[$row['screen_name']])) continue;
+	  if (!not_blank($all_responses[$row['tweet']]))
       		   {
           			$mention="mention only";
           			if (!not_blank($all_mentions[$row['tweet']])) $all_mentions[$row[$row['tweet']]]=1;
       		   }
-      		else
+      	  else
       		   {
       		     $mention="response and mention";
       		   }
@@ -919,18 +928,14 @@ function update_cases_table($mode)
 function cUrlGetData($url)
  {
    global $twitter_api_settings; global $limit_remaining; global $limit_reset; global $full_header;
-#sandbox token
-	$token="Bearer ".$twitter_api_settings['bearer'];
-
-#academic token
-#    	$token="Bearer AAAAAAAAAAAAAAAAAAAAAKGfgAAAAAAADOYTT8XoXgcQ4e48zcr%2FYnoZv6g%3DokDOzVRPl58vp48OzxBakZQ83LnULG2WlG1kLoVAKsPfn6Q09l";
-
-  $ch = curl_init( $url );
+   
+   	$token="Bearer ".$twitter_api_settings['bearer'];
+  	$ch = curl_init( $url );
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 	   'Content-Type: application/json',
 	   'Authorization: '.$token
-     ));
+     	));
 
   curl_setopt($ch, CURLOPT_HEADER, 1);
 

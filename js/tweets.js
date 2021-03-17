@@ -583,6 +583,7 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
        document.getElementById("response_tweets").checked=false;
        document.getElementById("responded_tweets").checked=false;
        document.getElementById("quoting_tweets").checked=false;
+       document.getElementById("referenced_tweets").checked=false;
        document.getElementById("mentions_tweets").checked=false;
        document.getElementById("any_hashtags").value="";
        document.getElementById("any_keywords").value="";
@@ -758,6 +759,7 @@ function showkumu()
 	 						qry['retweet_tweets']=getBoxValue("retweet_tweets");
 	 						qry['response_tweets']=getBoxValue("response_tweets");
               qry['quoting_tweets']=getBoxValue("quoting_tweets");
+              qry['referenced_tweets']=getBoxValue("referenced_tweets");
               qry['mentions_tweets']=getBoxValue("mentions_tweets");
 	 						qry['responded_tweets']=getBoxValue("responded_tweets");
 							var ht=document.getElementById("any_hashtags").value.toLowerCase();
@@ -776,7 +778,7 @@ function showkumu()
 	 						qry['stackgraph']=getBoxValue("stackgraph");
 
 	 						if (qry['types']=="all" || (qry['image_tweets'] && qry['video_tweets'] && qry['link_tweets'] && qry['retweet_tweets']
-	 							&& qry['response_tweets'] && qry['responded_tweets'] && qry['quoting_tweets'] && qry['any_hashtags']=='' && qry['any_keywords']=='' && qry['all_keywords']==''
+	 							&& qry['response_tweets'] && qry['responded_tweets'] && qry['quoting_tweets'] && qry['referenced_tweets'] && qry['any_hashtags']=='' && qry['any_keywords']=='' && qry['all_keywords']==''
 	 							&& qry['exact_phrase']=='' && qry['from_accounts']=='' && qry['in_reply_to_tweet_id']=='' && qry['location']=='' && qry['min_retweets']=='' && qry['user_verified']))
 								{ qry['types']=""; }
 	 						else qry['types']="some";

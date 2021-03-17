@@ -103,8 +103,9 @@ if ($_GET['inspect'])
                                     "' OR clear_text='".$link->real_escape_string($original_text).
                                     "' OR clear_text like '%".$link->real_escape_string($partial_text)."%'"; }
 
-    $query="select tweet_id,tweet_permalink_path,user_id,user_screen_name,user_name,user_image_url,user_mentions,clear_text,in_reply_to_user,in_reply_to_tweet,date_time from $table".
-           " where (in_reply_to_tweet='$tweet_id' OR ". //direct response
+    $query="select tweet_id,tweet_permalink_path,user_id,user_screen_name,user_name,user_image_url,user_mentions,clear_text,in_reply_to_user,in_reply_to_tweet,date_time,quoted_tweet_id from $table".
+	   " where (in_reply_to_tweet='$tweet_id' OR ". //direct response
+	   " retweeted_tweet_id='$tweet_id' OR quoted_tweet_id='$tweet_id' OR ".
            " (date_time>'$date_time' AND date_time<='$date_time'+ INTERVAL 1 DAY AND (in_reply_to_user='$user_id' ". //response to user only
            " OR user_mentions like '%@$user_name%' ". //mentioned only
            " $clear_text))) and is_protected_or_deleted is null order by date_time"; //repeated part of the tweet
@@ -118,7 +119,7 @@ if ($_GET['inspect'])
       }
     else die("Error in query: ". $link->error.": $query");
 
-    $i=0; $t=0; $u=0; $m=0; $r=0; $o=0; $p=0;
+    $i=0; $t=0; $u=0; $m=0; $r=0; $o=0; $p=0; $q=0;
 
     $data=""; $last_five=rand(1000,9999);
     while ($row=$result->fetch_assoc())
@@ -136,6 +137,10 @@ if ($_GET['inspect'])
         elseif ($clear_text && $row['clear_text']==$clear_text)
           {
             $found="Retweeted tweet"; $note="info"; $r++; $tweet_marker=$tweet_id."_r";
+          }
+        elseif ($row['quoted_tweet_id']==$tweet_id)
+          {
+            $found="Quoted tweet"; $note="info"; $q++; $tweet_marker=$tweet_id."_q"; $is_quote=1;
           }
         elseif ($clear_text && $row['clear_text']==$original_text)
           {
@@ -157,10 +162,11 @@ if ($_GET['inspect'])
                     "<img src='".$row['user_image_url']."' alt='".$row['user_screen_name']."' align=left onerror=\"this.style.display='none'\" width=50> &nbsp;";
         $data=$data.$row['user_name']." (".$row['user_screen_name'].")</a><br><br><blockquote><font color=black>".hyper_link($row['clear_text'])."</font></blockquote>";
         $data=$data."<center><a href='?id=tweets&table=$table&user_screen_name=".$row['user_screen_name']."&load=1' target=_blank>More from this tweeter</a> in connection to (".$cases[$table]['name'].")</center><br><a href=";
-        $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."','".$row['tweet_id'].$last_five."_branch')";
+        $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&is_quote=$is_quote&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."','".$row['tweet_id'].$last_five."_branch')";
         $inspect_link=str_replace("%0A","%20",$inspect_link);
         $data=$data.$inspect_link."><img src='images/inspect.png' alt='see connected tweets'></a><br><div id='".$row['tweet_id'].$last_five."_branch'></div></div></div>";
-        if ($_GET['branch']) $data=$data;
+
+	if ($_GET['branch']) $data=$data;
       }
 
 if (!$i) die("No related tweets to ($user_name) were found...");
@@ -174,6 +180,7 @@ if (!$_GET['branch'])
     if ($r) echo "<li><b>$r</b> a manual retweet (not through Twitter's retweet feature)</li>";
     if ($o) echo "<li><b>$o</b> exact copies of the tweet</li>";
     if ($p) echo "<li><b>$p</b> almost identical matches of the tweet</li>";
+    if ($q) echo "<li><b>$q</b> quote tweets</li>";
     echo "</ul><b>Find the replies/mentions below sorted by the time they were posted:</b><br><br>";
   }
 echo "</center>";
@@ -183,6 +190,8 @@ if ($m) echo "&nbsp; <input type=checkbox id='show_m' name='show_m' checked oncl
 if ($r) echo "&nbsp; <input type=checkbox id='show_r' name='show_r' checked onclick=toggle_tweets('$tweet_id','r');> Show manual retweets ($r)";
 if ($o) echo "&nbsp; <input type=checkbox id='show_o' name='show_o' checked onclick=toggle_tweets('$tweet_id','o');> Show replicas ($o)";
 if ($p) echo "&nbsp; <input type=checkbox id='show_p' name='show_p' checked onclick=toggle_tweets('$tweet_id','p');> Show partial matches ($p)";
+if ($q) echo "&nbsp; <input type=checkbox id='show_q' name='show_q' checked onclick=toggle_tweets('$tweet_id','q');> Show quoted tweets ($q)";
+
 echo "</center>";
 
 echo "$data";
@@ -219,14 +228,16 @@ $name=$name." (other sources)";
   elseif ($languages) $condition=$condition." AND (tweet_language like '%".strtolower($languages)."%')";
 
   if ($_GET['types']=="some")
-        {
+  {
 	  if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="AND NOT") { $bool_op=" AND NOT ("; $_GET['bool_op']=="AND NOT"; } else $bool_op=" AND (";
           if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
-          if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (are quote tweets)"; $bool_op=$_GET['bool_op'];}
+	  if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (are referenced tweets)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quotes another tweet)"; $bool_op=$_GET['bool_op'];}
+
           if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op (clear_text like '@%') ";  $name=$name." (are responses)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (replies is not null AND replies>0) ";  $name=$name." (are responsed to)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; $bool_op=$_GET['bool_op'];}
@@ -280,7 +291,7 @@ $name=$name." (other sources)";
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
-                      if (!$started) { $c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') "; $bool_op=$_GET['bool_op']; }
+                      if (!$started) { $c="$bool_op (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'"; $bool_op=$_GET['bool_op']; }
                       else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
                   $started=true;
                     }
@@ -314,7 +325,7 @@ $name=$name." (other sources)";
 
        $started=false;
         $name="[".$table."] total # ";
-	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweet","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
+	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
@@ -573,7 +584,9 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND is_reply=1) ";$bool_op=$_GET['bool_op'];}
-    if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (quoted_tweet_id is not null AND is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
+    if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
+    if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (referenced by another tweet)"; $bool_op=$_GET['bool_op'];}
+
     if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op ($table.clear_text like '@%') ";$bool_op=$_GET['bool_op'];}
     if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (replies is not null AND replies>0) ";  $name=$name." are responsed to"; $bool_op=$_GET['bool_op'];}
     if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)";$bool_op=$_GET['bool_op'];}
@@ -621,7 +634,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
             foreach ($tmp as $k)
               {
                 $k=ltrim($k,'@');
-                if (!$started) {$c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";$bool_op=$_GET['bool_op'];}
+                if (!$started) {$c="$bool_op (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' ";$bool_op=$_GET['bool_op'];}
                 else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
                   $started=true;
               }
@@ -927,9 +940,9 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
                      "<td><center>${row['retweets']}</center></td><td><center>${row['quotes']}</center></td><td><center>${row['favorites']}</center></td>$ri";
                      if ($row['replies'])
                        {
-                         $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."')";
+                         $inspect_link="javascript:GetDetails('$url&inspect=1&tweet_id=${row['tweet_id']}&is_quote=$is_quote&tweet_permalink_path=".rawurlencode($row['tweet_permalink_path'])."&user_id=${row['user_id']}&user_screen_name=${row['user_screen_name']}&date_time=".rawurlencode($row['date_time'])."&user_image_url=".rawurlencode($row['user_image_url'])."','".rawurlencode(addslashes($row['user_name']))."','".rawurlencode(addslashes($row['clear_text']))."')";
                          $inspect_link=str_replace("%0A","%20",$inspect_link);
-                         $data=$data."<td><center>".$row['replies']."<br><a href=".$inspect_link."><img src='images/inspect.png' alt='see connected tweets'>$response_str</a></center></td>";
+			 $data=$data."<td><center>".$row['replies']."<br><a href=".$inspect_link."><img src='images/inspect.png' alt='see connected tweets'>$response_str</a></center></td>";
                        }
                      else
                        {
