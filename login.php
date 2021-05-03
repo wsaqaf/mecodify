@@ -151,7 +151,7 @@ if ($_SESSION[basename(__DIR__)])
          $tips=array("id"=>"A unique alphanumeric code to be associated with this case (e.g., westgate2013, ombudsman2015, SanBernardin2015)",
                      "name"=>"A brief understandable name for the case that is 5 words maximum (e.g., San Bernardin 2015 Terrorist Attack)",
                      "platform"=>"The platform that you wish to search. Currently only Twitter is fully supported. There is a plan to add other sources (e.g., YouTube, Facebook) in the future.",
-                     "query"=>"The search query used to identify relevant results (e.g., #SONA2015 OR #SONA OR \"SONA 2015\" OR \"2015 State of the Union Address\"). Note that boolean operators have to always be in CAPITAL letters. For example, 'and'  or 'or' will be considered search keyword since they are in small letters. But OR, FROM, AND, NOT, etc. will always be considered boolean operators.<br>Click <a href='http://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519' target=_blank>here</a> for tips. If you need help to construct a proper query, contact $admin_email.",
+                     "query"=>"The search query used to identify relevant results (e.g., #SONA2015 OR #SONA OR \"SONA 2015\" OR \"2015 State of the Union Address\"). Note: As of API 2.0, AND is not needed. You can just have the words you want to appear in the same tweet separated by space. <br>Click <a href='https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-query' target=_blank>here</a> for tips. If you need help to construct a proper query, contact $admin_email.",
                      "incude_retweets"=>"If checked, retweets and quoted tweets matching the criteria will also be included. If unchecked, only original tweets will be fetched.",
                      "top_only"=>"If checked, respondes to matched tweets will be excluded. If unchecked, it will take much longer to fetch and process the additional tweets.",
                      "from"=>"The start date and time formatted as YYYY-MM-DD HH:MM:SS (inclusive) of the search. If no value is provided, the start date will default to the one week before the 'to' value",
@@ -371,6 +371,10 @@ echo "Creating users table ...<br>\n";
 
           if ($_POST['case_from']=="0000-00-00 00:00:00") $_POST['case_from']="";
           if ($_POST['case_to']=="0000-00-00 00:00:00") $_POST['case_to']="";
+
+          $_POST['case_query']=preg_replace_callback('/([A-Z]+\:)/', 'lower', $_POST['case_query']);
+          $_POST['case_query']=str_replace(" AND "," ",$_POST['case_query']);
+
           $query="INSERT INTO cases (id, name, creator, platform, include_retweets, top_only, query, from_date, to_date, details, details_url, flags, private) values ".
           "('${_POST['case_id']}', '".$link->real_escape_string($_POST['case_name'])."', '${_POST['email']}', '${_POST['case_platform']}', '${_POST['case_include_retweets']}', '${_POST['case_top_only']}', '".$link->real_escape_string($_POST['case_query'])."', '${_POST['case_from']}', '${_POST['case_to']}', '".$link->real_escape_string($_POST['case_details'])."', '".$link->real_escape_string($_POST['case_details_url'])."', '".$link->real_escape_string($_POST['case_flags'])."', '${_POST['case_private']}')";
         }
@@ -381,6 +385,8 @@ echo "Creating users table ...<br>\n";
        exit();
 //       return $returned;
     }
+
+function lower($matches) { return strtolower($matches[1]); }
 
 function toggle_login($preserve)
   {
