@@ -19,7 +19,7 @@ $admin_name="";
 $mysql_db="Mecodify";
 $mysql_server = "localhost";
 $mysql_user = "root";
-$mysql_pw = "";
+$mysql_pw = "mecodify";
 
 $smtp_host=""; //If you wish to receive notifications when users sign up or cases created/edited
 $smtp_secure=""; //can be "ssl" or "tls"
