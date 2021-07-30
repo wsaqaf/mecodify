@@ -4,7 +4,11 @@
 error_reporting(E_ERROR);
 
 require_once("configurations.php");
-require_once("phpmailer/PHPMailerAutoload.php");
+
+use phpmailer\PHPMailer\PHPMailer;
+use phpmailer\PHPMailer\SMTP;
+use phpmailer\PHPMailer\Exception;
+
 $login_str = <<<END
      <font size=+1><b>Login to your account:</b></font><br><br>
      <form id='login'><table>

@@ -267,7 +267,7 @@ function not_blank($var)
 function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
   {
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
-    global $hash_cloud; global $from; global $to; global $added_tweets; global $include_retweets;
+    global $hash_cloud; global $from; global $to; global $added_tweets_list; global $include_retweets;
 
     if (in_array($tweet->id, $added_tweets_list)) { echo "found in DB already, skipping\n"; return; }
 
@@ -294,7 +294,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     if (not_blank($tweet->context_annotations)) $tw['context_annotations']=$tweet->context_annotations;
     if (not_blank($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
     if (not_blank($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
-    if (not_blank($tweet->public_metrics->retweet_count)) $tw['retweets']=$tweet->public_metrics->retweet_count;
+    if (not_blank($tweet->public_metrics->retweet_count)) { echo "\nXXXXXhas retweets: (".$tweet->public_metrics->retweet_count.")\nXXXX\n\n"; $tw['retweets']=$tweet->public_metrics->retweet_count; }
     if (not_blank($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
     if (not_blank($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
     if (not_blank($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
@@ -302,7 +302,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
 /******geo data of tweet (if any)******/
     if (not_blank($tweet->geo))
       {
-    		if (sizeof($parent->includes->places)>0)
+    		if (is_countable($parent->includes->places))
           {
       		 foreach($parent->includes->places as $p)
       		  {
@@ -394,6 +394,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
               $tw['media_link']=trim($tw['media_link']);
           }
       }
+
     if (not_blank($tweet->withheld))
      {
       if (not_blank($tweet->withheld->copyright)) $tw['withheld_copyright']=$tweet->withheld->copyright;
@@ -500,10 +501,10 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
          }
      }
 
-
     if ($save_to_db)
       {
-        put_tweet_in_database($tw);
+        
+	put_tweet_in_database($tw);
         $added_tweets_list[]=$tweet->id;
       }
     return $tw;
@@ -530,12 +531,19 @@ function put_tweet_in_database($tweet)
         $fields=array_keys($tweet); $names=""; $values="";
         foreach ($fields as $field)
          {
-            $names=$names."$field,";
-            $values=$values."'".$link->real_escape_string($tweet[$field])."',";
+	    if (is_string($tweet[$field]))
+		{
+		 $names=$names."$field,";
+                 $values=$values."'".$link->real_escape_string($tweet[$field])."',";
+		}
+	   elseif (is_numeric($tweet[$field])) 
+		{
+                 $names=$names."$field,";
+                 $values=$values.$tweet[$field].",";
+		}
          }
         $names=rtrim($names,","); $values=rtrim($values,",");
         $query="$query ($names) VALUES($values)";
-
 
        $result = $link->query($query);
        if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
@@ -1046,7 +1054,7 @@ function getapi_record($getfield)
     if ($limit_remaining==0)
       {
           echo "Rate exceeded, resuming in ".(string)($limit_reset-time())." seconds\n";
-          sleep($limit_reset-time());
+          if (($limit_reset-time())>0) sleep($limit_reset-time());
       }
 
     $url=complete_url($getfield);

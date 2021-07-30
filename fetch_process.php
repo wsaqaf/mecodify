@@ -191,7 +191,9 @@ function process_status($table)
     $str="ps x|grep $match|grep -v grep|awk '{print $1}'";
     exec($str, $output, $ret);
     if($ret && $verbose) echo 'Error: Could not check the process. Contact admin!<br>\n';
-    while(list(,$t) = each($output))
+ 
+    foreach ($output as $key => $t) 
+#   while(list(,$t) = each($output))
      {
         if(preg_match('/^([0-9]+)/', $t, $r)) { $running=1; }
      }
