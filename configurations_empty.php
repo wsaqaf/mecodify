@@ -28,8 +28,8 @@ $smtp_user="";
 $smtp_pw="";
 
 $twitter_api_settings=array(
-   'bearer' => "", //here you enter the bearer code (usually starting with 'AAAA')
-   'is_premium' => true //here you indicate if the account is free (sandbox) or premium
+   "bearer" => "", //here you enter the bearer code (usually starting with 'AAAA')
+   "is_premium" => true //here you indicate if the account is free (sandbox) or premium
  );
 
 
