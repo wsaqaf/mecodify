@@ -918,10 +918,17 @@ function update_kumu_files($table)
       		$row[13]="https://twitter.com/".$row[0];
           $row[4]=preg_replace("/[\r\n]+/"," ",$row[4]);
   		    $row[4]=str_replace("\"","'",$row[4]);
-      		fputcsv($fp, $row);
+                fputcsv($fp, array_map('cleanCurlies', $row));
         }
      fclose($fp);
      echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."users.csv'>file ($table"."_"."users.csv)</a><br>\n";
+}
+
+function cleanCurlies($string){
+ $string = str_replace(array("\xe2\x80\x98", "\xe2\x80\x99", "\xe2\x80\x9c", "\xe2\x80\x9d", "\xe2\x80\x93", "\xe2\x80\x94", "\xe2\x80\xa6"), array("'", "'", '"', '"', '-', '--', '...'), $string);
+ // Next, replace their Windows-1252 equivalents.
+ $string = str_replace(array(chr(145), chr(146), chr(147), chr(148), chr(150), chr(151), chr(133)), array("'", "'", '"', '"', '-', '--', '...'), $string);
+ return $string;
 }
 
 function update_cases_table($mode)
