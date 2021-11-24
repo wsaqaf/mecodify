@@ -306,14 +306,18 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
           {
       		 foreach($parent->includes->places as $p)
       		  {
-      		    if ($tweet->geo->place_id==$p->id)
-          			{
-    		           if ($p->country) $tw['country']=$p->country."(".$p->country_code.")";
-    		           if ($p->fullname) $tw['location_fullname']=$p->full_name;
-    		           if ($p->name) $tw['location_name']=$p->name;
-    		           if ($p->place_type) $tw['location_type']=$p->place_type;
-                   break;
-          			}
+                   if ($tweet->geo->place_id==$p->id)
+                                {
+                                  if ($p->country) $tw['country']=$p->country_code;
+                                  if ($p->full_name) $tw['location_fullname']=$p->full_name;
+                                  if ($p->name) $tw['location_name']=$p->name;
+                                  if ($p->place_type) $tw['location_type']=$p->place_type;
+                                  if ($p->geo->bbox) {
+                                                $tw['coordinates_long']=($p->geo->bbox[0]+$p->geo->bbox[2])/2;
+                                                $tw['coordinates_lat']=($p->geo->bbox[1]+$p->geo->bbox[3])/2;
+                                              }
+                           break;
+                                }
             }
           }
       }
