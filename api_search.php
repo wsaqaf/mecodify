@@ -424,7 +424,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                  $tw['user_location']=$subt->location;
                  $tw['user_bio']=$subt->description;
                  $tw['user_image_url']=str_replace("_400x400.jpg","_200x200.jpg", str_replace("_normal.jpg","_200x200.jpg",$subt->profile_image_url));
-                 $tw['user_verified']=$subt->verified;
+                 if ($subt->verified) $tw['user_verified']=1; else $tw['user_verified']=0;
                  $tw['tweet_permalink_path']="https://twitter.com/".$subt->username."/status/".$tweet->id;
                  add_user($subt);
                }
