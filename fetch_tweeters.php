@@ -168,9 +168,7 @@ function get_top($type,$limit)
     if ($_GET['location'])
       {
         $_GET['location']=trim($_GET['location']);
-        $_GET['location']=preg_replace("/\,\s+/",",",$_GET['location']);
-        $_GET['location']=preg_replace("/\s+\,/",",",$_GET['location']);
-        $tmp=explode(",",$_GET['location']);
+	$tmp=preg_split('/[\s,]+/',$_GET['location'], -1, PREG_SPLIT_NO_EMPTY);
         $c=""; $started=false;
         if ($type=="followers" || $type=="all_mentions") $t="users_".$table; elseif ($type=="quotes") $t="k1"; else $t=$table;
         $condition=preg_replace("/\s*WHERE/i"," AND ",$condition);
@@ -186,8 +184,7 @@ function get_top($type,$limit)
       if ($_GET['bio'])
         {
           $_GET['bio']=trim($_GET['bio']);
-          $_GET['bio']=preg_replace("/\,\s+/",",",$_GET['bio']);
-          $_GET['bio']=preg_replace("/\s+\,/",",",$_GET['bio']);
+	  $tmp=preg_split('/[\s,]+/',$_GET['bio'], -1, PREG_SPLIT_NO_EMPTY);
           $tmp=explode(",",$_GET['bio']);
           $c=""; $started=false;
           if ($type=="followers" || $type=="all_mentions") $t="users_".$table; elseif (type=="quotes") $t="k1"; else $t=$table;
@@ -219,9 +216,7 @@ function get_top($type,$limit)
           "uz"=>"Uzbek(Cyrillic)","uz"=>"Uzbek(Latin)","vi"=>"Vietnamese","xh"=>"Xhosa","yi"=>"Yiddish","zu"=>"Zulu");
 
           $_GET['languages']=trim($_GET['languages']);
-          $_GET['language']=preg_replace("/\,\s+/",",",$_GET['language']);
-          $_GET['language']=preg_replace("/\s+\,/",",",$_GET['language']);
-          $tmp=explode(",",$_GET['language']);
+	  $tmp=preg_split('/[\s,]+/',$_GET['languages'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
           $lang_keys=array_keys($languages);
           if ($type=="followers" || $type=="all_mentions") $t="users_".$table.".user_lang"; elseif ($type=="quotes") $t="k2.user_lang"; else $t="$table.user_lang";

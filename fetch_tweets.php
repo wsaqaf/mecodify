@@ -213,7 +213,7 @@ if (!$_GET['point'])
   elseif ($sources=="only_mobile") { $condition=$condition." AND (source LIKE '%Android%' OR source LIKE '%iPad%' OR source LIKE '%BlackBerry%' OR source LIKE '%Mobile%' OR source LIKE '%Nokia%' OR source LIKE '%Symbian%' OR source LIKE '%Phone%' OR source LIKE '%Tab%' OR source LIKE '%App%') AND (source NOT LIKE '%Web%')"; $name=$name." (mobile sources)"; }
   elseif ($sources) {
     $c=""; $started=false;
-    $tmp=preg_split('/\,/',$sources, -1, PREG_SPLIT_NO_EMPTY);
+    $tmp=preg_split('/[\s,]+/',$sources, -1, PREG_SPLIT_NO_EMPTY);
     foreach ($tmp as $k)
      {
        if (!$started) $c="AND ((source is not null and LOWER(source) like '%".$link->real_escape_string(trim(strtolower($k)))."%') ";
@@ -247,7 +247,7 @@ $name=$name." (other sources)";
             {
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
               $_GET['any_hashtags']=str_replace(","," ",$_GET['any_hashtags']);
-              $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
+              $tmp=preg_split('/[\s,]+/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
@@ -260,7 +260,7 @@ $name=$name." (other sources)";
           if ($_GET['any_keywords'])
             {
               $name=$name." (with any of keywords: ".$_GET['any_keywords'].")";
-              $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
+              $tmp=preg_split('/[\s,]+/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
@@ -273,7 +273,7 @@ $name=$name." (other sources)";
           if ($_GET['all_keywords'])
             {
                 $name=$name." (with any of keywords: ".$_GET['all_keywords'].")";
-                $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
+                $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
                 $c=""; $started=false;
                 foreach ($tmp as $k)
                   {
@@ -287,7 +287,7 @@ $name=$name." (other sources)";
             {
                   $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
                   $name=$name." (from accounts: ".$_GET['from_accounts'].")";
-                  $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
+                  $tmp=preg_split('/[\s,]+/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
@@ -307,10 +307,8 @@ $name=$name." (other sources)";
           if ($_GET['location'])
                 {
                   $name=$name." (from locations: ".$_GET['location'].")";
-                  $_GET['location']=preg_replace("/\,\s+/",",",$_GET['location']);
-                  $_GET['location']=preg_replace("/\s+\,/",",",$_GET['location']);
-                  $tmp=explode(",",trim($_GET['location']));
-                  $c=""; $started=false;
+                  $tmp=preg_split('/[\s,]+/',$_GET['location'], -1, PREG_SPLIT_NO_EMPTY);
+		  $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
                       if (!$started) { $c="$bool_op ((LOWER(location_fullname) like '%".$k."%' OR LOWER(location_name) like '%".$k."%' OR LOWER(user_location) like '%".$k."%' OR LOWER(user_timezone) like '%".$k."%')"; $bool_op=$_GET['bool_op']; }
@@ -559,7 +557,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
   elseif ($sources)
    {
     $c=""; $started=false;
-    $tmp=preg_split('/\,/',$sources, -1, PREG_SPLIT_NO_EMPTY);
+    $tmp=preg_split('/[\s,]+/',$sources, -1, PREG_SPLIT_NO_EMPTY);
     foreach ($tmp as $k)
      {
        if (!$started) $c="AND ((source is not null and LOWER(source) like '%".$link->real_escape_string(trim(strtolower($k)))."%') ";
@@ -596,7 +594,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
       {
               $_GET['any_hashtags']=str_replace("#"," ",$_GET['any_hashtags']);
               $_GET['any_hashtags']=trim($_GET['any_hashtags']);
-              $tmp=preg_split('/[\s+\,]/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
+              $tmp=preg_split('/[\s,]+/',$_GET['any_hashtags'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
@@ -607,7 +605,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
               $condition=$condition." $c) ";
       }
     if ($_GET['any_keywords'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
+      { $tmp=preg_split('/[\s,]+/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
         $c=""; $started=false;
         foreach ($tmp as $k)
           {
@@ -618,7 +616,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
         $condition=$condition." $c) ";
       }
     if ($_GET['all_keywords'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
+      { $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
@@ -629,7 +627,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
           $condition=$condition." $c) ";
       }
     if ($_GET['from_accounts'])
-      { $tmp=preg_split('/[\s+\,]/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
+      { $tmp=preg_split('/[\s,]+/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
             $c=""; $started=false;
             foreach ($tmp as $k)
               {
@@ -649,10 +647,8 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
 
     if ($_GET['location'])
         {
-          $_GET['location']=preg_replace("/\,\s+/",",",$_GET['location']);
-          $_GET['location']=preg_replace("/\s+\,/",",",$_GET['location']);
-          $tmp=explode(",",trim($_GET['location']));
-          $c=""; $started=false;
+          $tmp=preg_split('/[\s,]+/',$_GET['location'], -1, PREG_SPLIT_NO_EMPTY);
+	  $c=""; $started=false;
           foreach ($tmp as $k)
             {
               if (!$started) { $c="$bool_op ((LOWER($table.location_fullname) like '%".$k."%' OR LOWER($table.location_name) like '%".$k."%' OR LOWER(".$table.".user_location) like '%".$k."%')"; $bool_op=$_GET['bool_op'];}
