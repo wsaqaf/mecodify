@@ -535,7 +535,7 @@ function put_tweet_in_database($tweet)
         $fields=array_keys($tweet); $names=""; $values="";
         foreach ($fields as $field)
          {
-	    if (is_string($tweet[$field]))
+            if (is_string($tweet[$field])||strpos($field,'coordinates_')!==false||strpos($field,'_text')!==false||strpos($field,'_bio')!==false)
 		{
 		 $names=$names."$field,";
                  $values=$values."'".$link->real_escape_string($tweet[$field])."',";
