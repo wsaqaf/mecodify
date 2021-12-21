@@ -291,7 +291,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     if (not_blank($tweet->lang)) $tw['tweet_language']=$tweet->lang;
     if (not_blank($tweet->author_id)) $tw['user_id']=$tweet->author_id;
     if (not_blank($tweet->conversation_id)) $tw['conversation_id']=$tweet->conversation_id;
-    if (not_blank($tweet->context_annotations)) $tw['context_annotations']=$tweet->context_annotations;
+    if (not_blank($tweet->context_annotations)) $tw['context_annotations']=json_encode(['conext_annotations' => $tweet->context_annotations]);
     if (not_blank($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
     if (not_blank($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
     if (not_blank($tweet->public_metrics->retweet_count)) { echo "\nXXXXXhas retweets: (".$tweet->public_metrics->retweet_count.")\nXXXX\n\n"; $tw['retweets']=$tweet->public_metrics->retweet_count; }
