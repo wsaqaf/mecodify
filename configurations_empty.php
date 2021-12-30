@@ -9,7 +9,10 @@ if(!isset($_SESSION)){
 $enable_new_accounts=1; // set to 0 to disable new accounts (signup)
 $allow_new_cases=1; //allow adding new cases (can be set when you wish to prevent altering the DB
 $max_tweets_per_case=500000; //maximum tweets per case (applies only to API Search & can be exceeded by 100 records max)
-$is_demo=false; //set to true if you would like to have this installation as a demo (allows login with demo@mecodify.org)
+
+$demo_config['erabled']=false; //set to true if you would like to have this installation run is a demo (allows anonymous login with below credentials)
+$demo_config['email']="demo@mecodify.org";
+$demo_config['pw']="demo@mecodify.org";
 
 $website_url="http://127.0.0.1"; //e.g., https://mecodify.org . Don't end with '/'
 $website_title="My Mecodify";
@@ -17,7 +20,7 @@ $website_title="My Mecodify";
 $admin_email=""; //Recommended to create one as the super user (should be the first email to sign up)
 $admin_name="";
 
-$mysql_db="Mecodify";
+$mysql_db="Mecodify";		//This is the default settings. If you have an exising MySQL database, you can modify them
 $mysql_server = "localhost";
 $mysql_user = "root";
 $mysql_pw = "";
@@ -30,11 +33,11 @@ $smtp_pw="";
 
 $twitter_api_settings=array(
    "bearer" => "", //here you enter the bearer code (usually starting with 'AAAA')
-   "is_premium" => true //here you indicate if the account is free (sandbox) or premium
+   "is_premium" => true //have this as 'false' if if the account is free (sandbox), otherwise, the default is premium
  );
 
 
-$platforms=array('1'=>'Twitter'); //Facebook and Youtube and other sources to be added in the future
+$platforms=array('1'=>'Twitter'); //This is left in case future platforms are supported. We are seeking funding to add support for more platforms. Tips are welcome :)
 
 $website_title=$website_title." (powered by Mecodify v".trim(file_get_contents("ver.no")).")";
 

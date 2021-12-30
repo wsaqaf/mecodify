@@ -8,14 +8,21 @@ use phpmailer\PHPMailer\SMTP;
 use phpmailer\PHPMailer\Exception;
 
 $add_demo_details="";
-if ($is_demo) $add_demo_details="Use email: <b>demo@mecodify.org</b> and password <b>demo@mecodify.org</b> to try out the demo.<br>";
+$sign_up="<a href='#' onclick=case_proc('signup'); >Sign up</a>";
+
+if ($demo_config['enabled']) 
+  { 
+	$add_demo_details="Use email: <b>$demo_email</b> and password <b>$demo_pw</b> to try out the demo.<br>";
+	$sign_up="";
+  }
 
 $login_str = <<<END
      <font size=+1><b>Login to your account:</b></font><br><br>$add_demo_details
      <form id='login'><table>
      <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
      <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
-     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > <a href='#' onclick=case_proc('signup'); >Sign up</a></td></tr></table><br>
+     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > $sign_up 
+</td></tr></table><br>
      </form>
      <script>
      document.getElementById('password')
@@ -551,8 +558,8 @@ function edit_from_db($email,$menu,$case)
 
 function edit_profile($email)
   {
-      global $link; global $create_account_form; global $is_demo;
-      if ($if_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+      global $link; global $create_account_form; global $demo_config;
+      if ($demo_config['enabled'] && $_SESSION[basename(__DIR__).'email']==$demo_config['email'])
 	{ echo "Editing DEMO profile is not permitted"; return; }
       if ($email)
         {
@@ -620,9 +627,7 @@ function correct_credentials($email,$password)
 
 function del_from_db($creator,$case_id)
     {
-        global $link; global $admin_email; global $is_demo;
-        if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
-          { echo "Deleting case is not permitted"; return; }
+        global $link; global $admin_email; 
 
         $mask = "$case_id"."*.*";
         array_map('unlink', glob("tmp/network/$mask"));
@@ -658,9 +663,7 @@ function empty_if_exists($table)
 
 function empty_from_db($creator,$case_id)
     {
-        global $link; global $admin_email; global $is_demo;
-        if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
-          { echo "Emptying case is not permitted"; return; }
+        global $link; global $admin_email;
 
         $mask = "$case_id"."*.*";
         array_map('unlink', glob("tmp/network/$mask"));
@@ -688,9 +691,9 @@ function empty_from_db($creator,$case_id)
 
 function del_account($creator)
     {
-        global $link; global $admin_email; global $is_demo;
+        global $link; global $admin_email; global $demo_config;
         if ($creator!=$_SESSION[basename(__DIR__).'email'] && $_SESSION[basename(__DIR__).'email']!=$admin_email) return "Permission denied";
-      if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+      if ($demo_config['enabled'] && $_SESSION[basename(__DIR__).'email']==$demo_config['email'])
         { echo "Deleting DEMO profile is not permitted"; return; }
 
         $query= "DELETE from members where email='$creator'";
