@@ -591,7 +591,7 @@ function update_response_mentions()
         $query="DROP FUNCTION IF EXISTS SPLIT_STRING";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
-        $query="CREATE FUNCTION SPLIT_STRING(str VARCHAR(255), delim VARCHAR(12), pos INT) RETURNS VARCHAR(255) RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos), LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1), delim, '')";
+        $query="CREATE FUNCTION SPLIT_STRING(str VARCHAR(255), delim VARCHAR(12), pos INT) RETURNS VARCHAR(255) DETERMINISTIC RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos), LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1), delim, '')";
         $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
 /*** Add mention data (upto 20 mentions per tweet) ***/
