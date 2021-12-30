@@ -267,7 +267,7 @@ function not_blank($var)
 function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
   {
     global $table; global $regex; global $cases; global $link; global $include_referenced; global $retweet_keys;
-    global $hash_cloud; global $from; global $to; global $added_tweets_list; global $include_retweets;
+    global $hash_cloud; global $start_time; global $end_time; global $added_tweets_list; global $include_retweets;
 
     if (in_array($tweet->id, $added_tweets_list)) { echo "found in DB already, skipping saving to DB\n"; $save_to_db=0; }
 
@@ -279,6 +279,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     $tw['is_referenced']=$is_referenced;
     if (not_blank($tweet->created_at))
       {
+	if (!$include_referenced && ($tweet->created_at<$start_time || $tweet->created_at>$end_time)) return;
         $tw['date_time']=str_replace("T"," ",substr($tweet->created_at,0,19));
         $tw['tweet_date']=date('Y-m-d',strtotime($tw['date_time']));
       }
@@ -435,13 +436,14 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
           }
       }
 
-    if (not_blank($tweet->referenced_tweets) && !$is_referenced)
+    if (not_blank($tweet->referenced_tweets) && !$is_reference)
      {
        foreach ($tweet->referenced_tweets as $rtw)
         {
 	   switch($rtw->type)
             {
       	      case "retweeted":
+		  if (!$include_retweets) continue 2;
       		  $tw['is_retweet']=1;
                   $tw['retweeted_tweet_id']=$rtw->id;
                   $tw['retweets']=0;
@@ -452,7 +454,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
           		    if ($subt->id == $rtw->id)
 				    {
            				  note("Doing sub rt id [".$subt->id."]\n");
-              				  $tmp_tw=extract_and_store_data($subt,$parent,1,$include_referenced);
+              				  $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
                           		  foreach ($retweet_keys as $rk) { $tw[$rk]=$tmp_tw[$rk]; }
                           		  $tw['retweeted_user_id']=$tmp_tw['user_id'];
                           		  $tw['clear_text']="RT ".$tw['clear_text'];
@@ -461,7 +463,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
               		   	    }
 			    else    {
 				        note("Doing sub id [".$subt->id."]\n");
-				        extract_and_store_data($subt,$parent,1,$include_referenced);
+				        extract_and_store_data($subt,$parent,$include_referenced,1);
 				    }  
 			  }
                     }
@@ -471,6 +473,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                 }
       	      continue 2;
               case "quoted":
+                if (!$include_retweets) continue 2;
                 $tw['is_quote']=1;
 		$tw['quoted_tweet_id']=$rtw->id;
 		$tw['retweeted_tweet_id']=$rtw->id;
@@ -479,7 +482,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                     if ($subt->id == $rtw->id)
 		    {
 			  note("Doing sub q id [".$subt->id."]\n");
-                          $tmp_tw=extract_and_store_data($subt,$parent,1,$include_referenced);
+                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
 			  $tw['retweeted_user_id']=$tmp_tw['user_id'];
 			  $tw['raw_text']=$tw['raw_text']." '".$tmp_tw['raw_text']."'";
                           $tw['clear_text']=$tw['clear_text']." '".$tmp_tw['clear_text']."'";
@@ -488,6 +491,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                   }
               continue 2;
               case "replied_to":
+                if (!$include_referenced) continue 2;
                 $tw['is_reply']=1;
                 $tw['in_reply_to_tweet']=$rtw->id;
                 foreach ($parent->includes->tweets as $subt)
@@ -495,7 +499,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                     if ($subt->id == $rtw->id)
 		    {
 			  note("Doing sub rp id [".$subt->id."]\n");
-                          $tmp_tw=extract_and_store_data($subt,$parent,1,$include_referenced);
+                          $tmp_tw=extract_and_store_data($subt,$parent,$include_referenced,1);
                           $tw['in_reply_to_user']=$tmp_tw['user_id'];
                           break;
                         }
@@ -507,7 +511,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
 
     if ($save_to_db)
       {
-        
 	put_tweet_in_database($tw);
         $added_tweets_list[]=$tweet->id;
       }
