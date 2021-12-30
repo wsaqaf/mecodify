@@ -10,7 +10,7 @@ $enable_new_accounts=1; // set to 0 to disable new accounts (signup)
 $allow_new_cases=1; //allow adding new cases (can be set when you wish to prevent altering the DB
 $max_tweets_per_case=500000; //maximum tweets per case (applies only to API Search & can be exceeded by 100 records max)
 
-$demo_config['erabled']=false; //set to true if you would like to have this installation run is a demo (allows anonymous login with below credentials)
+$demo_config['enabled']=false; //set to true if you would like to have this installation run is a demo (allows anonymous login with below credentials)
 $demo_config['email']="demo@mecodify.org";
 $demo_config['pw']="demo@mecodify.org";
 
