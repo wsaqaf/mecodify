@@ -11,7 +11,7 @@ $allow_new_cases=1; //allow adding new cases (can be set when you wish to preven
 $max_tweets_per_case=500000; //maximum tweets per case (applies only to API Search & can be exceeded by 100 records max)
 
 $demo_config['enabled']=false; //set to true if you would like to have this installation run is a demo (allows anonymous login with below credentials)
-$demo_config['email']="demo@mecodify.org";
+$demo_config['email']="demo@mecodify.org"; //Make sure you have already created this account with the below password before setting up the demo!
 $demo_config['pw']="demo@mecodify.org";
 
 $website_url="http://127.0.0.1"; //e.g., https://mecodify.org . Don't end with '/'

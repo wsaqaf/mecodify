@@ -12,7 +12,7 @@ $sign_up="<a href='#' onclick=case_proc('signup'); >Sign up</a>";
 
 if ($demo_config['enabled']) 
   { 
-	$add_demo_details="Use email: <b>$demo_email</b> and password <b>$demo_pw</b> to try out the demo.<br>";
+        $add_demo_details="Use email: <b>${demo_config['email']}</b> and password <b>${demo_config['pw']}</b> to try out the demo.<br>";
 	$sign_up="";
   }
 
