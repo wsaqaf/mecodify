@@ -174,7 +174,7 @@ function get_all_fields($table,$getfield)
         $count_total++;
         $last_tweet_id=$record->id;
       }
-    note("\nProcessed $i records ($oldest_tweet_id - $last_tweet_id) in $table\n");// for ($tweet_updated_rows tweets, $user_updated_rows users updated)\n";
+    note("\nProcessed $i records ($oldest_tweet_id - $last_tweet_id) in $table\n");
     if (not_blank($recs->meta->next_token)) $next_token="&next_token=".$recs->meta->next_token;
     else $next_token="";
 
@@ -774,8 +774,8 @@ function update_kumu_files($table)
           $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
           $new_row['From']=ltrim($row['screen_name'],'@');
           $new_row['To']=ltrim($row['response_screen_name'],'@');
-      	  if (!not_blank($valid_users[$row['screen_name']])) { /*echo "Skipping (${row[0]})...";*/ continue; }
-      	  if (!not_blank($valid_users[$row['response_screen_name']])) { /*echo "Skipping (${row[1]})...";*/ continue; }
+      	  if (!not_blank($valid_users[$row['screen_name']])) { continue; }
+      	  if (!not_blank($valid_users[$row['response_screen_name']])) { continue; }
       	  if ($row['is_retweet']) { $new_row['Type']="Retweet"; }
           elseif ($row['is_quote']) { $new_row['Type']="Quote of a tweet"; }
           elseif ($row['is_reply']) { $new_row['Type']="Reply to tweet"; }
@@ -1168,7 +1168,7 @@ function url_get_contents($url)
 
 function put_user_in_database($user)
     {
-      global $table; global $i; //global $tweet_updated_rows; global $user_updated_rows;
+      global $table; global $i; 
       global $link;
 
       $insert_part="INSERT INTO `users_".$table."` ";
@@ -1204,7 +1204,7 @@ function draw_network($table)
 
     echo "START DRAWING<br>\n";
     connect_mysql();
-    $qry= "SELECT user_id,user_screen_name,user_name,user_followers,user_verified FROM users_".$table." "; /*,user_image_url,user_location*/
+    $qry= "SELECT user_id,user_screen_name,user_name,user_followers,user_verified FROM users_".$table." "; 
     $condition="WHERE user_screen_name is not null" ;
 
     $query = "$qry $condition order by user_followers desc";

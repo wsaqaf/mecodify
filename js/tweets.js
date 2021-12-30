@@ -6,8 +6,6 @@ $(document).ready(function() {
 function toggle_login(preserve)
  {
 	 if (typeof preserve === 'undefined') preserve = 0;
-//doStuff();
-//	 alert('toggling!');
 	  $.ajax({url:"login.php?action=toggle_login&page=tweets&login=1",
 				complete: function (response) {
 					$(".login_status").html(response.responseText);
@@ -28,7 +26,6 @@ function toggle_login(preserve)
 
 function showtip(field)
   {
- //	 alert('toggling!');
  	  $.ajax({url:'login.php?action=tip&field='+field,
  				complete: function (response) { $('.tip').html(response.responseText); },
  				error: function () {$('.tip').html(''); }
@@ -37,11 +34,6 @@ function showtip(field)
 
 function hidetip(field) { $('.tip').html(''); }
 
-/*
-function getRandomInt (min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-*/
 		$(document).ready(function(){
 		  $(".slidingDiv").hide();
 		  $(".show_hide").addClass("plus").show();
@@ -248,12 +240,10 @@ function getRandomInt (min, max) {
 									data: { action: action, name: name, email: email, title: title, institution: institution, country: country, password: password},
     							complete: function(response)
 										{
-//											alert('success!');
 	    								$( "#chartcontainer").html(response.responseText);
 										},
 									error: function ()
 		 								{
-//											alert('error!');
 											$('#chartcontainer').html('error!');
 		 								}
 	  				});
@@ -271,23 +261,17 @@ ContentType : 'application/json',
 data: { 'action': 'login', 'email': email, 'password': password},
     							complete: function(response)
 										{
-//											alert('success!');
 	    								$( "#chartcontainer").html(response.responseText);
 if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 										},
 									error: function ()
 		 								{
-//											alert('error!');
 											$('#chartcontainer').html('error!');
 		 								}
 	  				});
 						ajax.fail(function (jqXHr, textStatus, errorThrown) {
 						    $("#chartcontainer").html(jqXHr.responseText);
 						});
-//doStuff();
-//					location.reload();
-					//toggle_login();
-					//$('#tweetcontainer').html('');
 					return false;
 				}
 		else if (action=="logout")
@@ -295,7 +279,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 			 	    $.ajax({url:'login.php?action=logout',
 			 	            complete: function (response)
 			 	              {
-			 //									alert('url:'+url);
 			 								$('#chartcontainer').html(response.responseText);
 											toggle_login();
 			 	              },
@@ -337,20 +320,16 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 																		case_details: case_details, case_details_url: case_details_url, case_flags: case_flags, case_private: case_private},
 	    							complete: function(response)
 											{
-//												alert('success!');
 		    								$( "#chartcontainer").html(response.responseText);
 											},
 										error: function ()
 			 								{
-//												alert('error!');
 												$('#chartcontainer').html('error!');
 			 								}
 		  				});
 							ajax.fail(function (jqXHr, textStatus, errorThrown) {
-//alert("failed!");
 							    $("#chartcontainer").html(jqXHr.responseText);
 							});
-//alert("got_in!");
 						if (action=="submit_case") { toggle_login(); }
 						$('#tweetcontainer').html('');
 						return false;
@@ -361,7 +340,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 				 	    $.ajax({url:'login.php?action=delete_case&case_id='+case_id+'&email='+email ,
 				 	            complete: function (response)
 				 	              {
-				 //									alert('url:'+url);
 				 								$('#chartcontainer').html(response.responseText);
 												toggle_login();
 				 	              },
@@ -379,7 +357,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 				 	    $.ajax({url:'login.php?action=empty_case&case_id='+case_id+'&email='+email ,
 				 	            complete: function (response)
 				 	              {
-				 //									alert('url:'+url);
 				 								$('#chartcontainer').html(response.responseText);
 												toggle_login();
 				 	              },
@@ -396,7 +373,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 				 	    $.ajax({url:'login.php?action=edit_case&case_id='+case_id+'&email='+email ,
 				 	            complete: function (response)
 				 	              {
-				 //									alert('url:'+url);
 				 								$('#chartcontainer').html(response.responseText);
 				 	              },
 				 	            error: function ()
@@ -413,7 +389,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 					 	    $.ajax({url:'login.php?action=delete_account&email='+email ,
 					 	            complete: function (response)
 					 	              {
-					 //									alert('url:'+url);
 					 								$('#chartcontainer').html(response.responseText);
 													toggle_login();
 					 	              },
@@ -431,7 +406,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 					 	    $.ajax({url: url,
 					 	            complete: function (response)
 					 	              {
-//					 									alert('url:'+url);
 					 								$('#chartcontainer').html(response.responseText);
 					 	              },
 					 	            error: function ()
@@ -446,7 +420,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 	    $.ajax({url:url,
 	            complete: function (response)
 	              {
-//									alert('url:'+url);
 								$('#chartcontainer').html(response.responseText);
 	              },
 	            error: function ()
@@ -461,12 +434,10 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 		 function add_date_details()
 	 	 {
 			 show_or_hide(document.getElementById('specify_period'),"block");
-//			 alert("got in 1!"+c); //return;
 		   var sel = document.getElementById('case');
      	 var c = sel.options[sel.selectedIndex].value;
 			 if (c)
 			   {
-//					 alert("got in 2!"+c); //return;
 			 			$.ajax({url:'cases.php?case='+c+'&q=period',
 							 complete: function (response) { $("#daterange").html(response.responseText);  },
 							 error: function () {$("#daterange").html('error!'); }
@@ -478,7 +449,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 				 }
 			 else
 			 {
-	//			 alert("got in 2!"+c); //return;
 						$('#daterange').html('Select country to enable fields!');
 			 			document.getElementById('startdate').disabled = true;
 						document.getElementById('starttime').disabled = true;
@@ -509,10 +479,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 		 }
 
 	// Original JavaScript code by Chirp Internet: www.chirp.com.au
-	// Please acknowledge use of this code by including this header.
-
-	// Original JavaScript code by Chirp Internet: www.chirp.com.au
-	// Please acknowledge use of this code by including this header.
 
 		   function checkDate(field)
 		   {
@@ -638,7 +604,6 @@ function showkumu()
 			if (typeof branch === 'undefined') branch = ''; else branch_part='&branch='+branch;
 			if (typeof clear_text==='undefined') clear_text=''; else clear_text='&clear_text='+encodeURIComponent(clear_text);
 			url=url+user_name+clear_text;
-//alert(url);
 	    if (!branch)
 				{
 					jQuery("#loadingtweets").show();
@@ -649,7 +614,6 @@ function showkumu()
 					$('#'+branch).html('<br><center>Loading replies... <img src="images/ajax-loader.gif"><br></center>');
 					url=url+branch_part;
 				}
-//			alert('Getting url:'+url); //return true;
 	    $.ajax({url:url,
 	            complete: function (response)
 	              {
@@ -707,22 +671,13 @@ function showkumu()
 		  return true;
 	 }
 
-
-	 	function doStuff()
-	 	{
-	 	  //do some things
-	 	  setTimeout(continueExecution, 10000) //wait ten seconds before continuing
-	 	}
-
 	 	function continueExecution()
 	 	  {
-	 	   //finish doing things after the pause
 	 		 alert(sel.options[sel.selectedIndex].value);
 	 	  }
 
 	  function visualize(refresh="")
 	 		  {
-//	 				toggle_login(1);
 	 				var qry=[];
 					var sel = document.getElementById('case');
 	 			  qry['table'] = sel.options[sel.selectedIndex].value;
@@ -808,7 +763,7 @@ function showkumu()
 	 									}
 	 							}
 	 						else if (qry['sources']!='only_mobile' && qry['sources']!='only_web') { qry['sources']=""; }
-	 				 } catch (e) { /*alert("error:"+e.message);*/ }
+	 				 } catch (e) { alert("error:"+e.message); }
 
 	 				var url='fetch_tweets.php?demo=1';
 	 				for(var key in qry)

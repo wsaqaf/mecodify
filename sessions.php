@@ -1,4 +1,5 @@
 <?php
+//This file is only for debugging purposes
 // Start Session
 session_start();
 // Show banner

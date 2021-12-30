@@ -400,8 +400,6 @@ $name=$name." (other sources)";
         $started=true;
         $query=$query." order by date_time";
 
-//echo("<hr>1:\n$query<hr>");
-
         if ($result = $link->query($query))
           {
             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
@@ -775,7 +773,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
       $link->close();
   }
   else
-  { /// SELECT SQL_CACHE
+  { 
             $qry1="SELECT SQL_CACHE
             $table.date_time,
             $table.tweet_id,
@@ -848,8 +846,6 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
             $query="$query $order";
 
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
-
-//echo("<hr>2:\n$query<hr>");
 
             if ($result = $link->query($query))
               {

@@ -9,6 +9,7 @@ if(!isset($_SESSION)){
 $enable_new_accounts=1; // set to 0 to disable new accounts (signup)
 $allow_new_cases=1; //allow adding new cases (can be set when you wish to prevent altering the DB
 $max_tweets_per_case=500000; //maximum tweets per case (applies only to API Search & can be exceeded by 100 records max)
+$is_demo=false; //set to true if you would like to have this installation as a demo (allows login with demo@mecodify.org)
 
 $website_url="http://127.0.0.1"; //e.g., https://mecodify.org . Don't end with '/'
 $website_title="My Mecodify";

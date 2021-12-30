@@ -1,6 +1,4 @@
 
-//more functions
-
 $(document).ready(function() {
 	toggle_login();
 	return true;
@@ -10,7 +8,6 @@ $(document).ready(function() {
 function toggle_login(preserve)
  {
 	 if (typeof preserve === 'undefined') preserve = 0;
-//	 alert('toggling!');
 	  $.ajax({url:"login.php?action=toggle_login&page=tweets&login=1",
 				complete: function (response) {
 					$(".login_status").html(response.responseText);
@@ -29,7 +26,6 @@ function toggle_login(preserve)
 
 function showtip(field)
   {
- //	 alert('toggling!');
  	  $.ajax({url:'login.php?action=tip&field='+field,
  				complete: function (response) { $('.tip').html(response.responseText); },
  				error: function () {$('.tip').html(''); }
@@ -164,7 +160,6 @@ function hidetip(field) { $('.tip').html(''); }
 
  		 function getBoxValue(theBoxGroup)
  		 {
-//			 alert("checking "+theBoxGroup);
  		     var element = document.getElementById(theBoxGroup);
 				 if (element.checked) return element.value;
  				 return "";
@@ -264,7 +259,6 @@ function hidetip(field) { $('.tip').html(''); }
 											data: { action: action, name: name, email: email, title: title, institution: institution, country: country, password: password},
 		    							complete: function(response)
 												{
-		//											alert('success!');
 			    								$( "#chartcontainer").html(response.responseText);
 												},
 											error: function ()
@@ -284,21 +278,17 @@ function hidetip(field) { $('.tip').html(''); }
 											data: { action: 'login', email: email, password: password},
 		    							complete: function(response)
 												{
-		//											alert('success!');
 			    								$( "#chartcontainer").html(response.responseText);
 if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 					},
 											error: function ()
 				 								{
-		//											alert('error!');
 													$('#chartcontainer').html('error!');
 				 								}
 			  				});
 								ajax.fail(function (jqXHr, textStatus, errorThrown) {
 								    $("#chartcontainer").html(jqXHr.responseText);
 								});
-                                        //toggle_login();
-                                        //$('#tweetcontainer').html('');
 							return true;
 						}
 				else if (action=="logout")
@@ -306,7 +296,6 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
 					 	    $.ajax({url:'login.php?action=logout',
 					 	            complete: function (response)
 					 	              {
-					 //									alert('url:'+url);
 					 								$('#chartcontainer').html(response.responseText);
 													toggle_login();
 					 	              },
@@ -348,12 +337,10 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 														case_details: case_details, case_details_url: case_details_url, case_flags: case_flags, case_private: case_private},
               complete: function(response)
                                       {
-//                                                                                      alert('success!');
                               $( "#chartcontainer").html(response.responseText);
                                       },
               error: function ()
                       {
-//                                                                                      alert('error!');
                               $('#chartcontainer').html('error!');
                       }
           });
@@ -370,7 +357,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 						 	    $.ajax({url:'login.php?action=delete_case&case_id='+case_id+'&email='+email ,
 						 	            complete: function (response)
 						 	              {
-						 //									alert('url:'+url);
 						 								$('#chartcontainer').html(response.responseText);
 														toggle_login();
 						 	              },
@@ -388,7 +374,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 						 	    $.ajax({url:'login.php?action=empty_case&case_id='+case_id+'&email='+email ,
 						 	            complete: function (response)
 						 	              {
-						 //									alert('url:'+url);
 						 								$('#chartcontainer').html(response.responseText);
 														toggle_login();
 						 	              },
@@ -405,7 +390,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 						 	    $.ajax({url:'login.php?action=edit_case&case_id='+case_id+'&email='+email ,
 						 	            complete: function (response)
 						 	              {
-						 //									alert('url:'+url);
 						 								$('#chartcontainer').html(response.responseText);
 						 	              },
 						 	            error: function ()
@@ -422,7 +406,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 							 	    $.ajax({url:'login.php?action=delete_account&email='+email ,
 							 	            complete: function (response)
 							 	              {
-							 //									alert('url:'+url);
 							 								$('#chartcontainer').html(response.responseText);
 															toggle_login();
 							 	              },
@@ -440,7 +423,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 							 	    $.ajax({url: url,
 							 	            complete: function (response)
 							 	              {
-		//					 									alert('url:'+url);
 							 								$('#chartcontainer').html(response.responseText);
 							 	              },
 							 	            error: function ()
@@ -455,7 +437,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 			    $.ajax({url:url,
 			            complete: function (response)
 			              {
-		//									alert('url:'+url);
 										$('#chartcontainer').html(response.responseText);
 			              },
 			            error: function ()
@@ -469,7 +450,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 
 		 function visualize(network)
  	 		  {
- //	 				toggle_login(1);
  			if (typeof network === 'undefined') network = 0;
 
 			var qry=[]; var table='';
@@ -480,8 +460,6 @@ if( /[^a-zA-Z0-9_]/.test(case_id) ) {
 			if (network)
 				{
 					var level=getSelectedValue('level');
-//					var minimum_followers=document.getElementById("minimum_followers").value;
-//					var url='fetch_tweeters.php?'+network+'=1&level='+level+'&minimum_followers='+minimum_followers+'&table='+table;
 
 					var url='fetch_tweeters.php?'+getRadioValue(network)+'=1&level='+level+'&table='+table;
 				}
@@ -587,8 +565,6 @@ function showkumu()
 	            complete: function (response)
 	              {
 	                    $('#loading').html(response.responseText);
-//											jQuery("#followers").show();
-//											jQuery("#loading").hide();
 	              },
 	            error: function () {$('#'+section).html('error!');jQuery("#loading").hide(); }
 	           });

@@ -7,7 +7,6 @@ $table=$_GET['table'];
 $load=$_GET['load'];
 $user_screen_name=$_GET['user_screen_name'];
 $template=file_get_contents("templates/template_"."$id.html");
-//echo "templates/template_"."$id.html";
 if ($_SESSION[basename(__DIR__)])
   {
    $template=str_replace('<!--cases-->',get_cases_db($_GET['table']),$template);
@@ -57,7 +56,6 @@ function get_cases_db($case)
       $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br>";
       if ($allow_new_cases) $list.="<br><a href='#' onclick=case_proc('add_case');><div style='text-align:center'>Add a new case </a></div><br>";
       else $list.="<br>";
-//          if ($is_yours1) $list.="<br> &nbsp; &nbsp; &nbsp; <font color=yellow>*<i><font size=-1> A case you created</i></font></font>";
       return $list;
   }
 

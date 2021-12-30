@@ -1,10 +1,5 @@
 <?php
-//echo phpinfo(); exit;
 error_reporting(0);
-//echo "working!"; exit;
-//echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; exit;
-//$_GET['table1']="egypt1";
-//print_r($_GET); //exit;
 require_once("configurations.php");
 $debug=0;
 
@@ -34,9 +29,6 @@ else $limit=10;
 $maximum_strength=5;
 $minimum_strength=0;
 
-//$table="serbia";
-//$minimum_followers=500;
-
 $params=array("followers","retweets","responses","responders","mention","all_mentions","quotes","tweets");
 
 if ($responses)
@@ -56,7 +48,6 @@ if ($responses)
             echo "$graph_data";
           }
         else echo "The results don't have enough connections to form network graphs. Try fetching more records...";
-//Data file for (tmp/network/$table"."_"."$level.csv) does not exist!";
       }
   }
 if ($mentions)
@@ -76,7 +67,6 @@ if ($mentions)
             echo "$graph_data";
           }
         else echo "The results don't have enough connections to form network graphs. Try fetching more records...";
-//Data file for (network/$table"."_"."$level.csv) does not exist!";
       }
   }
 elseif ($overview)
@@ -160,10 +150,8 @@ function show_profile($rank,$table,$user_screen_name)
 
 function get_top($type,$limit)
   {
-//echo "trying: $type<br>\n";
     global $debug; global $admin_email;
     global $table; global $link; global $cases;
-//print_r($cases);
     $started=0;
     if ($_GET['location'])
       {
@@ -197,7 +185,7 @@ function get_top($type,$limit)
             }
             $condition=$condition." $c) ";
         }
-/*
+/* to be implemented
       if ($_GET['language'])
         {
           $languages=array("af"=>"Afrikaans","sq"=>"Albanian","ar-dz"=>"Arabic(Algeria)","ar-bh"=>"Arabic(Bahrain)","ar-eg"=>"Arabic(Egypt)","ar-iq"=>"Arabic(Iraq)","ar-jo"=>"Arabic(Jordan)","ar-kw"=>"Arabic(Kuwait)","ar-lb"=>"Arabic(Lebanon)","ar-ly"=>"Arabic(libya)","ar-ma"=>"Arabic(Morocco)","ar-om"=>"Arabic(Oman)",
@@ -372,7 +360,6 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
 
               if($row = $result->fetch_assoc())
                 {
-                //  fwrite($fp,"sep=,\r\n");
                   fputcsv($fp, array_keys($row));
                   $result->data_seek(0);
                 }
@@ -405,8 +392,6 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
             if ($limit) { if ($i==1) break; }
             $i--; $j++;
           }
-//echo "($limit:$i:$j)"; print_r($user_names); echo "s:".sizeof($user_names); //exit;
-    //echo "done1"; exit;
 
       $graph_data=file_get_contents("js/tweeter-graph.js");
       $graph_data=str_replace("<!--type-->",$type,$graph_data);

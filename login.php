@@ -1,6 +1,4 @@
 <?php
-//echo "http://".$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; //exit;
-//print_r($_POST); exit;
 error_reporting(E_ERROR);
 
 require_once("configurations.php");
@@ -9,8 +7,11 @@ use phpmailer\PHPMailer\PHPMailer;
 use phpmailer\PHPMailer\SMTP;
 use phpmailer\PHPMailer\Exception;
 
+$add_demo_details="";
+if ($is_demo) $add_demo_details="Use email: <b>demo@mecodify.org</b> and password <b>demo@mecodify.org</b> to try out the demo.<br>";
+
 $login_str = <<<END
-     <font size=+1><b>Login to your account:</b></font><br><br>
+     <font size=+1><b>Login to your account:</b></font><br><br>$add_demo_details
      <form id='login'><table>
      <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
      <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
@@ -187,7 +188,6 @@ if ($_SESSION[basename(__DIR__)])
          {
            connect_mysql();
            echo submit_case("");
-//           toggle_login($_GET['preserve']);
            exit;
          }
      elseif ($_POST['action']=="resubmit_case")
@@ -247,7 +247,6 @@ elseif ($_GET['action']=='forgot' && !$_GET['email'])
     {
          echo $login_str;
          exit;
-//<a href='#' onclick=case_proc('forgot'); >Forgot password</a> -
     }
 /* to be implemented
 elseif ($_GET['action']=='forgot' && $_GET['email'])
@@ -263,11 +262,10 @@ elseif ($_GET['verification_str'] && $_GET['email'])
       verify_code($_GET['verification_str'] && $_GET['email']);
       exit;
     }
-else//if ($_GET['action']=='login')
+else
     {
          echo $login_str;
          exit;
-//<a href='#' onclick=case_proc('forgot'); >Forgot password</a> -
     }
 /*
 else
@@ -360,18 +358,15 @@ function submit_case($replace)
         }
        else
         {
-//echo "Creating main table ...<br>\n";
           $query="CREATE TABLE ${_POST['case_id']} LIKE ".$_POST['case_platform']."_empty_case";
           if (!($result = $link->query($query))) die("Could not create new table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a> Error in query: ". $link->error.": $query");
 echo "Creating users table ...<br>\n";
 
           $query="CREATE TABLE users_"."${_POST['case_id']} LIKE ".$_POST['case_platform']."_empty_users";
           if (!($result = $link->query($query))) die("Could not create new users table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
-//echo "Creating user_mentions table ...<br>\n";
 
           $query="CREATE TABLE user_mentions_"."${_POST['case_id']} LIKE ".$_POST['case_platform']."_empty_user_mentions";
           if (!($result = $link->query($query))) die("Could not create new user_mentions table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
-//echo "Adding entry in cases table ...<br>\n";
 
           if ($_POST['case_from']=="0000-00-00 00:00:00") $_POST['case_from']="";
           if ($_POST['case_to']=="0000-00-00 00:00:00") $_POST['case_to']="";
@@ -387,7 +382,6 @@ echo "Creating users table ...<br>\n";
         echo '<script type="text/javascript"> location.reload(); </script>';
         email_admin(lst($_POST),"");
        exit();
-//       return $returned;
     }
 
 function lower($matches) { return strtolower($matches[1]); }
@@ -426,7 +420,6 @@ if (!$case) { echo "Please select a case first"; return; }
       elseif ($case) $condition="where id='$case' $cond";
       else $condition="";
       $query= "SELECT * from cases $condition";
-//echo "<hr>$query<hr>";
       $output="";
       if ($result = $link->query($query))
         {
@@ -558,8 +551,8 @@ function edit_from_db($email,$menu,$case)
 
 function edit_profile($email)
   {
-      global $link; global $create_account_form;
-      if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+      global $link; global $create_account_form; global $is_demo;
+      if ($if_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
 	{ echo "Editing DEMO profile is not permitted"; return; }
       if ($email)
         {
@@ -627,8 +620,8 @@ function correct_credentials($email,$password)
 
 function del_from_db($creator,$case_id)
     {
-        global $link; global $admin_email;
-        if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+        global $link; global $admin_email; global $is_demo;
+        if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
           { echo "Deleting case is not permitted"; return; }
 
         $mask = "$case_id"."*.*";
@@ -665,8 +658,8 @@ function empty_if_exists($table)
 
 function empty_from_db($creator,$case_id)
     {
-        global $link; global $admin_email;
-        if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+        global $link; global $admin_email; global $is_demo;
+        if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
           { echo "Emptying case is not permitted"; return; }
 
         $mask = "$case_id"."*.*";
@@ -695,9 +688,9 @@ function empty_from_db($creator,$case_id)
 
 function del_account($creator)
     {
-        global $link; global $admin_email;
+        global $link; global $admin_email; global $is_demo;
         if ($creator!=$_SESSION[basename(__DIR__).'email'] && $_SESSION[basename(__DIR__).'email']!=$admin_email) return "Permission denied";
-      if ($_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
+      if ($is_demo && $_SESSION[basename(__DIR__).'email']=="demo@mecodify.org")
         { echo "Deleting DEMO profile is not permitted"; return; }
 
         $query= "DELETE from members where email='$creator'";
@@ -712,7 +705,6 @@ function toggle_from_db($creator,$case_id)
     {
         global $link;
         $query= "UPDATE cases set private = not private where id='$case_id' AND creator='$creator'";
-//echo "($query)";
         if ($result = $link->query($query))
           {
             if (!$result->num_rows) return "";
@@ -757,7 +749,6 @@ function create_account($replace)
         if ($result = $link->query($query))
           {
             if ($result->num_rows && !$replace) die("There is already an account under (${_POST['email']}).<br>Login using your credentials below or email <a href='mailto:$admin_email'>$admin_email</a> for support.<br><br>$login_str");
-//            Click <a href=case_proc('forgot');>here</a> to recover a forgotten password. <br>To close the account, please
           }
         else die("Error in query: ". $link->error.": $query");
        $code=md5(uniqid($_POST['email'], true));
@@ -777,8 +768,6 @@ function create_account($replace)
        if (!($result = $link->query($query))) die("Could not update the database. Please contact admin! Error in query: ". $link->error.": $query");
 	email_admin("",lst($_POST));
         return $returned;
-//              "An email has just been sent to verify your account.<br> If you didn't get it within the next ten minutes even in your spam folder, kindly email <a href='mailto:$admin_email'>$admin_email</a> for support.";
-      //else return "Signup failed!";
     }
 
 function email_admin($case,$user)
@@ -804,7 +793,6 @@ function email_admin($case,$user)
 
     $mail->WordWrap = 50;                                 // Set word wrap to 50 characters
     $mail->isHTML(false);                                  // Set email format to HTML
-//    $mail->SMTPDebug = 3;
     $mail->Timeout=100;
 
     if ($case)

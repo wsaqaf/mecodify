@@ -1,5 +1,4 @@
 <?php
-//echo "hi"; exit;
 
 require_once("configurations.php");
 
@@ -9,7 +8,6 @@ connect_mysql();
   if ($result = $link->query($query))
     {
       if (!($result->num_rows)) die("There is no case with id (${_GET['id']}).<br> Please delete the old case if it is yours or choose another id.<br>");
-//            Click <a href=case_proc('forgot');>here</a> to recover a forgotten password. <br>To close the account, please
     }
   else die("Error in query: ". $link->error.": $query");
 
@@ -27,5 +25,4 @@ elseif ($_GET['case'])
         echo "Name: ${row['name']}<br>";
         echo "Query: ${row['query']}<br>";
   }
- //.", <b>Period:</b> ".$cases[$_GET['case']]["from"]." - ".$cases[$_GET['case']]["to"];
 ?>
