@@ -1,5 +1,11 @@
 <?php
-check_ver();
+if ($_GET['check_updates'])
+  {
+        echo "Checking updates...<hr>";   
+        check_ver();
+        exit();
+  }
+
 include_once('configurations.php');
 if (!$_GET['id']) $id="tweets";
 else $id=$_GET['id'];
@@ -68,11 +74,12 @@ function isyours($creator,$email)
 function check_ver()
  {
    $this_ver=trim(file_get_contents("./ver.no"));
-   $latest_ver=trim(file_get_contents("http://mecodify.org/get_ver.php"));
+   $latest_ver=trim(file_get_contents("https://mecodify.org/get_ver.php"));
    if ($latest_ver>$this_ver)
     {
-       echo "<small><small>Your version ($this_ver) is out-of-date. Please <a href='https://github.com/wsaqaf/mecodify/releases' target=_blank>update</a> to version $latest_ver</small></small><br>";
+       echo "<br><small>Your version ($this_ver) is out-of-date. Please go to the <a href='https://github.com/wsaqaf/mecodify' target=_blank>Github repo</a> to clone the latest repo (version $latest_ver)</small><br>";
     }
+   else echo "<br><br>Your version ($this_ver) is up-to-date!";
  }
 
 ?>

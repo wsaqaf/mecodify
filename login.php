@@ -399,7 +399,7 @@ function toggle_login($preserve)
     $case_sec="";
     if ($_GET['login'])
       {
-        if (!$_SESSION[basename(__DIR__)]) return "<li class=''><center><a href='#' onclick=javascript:case_proc('');>Login</a></center></li>";
+        if (!$_SESSION[basename(__DIR__)]) return "<li class=''><center><a href='#' onclick=javascript:case_proc('');>Login</a></center></li><li><small><center><a href='#' onclick=\"javascript:window.open('?check_updates=1','Checking updates','width=400,height=200')\">Check updates</a></center></small></li>";
         else return "<li class=''><center><a href='#' onclick=case_proc('logout');>Logout</a> - <font size=-2><a href='#' onclick=javascript:case_proc('edit_profile');>Profile</a></font></center></li><hr>";
       }
         $case_sec=get_from_db('',1);

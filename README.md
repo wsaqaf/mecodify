@@ -19,7 +19,7 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 - Adding the ability to see the number of reply and quote tweets for each tweet
 - Plus some other improvements in security and stability
 
-**Note** The new release remains in constant development so reports of bugs or issues are welcome...
+**Note** New releases (minor and major) will continue to be pushed to this repo. Track changes by following this repo. Reports of bugs or issues are welcome...
 
 ### Installation
 Installation instructions can be found [here](install.md)

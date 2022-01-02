@@ -26,8 +26,8 @@ $ httpd -v
 
 # Installation steps
 
-### 1- Download the latest release:
-You should ensure that you have the latest version of Mecodify by checking the latest release on GitHub at [https://github.com/wsaqaf/mecodify/releases/](https://github.com/wsaqaf/mecodify/releases/). You can click on "Source code (zip)" and upon downloading it to the folder where you wish to have it installed on your server, you can decompress it.
+### 1- Download the latest repo:
+You should ensure that you have the latest version of Mecodify by cloning the latest repo on GitHub at [https://github.com/wsaqaf/mecodify/](https://github.com/wsaqaf/mecodify/). You can click on the ["Download ZIP" link](https://github.com/wsaqaf/mecodify/archive/refs/heads/master.zip). Upon downloading it to the folder where you wish to have it installed on your server, you can decompress it. 
 
 ### 2- Configure Mecodify:
 In the main folder, you will find the file named `configurations_empty.php`. With any text editor, go into the file and add the missing values for each of the following variables:

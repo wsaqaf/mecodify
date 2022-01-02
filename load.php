@@ -1,5 +1,4 @@
 <?php
-check_ver();
 include_once('configurations.php');
 if (!$_GET['id']) $id="tweets";
 else $id=$_GET['id'];
@@ -69,14 +68,4 @@ function isyours($creator,$email)
       if ($creator==$email || $email==$admin_email) return "*";
       return "";
     }
-function check_ver()
- {
-   $this_ver=trim(file_get_contents("./ver.no"));
-   $latest_ver=trim(file_get_contents("http://mecodify.org/get_ver.php"));
-   if ($latest_ver>$this_ver)
-    {
-       echo "<small><small>Your version ($this_ver) is out-of-date. Please <a href='https://github.com/wsaqaf/mecodify/releases' target=_blank>update</a> to version $latest_ver</small></small><br>";
-    }
- }
-
 ?>
