@@ -11,7 +11,7 @@ sudo wget https://github.com/wsaqaf/mecodify/archive/refs/heads/master.zip  -O .
 
 sudo unzip ./tmp/master.zip -d ./tmp/
 
-sudo cp -R -u -p ./tmp/mecodify-master/* ./
+sudo rsync -av --update --progress ./tmp/mecodify-master/* ./ --exclude tmp
 
 sudo rm -rf ./tmp/master.zip ./tmp/mecodify-master
 
