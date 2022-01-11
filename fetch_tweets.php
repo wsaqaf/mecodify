@@ -233,6 +233,7 @@ $name=$name." (other sources)";
           if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['original_tweets']) { $condition=$condition." $bool_op (is_retweet<>1 AND is_quote<>1) ";  $name=$name." (are original tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
 	  if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (are referenced tweets)"; $bool_op=$_GET['bool_op'];}
@@ -323,7 +324,7 @@ $name=$name." (other sources)";
 
        $started=false;
         $name="[".$table."] total # ";
-	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
+	$g_params=array("image_tweets","video_tweets","link_tweets","original_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
@@ -578,6 +579,7 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
     if ($_GET['image_tweets']) { $condition=$condition." $bool_op $table.has_image=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['video_tweets']) { $condition=$condition." $bool_op $table.has_video=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['original_tweets']) { $condition=$condition." $bool_op ($table.is_retweet<>1 AND $table.is_quote<>1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND is_reply=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}

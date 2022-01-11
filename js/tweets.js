@@ -545,6 +545,7 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
        document.getElementById("video_tweets").checked=false;
        document.getElementById("link_tweets").checked=false;
        document.getElementById("user_verified").checked=false;
+       document.getElementById("original_tweets").checked=false;
        document.getElementById("retweet_tweets").checked=false;
        document.getElementById("response_tweets").checked=false;
        document.getElementById("responded_tweets").checked=false;
@@ -711,12 +712,13 @@ function showkumu()
 	 						qry['image_tweets']=getBoxValue("image_tweets");
 	 						qry['video_tweets']=getBoxValue("video_tweets");
 	 						qry['link_tweets']=getBoxValue("link_tweets");
-	 						qry['retweet_tweets']=getBoxValue("retweet_tweets");
-	 						qry['response_tweets']=getBoxValue("response_tweets");
-              qry['quoting_tweets']=getBoxValue("quoting_tweets");
-              qry['referenced_tweets']=getBoxValue("referenced_tweets");
-              qry['mentions_tweets']=getBoxValue("mentions_tweets");
-	 						qry['responded_tweets']=getBoxValue("responded_tweets");
+                                                        qry['original_tweets']=getBoxValue("original_tweets");
+                                                        qry['retweet_tweets']=getBoxValue("retweet_tweets");
+                                                        qry['response_tweets']=getBoxValue("response_tweets");
+                                                        qry['quoting_tweets']=getBoxValue("quoting_tweets");
+                                                        qry['referenced_tweets']=getBoxValue("referenced_tweets");
+                                                        qry['mentions_tweets']=getBoxValue("mentions_tweets");
+                                                        qry['responded_tweets']=getBoxValue("responded_tweets");						
 							var ht=document.getElementById("any_hashtags").value.toLowerCase();
 							ht = ht.replace(/#/,' ');
 							qry['any_hashtags']=ht;
@@ -732,7 +734,7 @@ function showkumu()
 	 						if ($('#last_graph_hash').length != 0) {qry['last_graph_hash']=document.getElementById("last_graph_hash").value;}
 	 						qry['stackgraph']=getBoxValue("stackgraph");
 
-	 						if (qry['types']=="all" || (qry['image_tweets'] && qry['video_tweets'] && qry['link_tweets'] && qry['retweet_tweets']
+	 						if (qry['types']=="all" || (qry['image_tweets'] && qry['video_tweets'] && qry['link_tweets'] && qry['original_tweets'] && qry['retweet_tweets']
 	 							&& qry['response_tweets'] && qry['responded_tweets'] && qry['quoting_tweets'] && qry['referenced_tweets'] && qry['any_hashtags']=='' && qry['any_keywords']=='' && qry['all_keywords']==''
 	 							&& qry['exact_phrase']=='' && qry['from_accounts']=='' && qry['in_reply_to_tweet_id']=='' && qry['location']=='' && qry['min_retweets']=='' && qry['user_verified']))
 								{ qry['types']=""; }
