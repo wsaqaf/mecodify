@@ -229,11 +229,10 @@ $name=$name." (other sources)";
 
   if ($_GET['types']=="some")
   {
-	  if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="AND NOT") { $bool_op=" AND NOT ("; $_GET['bool_op']=="AND NOT"; } else $bool_op=" AND (";
+	  if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="  OR ") { $bool_op=" AND NOT ("; $_GET['bool_op']="  OR "; } else $bool_op=" AND (";
           if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
-          if ($_GET['original_tweets']) { $condition=$condition." $bool_op (is_retweet<>1 AND is_quote<>1) ";  $name=$name." (are original tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
 	  if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (are referenced tweets)"; $bool_op=$_GET['bool_op'];}
@@ -260,7 +259,7 @@ $name=$name." (other sources)";
             }
           if ($_GET['any_keywords'])
             {
-              $name=$name." (with any of keywords: ".$_GET['any_keywords']." - partial match)";
+              $name=$name." (with any of keywords: ".$_GET['any_keywords'].")";
               $tmp=preg_split('/[\s,]+/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
@@ -271,22 +270,9 @@ $name=$name." (other sources)";
                 }
               $condition=$condition." $c) ";
             }
-          if ($_GET['any_keywords_2'])
-            {
-              $name=$name." (with any of keywords: ".$_GET['any_keywords_2']." - full match)";
-              $tmp=preg_split('/[\s,]+/',$_GET['any_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
-              $c=""; $started=false;
-              foreach ($tmp as $k)
-                {
-                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' ";
-                  $started=true;
-                }
-              $condition=$condition." $c) ";
-            }
           if ($_GET['all_keywords'])
             {
-                $name=$name." (with any of keywords: ".$_GET['all_keywords']." - partial match)";
+                $name=$name." (with any of keywords: ".$_GET['all_keywords'].")";
                 $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
                 $c=""; $started=false;
                 foreach ($tmp as $k)
@@ -297,20 +283,6 @@ $name=$name." (other sources)";
                   }
                 $condition=$condition." $c) ";
             }
-          if ($_GET['all_keywords_2'])
-            {
-                $name=$name." (with any of keywords: ".$_GET['all_keywords_2']." - full match)";
-                $tmp=preg_split('/[\s,]+/',$_GET['all_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
-                $c=""; $started=false;
-                foreach ($tmp as $k)
-                  {
-                 if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." AND LOWER(clear_text)  REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' ";
-                   $started=true;
-                  }
-                $condition=$condition." $c) ";
-            }
-
           if ($_GET['from_accounts'])
             {
                   $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
@@ -351,7 +323,7 @@ $name=$name." (other sources)";
 
        $started=false;
         $name="[".$table."] total # ";
-	$g_params=array("image_tweets","video_tweets","link_tweets","original_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
+	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
@@ -602,11 +574,10 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
 
   if ($_GET['types']=="some")
   {
-    if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="AND NOT") { $bool_op=" AND NOT ("; $_GET['bool_op']=="AND NOT"; } else $bool_op=" AND (";
+    if ($_GET['bool_op']=="NOT" || $_GET['bool_op']=="  OR ") {  $bool_op=" AND NOT ("; $_GET['bool_op']="  OR "; } else $bool_op=" AND (";
     if ($_GET['image_tweets']) { $condition=$condition." $bool_op $table.has_image=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['video_tweets']) { $condition=$condition." $bool_op $table.has_video=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
-    if ($_GET['original_tweets']) { $condition=$condition." $bool_op ($table.is_retweet<>1 AND $table.is_quote<>1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND is_reply=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
@@ -642,18 +613,6 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
           }
         $condition=$condition." $c) ";
       }
-    if ($_GET['any_keywords_2'])
-      { $tmp=preg_split('/[\s,]+/',$_GET['any_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
-        $c=""; $started=false;
-        foreach ($tmp as $k)
-          {
-                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER(clear_text)  REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' ";
-                  $started=true;
-          }
-        $condition=$condition." $c) ";
-      }
-
     if ($_GET['all_keywords'])
       { $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
@@ -665,19 +624,6 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
             }
           $condition=$condition." $c) ";
       }
-
-    if ($_GET['all_keywords_2'])
-      { $tmp=preg_split('/[\s,]+/',$_GET['all_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
-          $c=""; $started=false;
-          foreach ($tmp as $k)
-            {
-                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." AND LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[[:blank:][:punct:]]|$)' ";
-                  $started=true;
-            }
-          $condition=$condition." $c) ";
-      }
-
     if ($_GET['from_accounts'])
       { $tmp=preg_split('/[\s,]+/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
             $c=""; $started=false;
