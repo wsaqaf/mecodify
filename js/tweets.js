@@ -555,6 +555,8 @@ if (!(response.responseText.startsWith('Incorrect'))) { location.reload(); }
        document.getElementById("any_hashtags").value="";
        document.getElementById("any_keywords").value="";
        document.getElementById("all_keywords").value="";
+       document.getElementById("any_keywords_2").value="";
+       document.getElementById("all_keywords_2").value="";
        document.getElementById("exact_phrase").value="";
        document.getElementById("from_accounts").value="";
        document.getElementById("in_reply_to_tweet_id").value="";
@@ -724,6 +726,9 @@ function showkumu()
 							qry['any_hashtags']=ht;
 	 						qry['any_keywords']=document.getElementById("any_keywords").value.toLowerCase();
 	 						qry['all_keywords']=document.getElementById("all_keywords").value.toLowerCase();
+                                                        qry['any_keywords_2']=document.getElementById("any_keywords_2").value.toLowerCase();
+                                                        qry['all_keywords_2']=document.getElementById("all_keywords_2").value.toLowerCase();
+ 
 	 						qry['exact_phrase']=document.getElementById("exact_phrase").value.toLowerCase();
 	 						if (!qry['from_accounts']) qry['from_accounts']=document.getElementById("from_accounts").value.toLowerCase();
 							qry['in_reply_to_tweet_id']=document.getElementById("in_reply_to_tweet_id").value;
@@ -735,7 +740,7 @@ function showkumu()
 	 						qry['stackgraph']=getBoxValue("stackgraph");
 
 	 						if (qry['types']=="all" || (qry['image_tweets'] && qry['video_tweets'] && qry['link_tweets'] && qry['original_tweets'] && qry['retweet_tweets']
-	 							&& qry['response_tweets'] && qry['responded_tweets'] && qry['quoting_tweets'] && qry['referenced_tweets'] && qry['any_hashtags']=='' && qry['any_keywords']=='' && qry['all_keywords']==''
+	 							&& qry['response_tweets'] && qry['responded_tweets'] && qry['quoting_tweets'] && qry['referenced_tweets'] && qry['any_hashtags']=='' && qry['any_keywords']=='' && qry['all_keywords']=='' && qry['any_keywords_2']=='' && qry['all_keywords_2']==''
 	 							&& qry['exact_phrase']=='' && qry['from_accounts']=='' && qry['in_reply_to_tweet_id']=='' && qry['location']=='' && qry['min_retweets']=='' && qry['user_verified']))
 								{ qry['types']=""; }
 	 						else qry['types']="some";
