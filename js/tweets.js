@@ -710,6 +710,7 @@ function showkumu()
 	 						qry['sources']=getRadioValue("sources");
 	 						qry['types']=getRadioValue("content_types");
 	 						if (getRadioValue("period1")=="all") { qry['startdate']=""; qry['enddate']=""; }
+
 	 						qry['retweets']=getBoxValue("include_retweets");
 	 						qry['image_tweets']=getBoxValue("image_tweets");
 	 						qry['video_tweets']=getBoxValue("video_tweets");

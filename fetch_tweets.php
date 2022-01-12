@@ -259,7 +259,7 @@ $name=$name." (other sources)";
             }
           if ($_GET['any_keywords'])
             {
-              $name=$name." (with any of keywords: ".$_GET['any_keywords'].")";
+              $name=$name." (any keywords: ".$_GET['any_keywords']." - partial)";
               $tmp=preg_split('/[\s,]+/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
@@ -270,9 +270,22 @@ $name=$name." (other sources)";
                 }
               $condition=$condition." $c) ";
             }
+          if ($_GET['any_keywords_2'])
+            { 
+              $name=$name." (any keywords: ".$_GET['any_keywords_2']." - full)";
+              $tmp=preg_split('/[\s,]+/',$_GET['any_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
           if ($_GET['all_keywords'])
             {
-                $name=$name." (with any of keywords: ".$_GET['all_keywords'].")";
+                $name=$name." (all keywords: ".$_GET['all_keywords']." - part)";
                 $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
                 $c=""; $started=false;
                 foreach ($tmp as $k)
@@ -283,6 +296,20 @@ $name=$name." (other sources)";
                   }
                 $condition=$condition." $c) ";
             }
+    if ($_GET['all_keywords_2'])
+      { 
+                $name=$name." (all keywords: ".$_GET['all_keywords_2']." - full)";
+	  $tmp=preg_split('/[\s,]+/',$_GET['all_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
+          $c=""; $started=false;
+          foreach ($tmp as $k)
+            {
+              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
+              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  $started=true;
+            }
+          $condition=$condition." $c) ";
+      }
+
           if ($_GET['from_accounts'])
             {
                   $_GET['from_accounts']=str_replace("@","",$_GET['from_accounts']);
@@ -613,6 +640,18 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
           }
         $condition=$condition." $c) ";
       }
+          if ($_GET['any_keywords_2'])
+            {
+              $tmp=preg_split('/[\s,]+/',$_GET['any_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
     if ($_GET['all_keywords'])
       { $tmp=preg_split('/[\s,]+/',$_GET['all_keywords'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
@@ -624,6 +663,18 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
             }
           $condition=$condition." $c) ";
       }
+    if ($_GET['all_keywords_2'])
+      { $tmp=preg_split('/[\s,]+/',$_GET['all_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
+          $c=""; $started=false;
+          foreach ($tmp as $k)
+            {
+              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
+              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  $started=true;
+            }
+          $condition=$condition." $c) ";
+      }
+
     if ($_GET['from_accounts'])
       { $tmp=preg_split('/[\s,]+/',$_GET['from_accounts'], -1, PREG_SPLIT_NO_EMPTY);
             $c=""; $started=false;
