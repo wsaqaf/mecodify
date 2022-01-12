@@ -257,6 +257,35 @@ $name=$name." (other sources)";
                 }
               $condition=$condition." $c) ";
             }
+          if ($_GET['any_mentions'])
+            {
+              $name=$name." (any mentions: ".$_GET['any_mentions'].")";
+              $tmp=preg_split('/[\s,]+/',$_GET['any_mentions'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+		  $k='@'.trim($k,'@'); 
+                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
+          if ($_GET['all_mentions'])
+            {
+              $name=$name." (all mentions: ".$_GET['all_mentions'].")";
+              $tmp=preg_split('/[\s,]+/',$_GET['all_mentions'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+                  $k='@'.trim($k,'@');
+                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." AND LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
+
           if ($_GET['any_keywords'])
             {
               $name=$name." (any keywords: ".$_GET['any_keywords']." - partial)";
@@ -350,7 +379,7 @@ $name=$name." (other sources)";
 
        $started=false;
         $name="[".$table."] total # ";
-	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
+	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","all_keywords","any_keywords_2","all_keywords_2","any_mentions","all_mentions","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
@@ -629,6 +658,33 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
                 }
               $condition=$condition." $c) ";
       }
+          if ($_GET['any_mentions'])
+            {
+              $tmp=preg_split('/[\s,]+/',$_GET['any_mentions'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+                  $k='@'.trim($k,'@');
+                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
+          if ($_GET['all_mentions'])
+            {
+              $tmp=preg_split('/[\s,]+/',$_GET['all_mentions'], -1, PREG_SPLIT_NO_EMPTY);
+              $c=""; $started=false;
+              foreach ($tmp as $k)
+                {
+                  $k='@'.trim($k,'@');
+                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([:blank:]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." AND LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([:blank:]|$)' ";
+                  $started=true;
+                }
+              $condition=$condition." $c) ";
+            }
+
     if ($_GET['any_keywords'])
       { $tmp=preg_split('/[\s,]+/',$_GET['any_keywords'], -1, PREG_SPLIT_NO_EMPTY);
         $c=""; $started=false;
