@@ -1282,8 +1282,7 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
       if ($result->num_rows)
        {
          $header="source,target,value\n";
-         $edges=array(); $edges[0]=$header; $edges[1]=$header; $edges[2]=$header;
-         $edges[3]=$header; $edges[4]=$header; $edges[5]=$header;
+         $edges=array(); 
          $connected_nodes=array();
          $ii=0;
 
@@ -1301,11 +1300,13 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
         $edge_arr=array();
         for ($i=$maximum_strength; $i>$minimum_strength; $i--) { $edge_arr[$i]=$header; }
         $edges_keys=array_keys($edges);
+
         foreach ($edges_keys as $edg)
          {
           for ($i=$maximum_strength; $i>$minimum_strength; $i--)
              { if ($edges[$edg]>$i) $edge_arr[$i]=$edge_arr[$i].$edg.",".$edges[$edg]."\n"; }
          }
+
         for ($i=$maximum_strength; $i>$minimum_strength; $i--)
          {
             if (!$edge_arr[$i]) { echo "No $i-level connections\n<br>"; continue; }

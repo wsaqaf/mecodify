@@ -1013,7 +1013,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             else
              {
                header( 'Content-Type: text/csv' );
-               header( 'Content-Disposition: attachment;filename=twitter_data.csv');
+               header( 'Content-Disposition: attachment;filename=tweets_'.$table.'.csv');
                $fp = fopen('php://output', 'w');
 
               if($row = $result->fetch_assoc())

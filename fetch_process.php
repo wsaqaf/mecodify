@@ -1,13 +1,10 @@
 <?php
-$lifetime=60000;
-session_set_cookie_params($lifetime);
-session_start();
-if (!$_SESSION[basename(__DIR__)]) die("You need to login first by going to the <a href='index.php'>Main Page</a>\n");
+
+require_once("configurations.php");
+
 date_default_timezone_set('UTC');
 
 $table=$_GET['id'];
-
-require_once("configurations.php");
 
 $query="SELECT * FROM `cases` WHERE `id`='$table'";
 if ($result = $link->query($query))

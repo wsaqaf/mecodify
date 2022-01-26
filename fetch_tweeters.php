@@ -8,9 +8,6 @@ ini_set('memory_limit', '1024M');
 
 date_default_timezone_set('America/New_York');
 
-$lifetime=60000;
-session_set_cookie_params($lifetime);
-session_start();
 if (!$argv[2] && !$_SESSION[basename(__DIR__)])
   {
     die("<b>You are logged out. Please <a href='index.php?id=tweeters'>Return to the main page</a> to log in again.</b><br><hr>");
@@ -175,7 +172,7 @@ function get_top($type,$limit)
 	  $tmp=preg_split('/[\s,]+/',$_GET['bio'], -1, PREG_SPLIT_NO_EMPTY);
           $tmp=explode(",",$_GET['bio']);
           $c=""; $started=false;
-          if ($type=="followers" || $type=="all_mentions") $t="users_".$table; elseif (type=="quotes") $t="k1"; else $t=$table;
+          if ($type=="followers" || $type=="all_mentions") $t="users_".$table; elseif ($type=="quotes") $t="k1"; else $t=$table;
           $condition=preg_replace("/\s*WHERE/i"," AND ",$condition);
           foreach ($tmp as $k)
             {
@@ -355,7 +352,7 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
         	    }
     	      else die("Error in query: ". $link->error.": $query");
                header( 'Content-Type: text/csv; charset=utf-8' );
-               header( 'Content-Disposition: attachment;filename=twitter_'.$table.'_'.$type.'.csv');
+               header( 'Content-Disposition: attachment;filename=tweeters_'.$table.'_'.$type.'.csv');
                $fp = fopen('php://output', 'w');
 
               if($row = $result->fetch_assoc())
