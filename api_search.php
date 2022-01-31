@@ -1001,7 +1001,7 @@ function complete_url($qry)
 
   if ($fresh_start)
     {
-      if ($status['status']=="expanded_right")
+      if ($status['status']=="expanded_right" || $status['status']!="completed")
         {
           $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id DESC";
           if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
@@ -1016,9 +1016,9 @@ function complete_url($qry)
               if ($end_time) $et=str_replace(".00Z","",str_replace("T"," ",$end_time));
               else { $et = new DateTime(gmdate("Y-m-d H:i:s")); $et=$et->format('Y-m-d H:i:s'); }
 
-              if ($newest_tweet_time<$et)
+              if ($newest_tweet_time>$et)
                 {
-                  $start_time=str_replace(" ","T",$newest_tweet_time).".00Z";
+                  $end_time=str_replace(" ","T",$newest_tweet_time).".00Z";
                   note("Continuing to get tweets posted after $newest_tweet_id at ".$newest_tweet_time."\n");
                 }
             }
@@ -1037,9 +1037,9 @@ function complete_url($qry)
 
                 if ($start_time) $st=str_replace(".00Z","",str_replace("T"," ",$start_time));
                 else { $st = new DateTime(gmdate("Y-m-d H:i:s")); $st->modify('-7 day'); $st=$st->format('Y-m-d H:i:s'); }
-                if ($oldest_tweet_time>$st)
+                if ($oldest_tweet_time<$st)
                   {
-                      $end_time=str_replace(" ","T",$oldest_tweet_time).".00Z";
+                      $start_time=str_replace(" ","T",$oldest_tweet_time).".00Z";
                       note("Getting tweets before ".$oldest_tweet_time."\n");
                   }
               }
