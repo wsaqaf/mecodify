@@ -18,7 +18,7 @@ $website_title="My Mecodify";
 $admin_email=""; //Recommended to create one as the super user (should be the first email to sign up)
 $admin_name="";
 
-$mysql_db="Mecodify";		//This is the default settings. If you have an exising MySQL database, you can modify them
+$mysql_db="mecodify";		//This is the default settings. If you have an exising MySQL database, you can modify them
 $mysql_server = "localhost";
 $mysql_user = "root";
 $mysql_pw = "";
