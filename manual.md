@@ -1,5 +1,5 @@
 
-![N|Solid](images/logo.png)
+![N|Solid](images/logo3.png)
 
 
 **User Manual for V 2.0**
@@ -16,7 +16,7 @@ Mecodify was created by [Walid Al-Saqaf](http://al-saqaf.se) for the [MeCoDEM EU
 
 **Table of Contents**
 
-[toc]
+[TOC]
 ___
 
 ## 1. Getting started
