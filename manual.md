@@ -56,7 +56,7 @@ Make sure you read *the terms and conditions of use* before accepting since it i
 
 Once you create an account, you can then log in and start creating cases or inspect cases that have already been created by other members.
 
-![N|Solid](https://mecodify.org/images/signin.png)
+![N|Solid](images/signin.png)
 
 ### 1.2 General Overview
 Once you log in, you will get a screen shown below. Mecodify's interface basically allows users to create/see cases and visualise data on this page
@@ -78,7 +78,7 @@ The most common cases that Mecodify users create are around hashtags. For exampl
 To create a new case follow the following instructions:
 1. Click on "Add a new case". The below form will then appear.
 
-![N|Solid](https://mecodify.org/images/add-case.png)
+![N|Solid](images/add-case.png)
 
 2. Fill in the **ID** field with a unique alphanumeric code of your choice so as to be associated with this case (e.g., westgate2013, ombudsman2015, SanBernardin2015)
 3. Fill in the **Name** field with a name of your choice, something readable for you to remember what the case is about (e.g., Tweets on #FreedomFest16 between 1 and 10 Oct 2016). This field can include at most 5 words.
@@ -110,7 +110,7 @@ To create a new case follow the following instructions:
 11. Finally, decide on the **Privacy** settings by selecting whther it will only be you who is able to view the case or if you wish to have other members see it. To have it shared with peers, it is probably better to have it 'public'. But if it is only you who is concerned with it, then keeping it as 'private' may be the better option. Note that no one except you -as the owner- is able to edit or delete the case regardless of this setting.
 12. Once you are done filling the form, you should click **Submit case**, then after a few seconds, you will get a screen like this:
 
-![N|Solid](https://mecodify.org/images/process-case.png)
+![N|Solid](images/process-case.png)
 
 13. By clicking on 'Click here', you will then allow Mecodify to start extracting data from the particular platform using the selected method. 
 
@@ -118,7 +118,7 @@ To create a new case follow the following instructions:
 A new tab will then open showing progress in extracting data as shown below. You have the option of clicking on "Stop" to interrupt the extraction process, which can be resumed later by clicking on "Resume".
 
 
-![N|Solid](https://mecodify.org/images/case-progress.png)
+![N|Solid](images/case-progress.png)
 
 * The **'Created'** field indicates the time and date the case was created. 
 * Status can be **'In progress'**, **'Stopped'** (when the process is halted either intentionally or due to some other technical reason), or **'Completed'**, which means that all relevant data for the case has been successfully fetched. 
@@ -130,14 +130,14 @@ A new tab will then open showing progress in extracting data as shown below. You
 ### 2.3 Getting info about a case
 To check progress of any case, all you need to do is to go to the main page and click on the drop down menu under **Cases - Select a case from below** as shown below.
 
-![N|Solid](https://mecodify.org/images/select-case.png)
+![N|Solid](images/select-case.png)
 
 1. You can then select the case and click on **More info about the selected case** after which you will get all the information you have entered into the case. 
 2. Towards the bottom of the table, you will find the **Action** line (as shown below). 
 3. You can then click on **Edit**, which will take you to a form that allows you to change some of the case's values. You can here expand the period (e.g. extending the end date) to get fresh tweets. 
 4. You can also click on **more info**, which will open a new tab containing the progress indicator shown earlier.
 
-![N|Solid](https://mecodify.org/images/edit-info.png)
+![N|Solid](images/edit-info.png)
 
 ## 3. Data analysis and visualisation of Tweets
 In the **tweets* tab, you can basically create lists of tweets, draw graphs and add some filters.
@@ -146,11 +146,11 @@ In the **tweets* tab, you can basically create lists of tweets, draw graphs and 
 
 To analyse tweets of a particular case, you will need to select the case and then apply any of the available filters (to be described later) if needed. You then can click on the **Visualise** button, which will plot a graph with the default settings showing the total number of tweets and retweets for the period covered by the case as shown below.
 
-![N|Solid](https://mecodify.org/images/graph.png)
+![N|Solid](images/graph.png)
 
 Below the graph, there is a link to the **'interactive slides interface'**, which -when clicked- opens a new window that includes a graph (on the left) indicating the time and number of retweets as shown below. The tweets are ordered according to the table's sorting (details later).
 
-![N|Solid](https://mecodify.org/images/interactive-graph.png)
+![N|Solid](images/interactive-graph.png)
 
 Furthermore, a **hashtag cloud** representing the most frequent hashtags will also be displayed below the graph (unless turned off by the user) in addition to a table containing all tweets (ordered by time) will be displayed and paginated per 100 tweets as shown below.
 
