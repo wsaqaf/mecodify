@@ -61,7 +61,7 @@ $admin_email="";
 $admin_name="";
 ```
 whereas:
-- **admin_email** is your email as the administrator of this instance of Mecodify. The admin enjoys a number of privilges including: Getting notified when a new user joins, a new case is created or edited, ability to view, edit, and delete any case (even those that are private). In the future, it will be possible to add a feature to approve new membership requests.*
+- **admin_email** is your email as the administrator of this instance of Mecodify. It should be the first e-mail to sign up. The admin enjoys a number of privilges including: Getting notified when a new user joins, a new case is created or edited, ability to view, edit, and delete any case (even those that are private). In the future, it will be possible to add a feature to approve new membership requests.*
 - **admin_name** is your name as the administrator, which will be useful in communicating certain messages to regular users*
 
 #### Database-related
@@ -79,7 +79,7 @@ whereas
 - **mysql_pw ** is the MySQL password for the above user.
 
 #### Email-related
-The below details are *optional* and are needed by the phpmailer library if you -as the admin- wish to receive emails about new signups or cases:
+The below details are *optional* and are needed by the phpmailer library if you -as the admin- wish to receive emails when users sign up or create/edit cases:
 ```sh
 $smtp_host="";
 $smtp_secure="";
