@@ -16,7 +16,31 @@ Mecodify was created by [Walid Al-Saqaf](http://al-saqaf.se) for the [MeCoDEM EU
 
 **Table of Contents**
 
-[TOC]
+- [1. Getting started](#1-getting-started)
+  * [1.1 Creating a new account](#11-creating-a-new-account)
+  * [1.2 General Overview](#12-general-overview)
+- [2. Creating a new case and Data Extraction](#2-creating-a-new-case-and-data-extraction)
+  * [2.1 Creating a new case](#21-creating-a-new-case)
+  * [2.2 Data Extraction Process](#22-data-extraction-process)
+  * [2.3 Getting info about a case](#23-getting-info-about-a-case)
+- [3. Data analysis and visualisation of Tweets](#3-data-analysis-and-visualisation-of-tweets)
+  * [3.1 Tweet Lists](#31-tweet-lists)
+  * [3.2 Filtering of tweets](#32-filtering-of-tweets)
+    + [Tweet Type](#tweet-type)
+    + [Graph metrics](#graph-metrics)
+  * [3.3 Period](#33-period)
+  * [3.4 Language](#34-language)
+  * [3.5 Source](#35-source)
+  * [3.6 Other visualisation options](#36-other-visualisation-options)
+- [4. Data Analysis and visualisation of tweeters](#4-data-analysis-and-visualisation-of-tweeters)
+  * [4.1 Influence charts](#41-influence-charts)
+  * [4.2 Other options](#42-other-options)
+  * [4.3 Network visualisation](#43-network-visualisation)
+  * [4.4 Exporting to Kumu](#44-exporting-to-kumu)
+- [5. Troubleshooting](#5-troubleshooting)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 ___
 
 ## 1. Getting started
