@@ -251,8 +251,9 @@ $name=$name." (other sources)";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' "; 
+                                   $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
@@ -652,8 +653,9 @@ echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javas
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' "; $bool_op=$_GET['bool_op'];}
-                  else $c=$c." OR LOWER($table.hashtags) like '%#".$link->real_escape_string(trim(strtolower($k)))."%' ";
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
+                                   $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
