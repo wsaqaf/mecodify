@@ -471,7 +471,7 @@ $name=$name." (other sources)";
             if (!$started) $pointStart=$row[0];
           }
 
-        if ($_GET['last_graph_hash'] && $stackgraph)
+        if ($_GET['last_graph_hash'] && $stackgraph && !$_GET['refresh'])
           {
             if (file_exists("tmp/cache/".$_GET['last_graph_hash'].".htm"))
               {
@@ -517,11 +517,12 @@ if ($flags)
         $graph_data=str_replace("<!--name-->",addslashes(ucfirst(trim($name))),$graph_data);
         $graph_data=str_replace('<!--color-->','#'.$colors[$s],$graph_data);
         $graph_data=str_replace("<!--data-->",$data,$graph_data);
-	      $graph_data2=$graph_data;
+	$graph_data2=$graph_data;
         $graph_data=$graph_data."\n$flags\n/*<!--graph_data-->*/";
         $graph_data2=$graph_data2."/*<!--graph_data-->*/";
 
         $tmp_url=preg_replace("/\&last_graph_hash=[\d]+/","",$_SERVER['REQUEST_URI']);
+        $tmp_url=preg_replace("/\&refresh=[^\&]*/","",$tmp_url);	
 
         $hashkey=base_convert(md5($tmp_url), 16, 10);
         $graph_data=str_replace("<!--hashkey-->","data".substr($hashkey,0,10),$graph_data);
@@ -540,7 +541,6 @@ if ($flags)
         $template2=str_replace('/*<!--graph_data-->*/',$graph_data2,$template2);
         $template=str_replace("<!--url-->",$url,$template);
         $template2=str_replace("<!--url-->",$url,$template2);
-        file_put_contents("tmp/cache/$hashkey.htm",$template2);
         echo $template."<form><input type='hidden' id='last_graph_hash' value='$hashkey'></form>";
  }
 else
@@ -557,10 +557,11 @@ else
         $tmp_url=preg_replace("/\&relative_retweets=.+?\&/","&",$tmp_url);
         $tmp_url=preg_replace("/\&relative_tweeters=.+?\&/","&",$tmp_url);
         $tmp_url=preg_replace("/\&stackgraph=1/","",$tmp_url);
+        $tmp_url=preg_replace("/\&refresh=[^\&]*/","",$tmp_url);
 
         $hashkey2=base_convert(md5($tmp_url), 16, 10);
 
-        if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2.tab"))
+        if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2.tab") && !$_GET['refresh'])
           {
             $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table$hashkey2.tab"));
 echo "Using cached table created at ($file_updated) - <a href='#' onclick=javascript:visualize('$table$hashkey2')>Refresh without cache</a><br>";
@@ -1158,7 +1159,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
 
     file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
-    if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html"))
+    if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html") && !$_GET['refresh'])
        {
                                 echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
        }
