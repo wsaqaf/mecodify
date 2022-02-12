@@ -295,7 +295,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     if (not_blank($tweet->context_annotations)) $tw['context_annotations']=json_encode(['conext_annotations' => $tweet->context_annotations]);
     if (not_blank($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
     if (not_blank($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
-    if (not_blank($tweet->public_metrics->retweet_count)) { echo "\nXXXXXhas retweets: (".$tweet->public_metrics->retweet_count.")\nXXXX\n\n"; $tw['retweets']=$tweet->public_metrics->retweet_count; }
+    if (not_blank($tweet->public_metrics->retweet_count)) { echo "\nhas retweets: (".$tweet->public_metrics->retweet_count.")\n\n"; $tw['retweets']=$tweet->public_metrics->retweet_count; }
     if (not_blank($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
     if (not_blank($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
     if (not_blank($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
