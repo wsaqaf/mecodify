@@ -563,7 +563,7 @@ else
         if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2.tab"))
           {
             $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table$hashkey2.tab"));
-echo "Using cached table created at ($file_updated) - <a href='#'' onclick=javascript:visualize('$table$hashkey2')>Refresh without cache</a><br>";
+echo "Using cached table created at ($file_updated) - <a href='#' onclick=javascript:visualize('$table$hashkey2')>Refresh without cache</a><br>";
 
             if ($result=$link->query("SELECT last_process_updated FROM cases WHERE id='$table'"))
           		{
@@ -792,7 +792,7 @@ if ($tops)
         }
       if ($retweeted) $order="sum($table.retweets)"; else $order="count(tweet_id)";
 
-      $qry1="SELECT $element,$order,$table.tweet_permalink_path from $table $condition ";
+      $qry1="SELECT $element,$order from $table $condition ";
       if ($point>1)
       {
         if ($drill_level=="years")
@@ -857,24 +857,24 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
           $data=$data."<tr><td><b>".($cnt+1).")</b></td><td>";
           if ($top_images)
             {
-if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row[0]},${row[1]},${row[2]},${row[3]})<br>\n"; }
+if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row[0]},${row[1]},${row[2]})<br>\n"; }
 	            $temp_list=explode(" ",trim($row[1])); $links="";
-	            foreach ($temp_list as $temp_link) { if (strlen($temp_link)>15) $links=$links."<a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."&')><img src='$temp_link' height=250></a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a><br> <br>"; }
-              $data=$data."$links</td><td><center>${row[2]}</center></td></tr>\n";
+	            foreach ($temp_list as $temp_link) { if (strlen($temp_link)>15) $links=$links."<a href='".$row[0]."' target=_blank><<img src='$temp_link' height=250></a><br> <br>"; }
+              $data=$data."$links</td><td><center><a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."&')>${row[2]}</a></center></td></tr>\n";
             }
           elseif ($top_videos)
             {
 	      if ($row[1]) { $img=1; $temp_list=explode(" ",trim($row[1])); }
 	      else { $img=0; $temp_list=explode(" ",trim($row[0])); }
 	      $links="";
-              foreach ($temp_list as $temp_link) { $links=$links."<a href='#' onclick=javascript:GetDetails('$url&video=".rawurlencode($temp_link)."&image2=".rawurlencode($temp_link)."&')>".image_exists($img,$temp_link)."${row[0]}</a> <a href='${row[3]}' target=_blank><img src='images/link.gif'></a>"; }
-              $data=$data."$links</td><td><center>${row[2]}</center></td></tr>\n";
+              foreach ($temp_list as $temp_link) { $links=$links."<a href='".$row[0]."' target=_blank>".image_exists($img,$temp_link).$row[0]."</a>"; }
+              $data=$data."$links</td><td><center><a href='#' onclick=javascript:GetDetails('$url&video=".rawurlencode($temp_link)."&image2=".rawurlencode($temp_link)."&')>${row[2]}</a></center></td></tr>\n";
             }
           else
             {
 	      $temp_list=explode(" ",trim($row[0])); $links="";
-              foreach ($temp_list as $temp_link) { $links=$links."<a <a href='#' onclick=javascript:GetDetails('$url&link=".rawurlencode($temp_link)."&')>$temp_link</a> <a href='${row[2]}' target=_blank><img src='images/link.gif'></a>"; }
-              $data=$data."$links</td><td><center>${row[1]}</center></td></tr>\n";
+              foreach ($temp_list as $temp_link) { $links=$links."<a href='$temp_link' target=_blank>$temp_link</a> "; }
+              $data=$data."$links</td><td><center><a href='#' onclick=javascript:GetDetails('$url&link=".rawurlencode($temp_link)."&')>${row[1]}</a></center></td></tr>\n";
             }
           $cnt++;
        }
@@ -1151,7 +1151,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
           fclose($fp);
         }
    }
-    $link->close();
+    if(isset($link->server_info)) $link->close();
     $slide_file=file_get_contents("templates/slideshow.html");
     $slide_file=str_replace("<!--case-->",$cases[$table]['name'],$slide_file);
     $slide_file=str_replace("<!--title-->"," Search query: <b>".$cases[$table]['query']."</b>",$slide_file);
