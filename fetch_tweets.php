@@ -561,10 +561,10 @@ else
 
         $hashkey2=base_convert(md5($tmp_url), 16, 10);
 
-        if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2.tab") && !$_GET['refresh'])
+        if (!$_GET['export'] && file_exists("tmp/cache/$table"."-"."$hashkey2.tab") && !$_GET['refresh'])
           {
-            $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table$hashkey2.tab"));
-echo "Using cached table created at ($file_updated) - <a href='#' onclick=javascript:visualize('$table$hashkey2')>Refresh without cache</a><br>";
+            $file_updated=gmdate("Y-m-d H:i:s", filemtime("tmp/cache/$table"."-"."$hashkey2.tab"));
+echo "Using cached table created at ($file_updated) - <a href='#' onclick=javascript:visualize('$table"."-"."$hashkey2')>Refresh without cache</a><br>";
 
             if ($result=$link->query("SELECT last_process_updated FROM cases WHERE id='$table'"))
           		{
@@ -572,11 +572,11 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
           		   $row=$result->fetch_array();
           		   if ($row[0]<$file_updated)
           			{
-          			  if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html"))
+          			  if (!$_GET['export'] && file_exists("tmp/cache/$table"."-"."$hashkey2-slides.html"))
           			     {
-          	  			echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
+          	  			echo "<center><a href=\"tmp/cache/$table"."-"."$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
           			     }
-          			  echo file_get_contents("tmp/cache/$table$hashkey2.tab");
+          			  echo file_get_contents("tmp/cache/$table"."-"."$hashkey2.tab");
           			  exit;
           			}
           		}
@@ -1136,13 +1136,13 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
 		     }
 		   else
 		     {
-                        file_put_contents("tmp/cache/$table$hashkey2-hashcloud.html",$hashtag_cloud);
+                        file_put_contents("tmp/cache/$table"."-"."$hashkey2-hashcloud.html",$hashtag_cloud);
    	                $cloud = new PTagCloud(50);
         	        $cloud->addTagsFromText($hashtag_cloud);
               	        $cloud->setWidth("900px");
 			$hashtag_cloud2=$cloud->emitCloud();
 	                $part1_data=$part1_data."<br><b>Hashtag cloud:</b> <center>$hashtag_cloud2</center>";
-                   	$part1_data=$part1_data."<center><small><a href='tmp/cache/$table$hashkey2-hashcloud.html' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
+                   	$part1_data=$part1_data."<center><small><a href='tmp/cache/$table"."-"."$hashkey2-hashcloud.html' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
                      }
                 }
               $part1_data=$part1_data.$data;
@@ -1158,13 +1158,13 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
     $slide_file=str_replace("<!--title-->"," Search query: <b>".$cases[$table]['query']."</b>",$slide_file);
     $slide_file=str_replace("<!--dataset-->",$dataset,$slide_file);
 
-    file_put_contents("tmp/cache/$table$hashkey2-slides.html",$slide_file);
-    if (!$_GET['export'] && file_exists("tmp/cache/$table$hashkey2-slides.html") && !$_GET['refresh'])
+    file_put_contents("tmp/cache/$table"."-"."$hashkey2-slides.html",$slide_file);
+    if (!$_GET['export'] && file_exists("tmp/cache/$table"."-"."$hashkey2-slides.html") && !$_GET['refresh'])
        {
-                                echo "<center><a href=\"tmp/cache/$table$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
+                                echo "<center><a href=\"tmp/cache/$table"."-"."$hashkey2-slides.html\" target=_blank><img src=\"images/slideshow.png\" width=100> Interactive slides interface (under development)</a></center><br>";
        }
     echo $part1_data;
-    file_put_contents("tmp/cache/$table$hashkey2.tab",$part1_data);
+    file_put_contents("tmp/cache/$table"."-"."$hashkey2.tab",$part1_data);
 }
 
 function get_cloud($table)
