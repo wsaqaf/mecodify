@@ -349,10 +349,7 @@ function submit_case($replace)
           $new_status="";
           if ($_POST['case_from'] || $_POST['case_to'])
             {
-              if ($_POST['case_from'] && ($row['from_date']>$_POST['case_from']) && $row['to_date']==$_POST['case_to']) { $new_status=" status='expanded_left',"; }
-              elseif (($row['to_date']<$_POST['case_to'] || !$_POST['case_to']) && $row['from_date']==$_POST['case_from']) { $new_status=" status='expanded_right',"; }
-              elseif ($_POST['case_from'] && $row['from_date']>$_POST['case_from'] && $row['to_date']<$_POST['case_to']){ die("You cannot change both start and end dates values at once. Start with updating one (either start or end) and run the process. Once finished, you can expand by changing the other value."); }
-              elseif ($row['from_date']<$_POST['case_from'] || ($row['to_date']>$_POST['case_to'] && $_POST['case_to'])
+              if ($row['from_date']<$_POST['case_from'] || ($row['to_date']>$_POST['case_to'] && $_POST['case_to'])
                   || (!$row['to_date'] && $_POST['case_to']) || (!$row['from_date'] && $_POST['case_from']))
                   {
                     die("You cannot make the period shorter, but can only expand it. Start a new case with the shorter time period instead.");
