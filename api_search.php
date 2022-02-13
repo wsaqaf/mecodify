@@ -147,7 +147,7 @@ function get_all_fields($table,$getfield)
 
     $regex = '$\b(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$i';
 
-    $recs=getapi_record($getfield);
+    $recs=getapi_record($getfield,0);
 
     $records=$recs->data;
 
@@ -255,7 +255,7 @@ function not_blank($var)
   {
     if (isset($var))
       {
-        if ($var)
+        if ($var || $var===0)
           {
             return true;
           }
@@ -987,89 +987,90 @@ function cUrlGetData($url)
 }
 
 
-function complete_url($qry)
+function complete_url($qry,$get_latest_only)
  {
    global $start_time; global $end_time; global $max_per_page;
    global $since_id; global $until_id; global $next_token;
    global $twitter_api_settings; global $table; global $link; global $fresh_start;
 
-	$fields="tweet.fields=created_at,author_id,public_metrics,entities,geo,in_reply_to_user_id,lang,referenced_tweets,attachments,context_annotations,source,conversation_id,withheld,possibly_sensitive&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type&user.fields=created_at,public_metrics,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,url,username,verified,withheld&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width&expansions=author_id,referenced_tweets.id,in_reply_to_user_id,attachments.media_keys,geo.place_id,entities.mentions.username,referenced_tweets.id.author_id";
+   $starttime=$start_time; $endtime=$end_time;
 
-  $query="SELECT status FROM cases where id='$table'";
-  $result=$link->query($query); if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
-  $status = $result->fetch_assoc();
+   $fields="tweet.fields=created_at,author_id,public_metrics,entities,geo,in_reply_to_user_id,lang,referenced_tweets,attachments,context_annotations,source,conversation_id,withheld,possibly_sensitive&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type&user.fields=created_at,public_metrics,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,url,username,verified,withheld&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width&expansions=author_id,referenced_tweets.id,in_reply_to_user_id,attachments.media_keys,geo.place_id,entities.mentions.username,referenced_tweets.id.author_id";
 
-  if ($fresh_start)
+  if ($fresh_start || $get_latest_only)
     {
+       if (!$get_latest_only)
+	 {
           $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id";
           if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
           else die("Error in query: ". $link->error.": $query");
           $row = $result->fetch_assoc();
           
           if ($row)
-            { 
-              $oldest_tweet_id=$row['tweet_id'];
-              $oldest_tweet_time=$row['date_time'];
-              
-              if ($start_time) $st=str_replace(".00Z","",str_replace("T"," ",$start_time));
-              else { $st = new DateTime('2006-03-01'); $et=$et->format('Y-m-d H:i:s'); }
-              
-              if ($oldest_tweet_time>$st)
-                { 
-                  $end_time=str_replace(" ","T",$oldest_tweet_time).".00Z";
-                  note("Continuing to get tweets posted before $oldest_tweet_id at ".$oldest_tweet_time."\n");
-                }
-      	      else
-		{
-		  $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id DESC";
-		  if ($result = $link->query($query)) { if (!($result->num_rows)) $oldest_tweet_id=""; }
-		  else die("Error in query: ". $link->error.": $query");
-		  $row = $result->fetch_assoc();
-
-		  if ($row)
-		    {
-		      $newest_tweet_id=$row['tweet_id'];
-		      $newest_tweet_time=$row['date_time'];
-
-		      if ($end_time) $et=str_replace(".00Z","",str_replace("T"," ",$end_time));
-		      else { $et = new DateTime(gmdate("Y-m-d H:i:s")); $et=$et->format('Y-m-d H:i:s'); }
-
-		      if ($newest_tweet_time<$et)
-			{
-			  $start_time=str_replace(" ","T",$newest_tweet_time).".00Z";
-			  note("Continuing to get tweets posted after $newest_tweet_id at ".$newest_tweet_time."\n");
-			}
-		    }
+            {
+	      $oldest_tweet_id=$row['tweet_id'];
+	      $oldest_tweet_time=$row['date_time'];
+	      
+	      if ($start_time) $st=str_replace(".00Z","",str_replace("T"," ",$start_time));
+	      else { $st = new DateTime('2006-03-01'); $et=$et->format('Y-m-d H:i:s'); }
+	      
+	      if ($oldest_tweet_time>$st)
+		{ 
+		  $endtime=str_replace(" ","T",$oldest_tweet_time).".00Z";
+		  note("Continuing to get tweets posted before $oldest_tweet_id at ".$oldest_tweet_time."\n");
 		}
-              }
-      update_cases_table("started");
-      $fresh_start=false;
-    }
+	    }
+        }    	
+      else
+	{
+	  $query= "SELECT tweet_id,date_time from $table WHERE NOT is_referenced order by tweet_id DESC";
+	  if ($result = $link->query($query)) { if (!($result->num_rows)) $newest_tweet_id=""; }
+	  else die("Error in query: ". $link->error.": $query");
+	  $row = $result->fetch_assoc();
+
+	  if ($row)
+	    {
+	      $newest_tweet_id=$row['tweet_id'];
+	      $newest_tweet_time=$row['date_time'];
+
+	      if ($end_time) $et=str_replace(".00Z","",str_replace("T"," ",$end_time));
+	      else { $et = new DateTime(gmdate("Y-m-d H:i:s")); $et=$et->format('Y-m-d H:i:s'); }
+
+	      if ($newest_tweet_time<$et)
+		{
+		  $starttime=str_replace(" ","T",$newest_tweet_time).".00Z";
+		  note("Continuing to get tweets posted after $newest_tweet_id at ".$newest_tweet_time."\n");
+		}
+	    }
+	}
+     update_cases_table("started");
+     $fresh_start=false;
+   }
 
   if (!$twitter_api_settings['is_premium']) $search_mode="recent";
   else $search_mode="all";
 
   $period="";
-  if ($start_time) $period="&start_time=$start_time";
-  if ($end_time) $period=$period."&end_time=$end_time";
+  if ($starttime) $period="&start_time=$starttime";
+  if ($endtime) $period=$period."&end_time=$endtime";
   $url="https://api.twitter.com/2/tweets/search/$search_mode?query=$qry&max_results=$max_per_page$next_token$until_id$since_id$period&$fields";
 
   echo "\nURL:\n----\n$url\n----\n";
 	return $url;
  }
 
-function getapi_record($getfield)
+function getapi_record($getfield,$get_latest_only)
   {
     global $twitter_api_settings; global $last_setting;
     global $limit_remaining; global $limit_reset; global $full_header;
 
-    if ($limit_remaining==0)
+    if ($limit_remaining===0)
       {
           echo "Rate exceeded, resuming in ".(string)($limit_reset-time())." seconds\n";
           if (($limit_reset-time())>0) sleep($limit_reset-time());
       }
 
-    $url=complete_url($getfield);
+    $url=complete_url($getfield,$get_latest_only);
 
     $response = cUrlGetData($url);
     $record=json_decode($response);
@@ -1100,12 +1101,17 @@ function getapi_record($getfield)
       {
         if ($record->meta->result_count===0)
           {
-            echo "The rearch returned no results.";
+            echo "The search returned no results.";
+	    if (!$get_latest_only) 
+		{
+			sleep(2);
+			return getapi_record($getfield,1);
+		}
             return;
           }
         else
           {
-            echo "The rearch returned ".$record->meta->result_count." results.\n";
+            echo "The search returned ".$record->meta->result_count." results.\n";
             return $record;
           }
       }
