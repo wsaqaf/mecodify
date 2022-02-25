@@ -146,7 +146,7 @@ function show_profile($rank,$table,$user_screen_name)
 }
 
 function get_top($type,$limit)
-  {
+    {
     global $debug; global $admin_email;
     global $table; global $link; global $cases;
     $started=0;
@@ -305,7 +305,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
       	  if ($_GET['export'])
       	    $qry="SELECT k1.user_screen_name as user_screen_name,k2.user_name AS full_name,k1.mentions_of_tweeter AS mentions_of_tweeter,k2.user_verified as user_verified,k2.user_location as user_location,k2.user_bio as user_bio,CONCAT('https://twitter.com/',k1.user_screen_name) AS user_twitter_page FROM user_all_mentions_".$table." k1 left outer join users_".$table." k2 on (k2.user_screen_name=k1.user_screen_name AND k1.mentions_of_tweeter>0 $condition)";
       	  else
-            $qry="SELECT user_all_mentions_"."$table.user_screen_name,user_all_mentions_"."$table.mentions_of_tweeter FROM user_all_mentions_"."$table";
+            $qry="SELECT user_all_mentions_"."$table.user_screen_name,user_all_mentions_"."$table.mentions_of_tweeter FROM user_all_mentions_"."$table, users_".$table;
           $query = "$qry $condition group by user_all_mentions_"."$table.user_screen_name order by user_all_mentions_"."$table.mentions_of_tweeter DESC";
       }
     elseif ($type=="quotes")
@@ -331,9 +331,8 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
             $name="Top tweeters";
 	    if ($_GET['export'])
               $qry= "SELECT user_screen_name,user_name AS full_name,count(tweet_id) AS tweets,user_verified,user_location, user_bio,CONCAT('https://twitter.com/',user_screen_name) AS user_twitter_page  FROM $table ";
-          else
-
-            $qry= "SELECT user_screen_name,count(tweet_id) AS tweets FROM $table ";
+            else
+              $qry= "SELECT user_screen_name,count(tweet_id) AS tweets FROM $table ";
             $condition=preg_replace("/\s*WHERE/i"," AND ",$condition);
             $condition="WHERE is_protected_or_deleted is null ".$condition;
             $query = "$qry $condition group by user_screen_name order by count(tweet_id) desc";

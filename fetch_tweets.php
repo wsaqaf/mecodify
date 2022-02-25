@@ -1,4 +1,5 @@
 <?php
+
 ini_set('max_execution_time', 3000);
 ini_set('memory_limit', '1024M');
 
@@ -541,7 +542,10 @@ if ($flags)
         $template2=str_replace('/*<!--graph_data-->*/',$graph_data2,$template2);
         $template=str_replace("<!--url-->",$url,$template);
         $template2=str_replace("<!--url-->",$url,$template2);
+        file_put_contents("tmp/cache/$hashkey.htm",$template2);
         echo $template."<form><input type='hidden' id='last_graph_hash' value='$hashkey'></form>";
+
+       
  }
 else
 {
