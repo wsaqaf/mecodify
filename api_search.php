@@ -295,7 +295,7 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     if (not_blank($tweet->context_annotations)) $tw['context_annotations']=json_encode(['conext_annotations' => $tweet->context_annotations]);
     if (not_blank($tweet->possibly_sensitive)) $tw['possibly_sensitive']=$tweet->possibly_sensitive;
     if (not_blank($tweet->in_reply_to_user_id)) $tw['in_reply_to_user']=$tweet->in_reply_to_user_id;
-    if (not_blank($tweet->public_metrics->retweet_count)) { echo "\nhas retweets: (".$tweet->public_metrics->retweet_count.")\n\n"; $tw['retweets']=$tweet->public_metrics->retweet_count; }
+    if (not_blank($tweet->public_metrics->retweet_count)) { $tw['retweets']=$tweet->public_metrics->retweet_count; }
     if (not_blank($tweet->public_metrics->quote_count)) $tw['quotes']=($tweet->public_metrics->quote_count);
     if (not_blank($tweet->public_metrics->like_count)) $tw['favorites']=$tweet->public_metrics->like_count;
     if (not_blank($tweet->public_metrics->reply_count)) $tw['replies']=$tweet->public_metrics->reply_count;
@@ -982,7 +982,7 @@ function cUrlGetData($url)
 	}
 
 	curl_close($ch);
-
+	sleep(1); //give the API a second to breathe before the next call
 	return $data;
 }
 
@@ -1064,25 +1064,34 @@ function getapi_record($getfield,$get_latest_only)
     global $twitter_api_settings; global $last_setting;
     global $limit_remaining; global $limit_reset; global $full_header;
 
-    if ($limit_remaining===0)
-      {
-          echo "Rate exceeded, resuming in ".(string)($limit_reset-time())." seconds\n";
-          if (($limit_reset-time())>0) sleep($limit_reset-time());
-      }
-
     $url=complete_url($getfield,$get_latest_only);
 
     $response = cUrlGetData($url);
     $record=json_decode($response);
 
+    if ($limit_remaining===0)
+      {
+	  echo "Status error getapi_record: \n";
+          note("\n---Header-----\n$full_header\n-------\n");
+          print_r($record);
+          echo "Rate exceeded, resuming in ".(string)($limit_reset-time())." seconds\n";
+	  if (($limit_reset-time())>0) sleep($limit_reset-time());
+	  else sleep(60);
+	  return getapi_record($getfield,$get_latest_only);
+      }
+    
     if (not_blank($record->status))
       {
         echo "Status error getapi_record: \n";
         note("\n---Header-----\n$full_header\n-------\n");
-        print_r($record);
-        node("1errors: "); var_dump($response);
-        return "";
-      }
+	print_r($record);
+	if ($record->status=="429") 
+          {
+	     echo "Too many requests, resuming in 10 seconds\n";
+	     sleep(10);
+	     return getapi_record($getfield,$get_latest_only);
+ 	  }
+    }
 
     if (not_blank($record->errors))
       {
@@ -1094,7 +1103,7 @@ function getapi_record($getfield,$get_latest_only)
               echo $error->title."\n";
               echo $error->message."\n";
               echo $error->detail."\n";
-            }
+	    }
       }
 
     if (not_blank($record->meta->result_count))
@@ -1153,7 +1162,6 @@ function url_get_contents($url)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    sleep(1);
     $output = curl_exec($ch);
     if(curl_errno($ch))
      {
@@ -1194,7 +1202,7 @@ function put_user_in_database($user)
              $values="$values, '".$link->real_escape_string($user[$field])."'";
            }
        }
-      $query="$insert_part ($names) values ($values) $update_part $query;";
+      $query="$insert_part ($names) values ($values) $update_part $query";
      $result = $link->query($query);
      if (!$result) die("Invalid query: " . $link->sqlstate. "<hr>$query<hr>");
     }
@@ -1300,7 +1308,7 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
               if (!$edges[$row[0].",".$row[$kk]]) $edges[$row[0].",".$row[$kk]]=0;
               $edges[$row[0].",".$row[$kk]]++;
             }
-          }
+	 }
         $edge_arr=array();
         for ($i=$maximum_strength; $i>$minimum_strength; $i--) { $edge_arr[$i]=$header; }
         $edges_keys=array_keys($edges);
