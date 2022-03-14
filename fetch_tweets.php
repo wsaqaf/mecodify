@@ -241,7 +241,7 @@ $name=$name." (other sources)";
 
           if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op (clear_text like '@%') ";  $name=$name." (are responses)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (replies is not null AND replies>0) ";  $name=$name." (are responsed to)"; $bool_op=$_GET['bool_op'];}
-          if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['user_verified']) { $condition=$condition." $bool_op user_verified=1 "; $name=$name." (from a verified tweeter)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['min_retweets']) { $condition=$condition." $bool_op retweets>=".$_GET['min_retweets']." "; $name=$name." (with minimum # of ".$_GET['min_retweets']." retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['any_hashtags'])
@@ -252,9 +252,9 @@ $name=$name." (other sources)";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' "; 
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                                    $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
+                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
@@ -266,7 +266,7 @@ $name=$name." (other sources)";
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-		  $k='@'.trim($k,'@'); 
+		  $k='@'.trim($k,'@');
                   if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' "; $bool_op=$_GET['bool_op']; }
                   else $c=$c." OR LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' ";
                   $started=true;
@@ -302,14 +302,14 @@ $name=$name." (other sources)";
               $condition=$condition." $c) ";
             }
           if ($_GET['any_keywords_2'])
-            { 
+            {
               $name=$name." (any keywords: ".$_GET['any_keywords_2']." - full)";
               $tmp=preg_split('/[\s,]+/',$_GET['any_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
@@ -328,14 +328,14 @@ $name=$name." (other sources)";
                 $condition=$condition." $c) ";
             }
     if ($_GET['all_keywords_2'])
-      { 
+      {
                 $name=$name." (all keywords: ".$_GET['all_keywords_2']." - full)";
 	  $tmp=preg_split('/[\s,]+/',$_GET['all_keywords_2'], -1, PREG_SPLIT_NO_EMPTY);
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
-              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
-              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
+              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
             }
           $condition=$condition." $c) ";
@@ -523,7 +523,7 @@ if ($flags)
         $graph_data2=$graph_data2."/*<!--graph_data-->*/";
 
         $tmp_url=preg_replace("/\&last_graph_hash=[\d]+/","",$_SERVER['REQUEST_URI']);
-        $tmp_url=preg_replace("/\&refresh=[^\&]*/","",$tmp_url);	
+        $tmp_url=preg_replace("/\&refresh=[^\&]*/","",$tmp_url);
 
         $hashkey=base_convert(md5($tmp_url), 16, 10);
         $graph_data=str_replace("<!--hashkey-->","data".substr($hashkey,0,10),$graph_data);
@@ -545,7 +545,7 @@ if ($flags)
         file_put_contents("tmp/cache/$hashkey.htm",$template2);
         echo $template."<form><input type='hidden' id='last_graph_hash' value='$hashkey'></form>";
 
-       
+
  }
 else
 {
@@ -647,7 +647,7 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
 
     if ($_GET['mentions_tweets']) { $condition=$condition." $bool_op ($table.clear_text like '@%') ";$bool_op=$_GET['bool_op'];}
     if ($_GET['responded_tweets']) { $condition=$condition." $bool_op (replies is not null AND replies>0) ";  $name=$name." are responsed to"; $bool_op=$_GET['bool_op'];}
-    if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)";$bool_op=$_GET['bool_op'];}
+    if ($_GET['exact_phrase']) { $condition=$condition." $bool_op LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string($_GET['exact_phrase'])."([[:blank:][:punct:]]|$)'"; $name=$name." (exact phrase search)";$bool_op=$_GET['bool_op'];}
     if ($_GET['user_verified']) { $condition=$condition." $bool_op $table.user_verified=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['min_retweets']) { $condition=$condition." $bool_op $table.retweets>=".$_GET['min_retweets']." ";$bool_op=$_GET['bool_op'];}
     if ($_GET['any_hashtags'])
@@ -658,9 +658,9 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
+                  if (!$started) { $c="$bool_op (LOWER($table.hashtags) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                                    $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
+                  else $c=$c." OR LOWER($table.hashtags) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim(strtolower($k)))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
@@ -709,8 +709,8 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
               $c=""; $started=false;
               foreach ($tmp as $k)
                 {
-                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." OR LOWER(clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+                  if (!$started) { $c="$bool_op (LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." OR LOWER(clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
@@ -731,8 +731,8 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
           $c=""; $started=false;
           foreach ($tmp as $k)
             {
-              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
-              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
+              if (!$started) {$c="$bool_op (LOWER($table.clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' "; $bool_op=$_GET['bool_op'];}
+              else $c=$c." AND LOWER($table.clear_text) REGEXP '([[:blank:][:punct:]]|^)".$link->real_escape_string(trim($k))."([[:blank:][:punct:]]|$)' ";
                   $started=true;
             }
           $condition=$condition." $c) ";
@@ -887,8 +887,8 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
       $link->close();
   }
   else
-  { 
-            $qry1="SELECT 
+  {
+            $qry1="SELECT
             $table.date_time,
             $table.tweet_id,
             $table.tweet_permalink_path,
