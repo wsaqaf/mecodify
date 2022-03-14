@@ -888,7 +888,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row
   }
   else
   { 
-            $qry1="SELECT SQL_CACHE
+            $qry1="SELECT 
             $table.date_time,
             $table.tweet_id,
             $table.tweet_permalink_path,
