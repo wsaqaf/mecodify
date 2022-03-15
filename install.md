@@ -1,3 +1,4 @@
+
 # Mecodify
 ![N|Solid](images/logo3.png)
 
@@ -5,13 +6,13 @@
 
 ## AWS and DigitalOcean
 
-If you do not have a server and have little to no experience in managing servers, then you could opt for pre-configured servers on two of the most popular cloud services, namely AWS and DigitalOcean. To learn more on how that can be done, you can use [https://github.com/wsaqaf/mecodify/blob/master/cloud_configs/README.md](this guide).
+If you do not have a server and have little to no experience in managing servers, then you could opt for pre-configured servers on two of the most popular cloud services, namely AWS and DigitalOcean. To learn more on how that can be done, you can use [this guide](https://github.com/wsaqaf/mecodify/blob/master/cloud_configs/README.md).
 
 ## Your own server
 If you have an already existing server that you manage (e.g., VPS, Dedicated server, etc.), you will find instructions for running Mecodify on your  server.
 
 ### Dependencies
-Mecodify requires PHP, MySQL to run and it usually works best in on a Linux device with PHP, MySQL and Apache (LAMP) stack istalled. Generally, most web servers already have a LAMP stack them installed by default. But you can always double check in case. The three required dependencies are PHP and MySQL.
+Mecodify requires PHP, MySQL to run and it usually works best in on a Linux device with PHP, MySQL and Apache (LAMP) stack installed. Generally, most web servers already have a LAMP stack them installed by default. But you can always double check in case. The three required dependencies are PHP and MySQL.
 
 1- **PHP 5.0 or higher:** If you are unsure if you have PHP 5.0 or higher, you can run the following command on the server:
 ```sh
