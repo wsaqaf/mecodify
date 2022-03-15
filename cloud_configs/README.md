@@ -3,6 +3,9 @@
 
 Here you can find instructions on how to install Mecodify on two of the most popular scalable cloud services. This is not an endorsement of the two services. However, since they are among the most popular, scripts were created and tested on each of them to facilitate installing the tool on either of them.
 
+You can watch tutorials for the below three components here:
+[https://www.youtube.com/watch?v=-fC28ucHt_8&list=PLGAMBYAy_Q1RGUryrJSmSBH6PTuk84BnH](https://www.youtube.com/watch?v=-fC28ucHt_8&list=PLGAMBYAy_Q1RGUryrJSmSBH6PTuk84BnH)
+
 ### Twitter API credentials:
 Since Mecodify relies heavily on the Twitter API, you need to set up its credentials. If you haven't yet created a Twitter App and get a Bearer token, you need to do so before continuing. This tutorial would be helpful:
 [https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens).
