@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#Please copy and paste your Twitter App API Bearer token below:
+twitter_api_bearer=''
+
+#We assume that your App is an approved academic license. If it is a sandbox only, change true below to false.
+is_premium=true
+
+#### Don't touch any of the code below please ####
+
+template="lightsail"
+
+if [ "$template" = "lightsail" ]; then
+   www_home="/home/bitnami/htdocs"
+   pw=$(cat /home/bitnami/bitnami_application_password)
+else
+   www_home="/var/www/html"
+   pw=$(awk -F'"' '$0=$2' /root/.digitalocean_password)
+fi
+   
+echo "pw is: ($pw)"
+
+ip=$(curl -s ifconfig.me)
+echo "ip is : ($ip)"
+
+sudo rm -f "$www_home/get_apache_user.php"
+
+echo "<?php echo exec('whoami'); " >"$www_home/get_apache_user.php"
+
+apache_user=$(curl -s "http://$ip/get_apache_user.php")
+echo "apache user is: ($apache_user)";
+
+rm -Rf /tmp/mecodify "$www_home/get_apache_user.php"
+
+sudo apt-get -y install git
+
+git clone https://github.com/wsaqaf/mecodify /tmp/mecodify
+
+sudo cp -Rf /tmp/mecodify/* "$www_home"
+
+sudo chown -R "$apache_user:$apache_user" "$www_home/tmp"
+
+sudo rm -Rf /tmp/mecodify "$www_home/index.html"
+
+sed -i -e "s/127.0.0.1/$ip/" "$www_home/configurations_empty.php";
+
+sed -i -e 's/mysql_user = "root"/mysql_user = "'mecodify'"/' "$www_home/configurations_empty.php";
+
+sed -i -e 's/mysql_pw = ""/mysql_pw = "'mecodify'"/' "$www_home/configurations_empty.php";
+
+if $is_premium
+then
+  echo "Using premium setup"
+else
+  echo "Using sandbox setup"
+  sed -i -e 's/"is_premium"[[:blank:]]*=>[[:blank:]]*true/"is_premium" => false/' "$www_home/configurations_empty.php";
+fi
+
+sed -i -e 's|"bearer"[[:blank:]]*=>[[:blank:]]*""[[:blank:]]*,|"bearer" => "'"$twitter_api_bearer"'",|' "$www_home/configurations_empty.php";
+
+mv "$www_home/configurations_empty.php" "$www_home/configurations.php";
+
+sudo apt-get --assume-yes update
+
+if [ $template != "lightsail" ]; then
+	php=$(php -version)
+	php=${php:4:3}
+	sudo apt-get --assume-yes install php$php-curl
+	sudo service apache2 restart
+else
+	PATH=$PATH:/opt/bitnami/mariadb/bin
+fi
+
+mysql -u root -p"$pw" -e 'CREATE DATABASE IF NOT EXISTS mecodify'
+mysql -u root -p"$pw" -e 'CREATE USER "'"mecodify"'"@"'"localhost"'" IDENTIFIED BY "'"mecodify"'"'
+mysql -u root -p"$pw" -e 'GRANT ALL PRIVILEGES ON *.* TO "'"mecodify"'"@"'"localhost"'"'
+
