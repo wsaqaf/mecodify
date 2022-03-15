@@ -7,7 +7,7 @@ Here you can find instructions on how to install Mecodify on two of the most pop
 Since Mecodify relies heavily on the Twitter API, you need to set up its credentials. If you haven't yet created a Twitter App and get a Bearer token, you need to do so before continuing. This tutorial would be helpful:
 [https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens).
 
-#### 1) DigitalOcean
+### 1) DigitalOcean
 
 1- Upon logging into your account, go to [https://cloud.digitalocean.com/droplets](https://cloud.digitalocean.com/droplets)
 
@@ -25,7 +25,7 @@ Since Mecodify relies heavily on the Twitter API, you need to set up its credent
 
 8- You can then open copy the IP (ip4) address of the droplet and open it in a browser, after which you can sign up and start working on your own Mecodify setup.
 
-#### 2) LightSail (AWS)
+### 2) LightSail (AWS)
 
 1- Upon logging into your AWS account, go to [https://lightsail.aws.amazon.com/ls/webapp/home/instances](https://lightsail.aws.amazon.com/ls/webapp/home/instances)
 
