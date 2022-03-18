@@ -685,8 +685,8 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
               foreach ($tmp as $k)
                 {
                   $k='@'.trim($k,'@');
-                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([:blank:]|$)' "; $bool_op=$_GET['bool_op']; }
-                  else $c=$c." AND LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([:blank:]|$)' ";
+                  if (!$started) { $c="$bool_op (LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' "; $bool_op=$_GET['bool_op']; }
+                  else $c=$c." AND LOWER(user_mentions) REGEXP '".$link->real_escape_string(trim($k))."([[:blank:]]|$)' ";
                   $started=true;
                 }
               $condition=$condition." $c) ";
