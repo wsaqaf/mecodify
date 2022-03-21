@@ -68,6 +68,7 @@ connect_mysql();
 get_cases();
 
 $name=$cases[$table]['name'];
+$include_retweets=$cases[$table]['include_retweets'];
 
 if ($_GET['inspect'])
   {
@@ -234,6 +235,7 @@ $name=$name." (other sources)";
           if ($_GET['image_tweets']) { $condition=$condition." $bool_op has_image=1 "; $name=$name." (with image only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['video_tweets']) { $condition=$condition." $bool_op has_video=1 "; $name=$name." (with video only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['original_tweets']) { $condition=$condition." $bool_op (is_retweet<>1) ";  $name=$name." (are original tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
 	  if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (are referenced tweets)"; $bool_op=$_GET['bool_op'];}
@@ -381,15 +383,15 @@ $name=$name." (other sources)";
 
        $started=false;
         $name="[".$table."] total # ";
-	$g_params=array("image_tweets","video_tweets","link_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","all_keywords","any_keywords_2","all_keywords_2","any_mentions","all_mentions","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
+	$g_params=array("image_tweets","video_tweets","link_tweets","original_tweets","retweet_tweets","response_tweets","mentions_tweets","responded_tweets","quoting_tweets","referenced_tweets","any_hashtags","any_keywords","all_keywords","any_keywords_2","all_keywords_2","any_mentions","all_mentions","exact_phrase","from_accounts","in_reply_to_tweet_id","location","min_retweets","user_verified","languages","sources");
 	 $params="";
 	 if ($retweets) $name=$name." of tweets+retweets ";
 	 elseif ($unique_tweeters) $name=$name." of unique tweeters ";
-   elseif ($normalized_tweets) $name=$name." of original tweets per tweeter";
-   elseif ($normalized_retweets) $name=$name." of (tweets+retweets) per tweeter";
-   elseif ($relative_tweeters) $name=$name." relative impact (tweeters)";
-   elseif ($relative_tweets) $name=$name." relative impact (original tweets)";
-   elseif ($relative_retweets) $name=$name." relative impact (tweets+retweets)";
+   	 elseif ($normalized_tweets) $name=$name." of original tweets per tweeter";
+   	 elseif ($normalized_retweets) $name=$name." of (tweets+retweets) per tweeter";
+  	 elseif ($relative_tweeters) $name=$name." relative impact (tweeters)";
+  	 elseif ($relative_tweets) $name=$name." relative impact (original tweets)";
+  	 elseif ($relative_retweets) $name=$name." relative impact (tweets+retweets)";
 	 else  $name=$name." of tweets ";
 	 foreach (array_keys($_GET) as $g)
 		{
@@ -439,25 +441,26 @@ $name=$name." (other sources)";
 
         $graph_data="{ color: '<!--color-->', name: '<!--name-->', data: [ <!--data--> ], id : '<!--hashkey-->' } ,";
 
+	if (!$include_retweets) $addretweets="+sum(retweets)";
+
         if ($unique_tweeters)
 	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(distinct user_id) from $table $condition group by $param2";
         elseif ($normalized_retweets)
-           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id)+sum(retweets))/(count(distinct user_id))) from $table $condition group by $param2";
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id)$addretweets)/(count(distinct user_id))) from $table $condition group by $param2";
         elseif ($normalized_tweets)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id))/(count(distinct user_id))) from $table $condition group by $param2";
         elseif ($relative_tweeters)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(distinct user_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($relative_retweets)
-           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*((count(tweet_id)+sum(retweets))/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*((count(tweet_id)$addretweets)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($relative_tweets)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(tweet_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($retweets)
-	         $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id)+sum(retweets) from $table $condition group by $param2";
+	         $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id)$addretweets from $table $condition group by $param2";
       	else
       	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
         $started=true;
         $query=$query." order by date_time";
-
         if ($result = $link->query($query))
           {
             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
@@ -640,6 +643,7 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
     if ($_GET['image_tweets']) { $condition=$condition." $bool_op $table.has_image=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['video_tweets']) { $condition=$condition." $bool_op $table.has_video=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['original_tweets']) { $condition=$condition." $bool_op ($table.is_retweet<>1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND is_reply=1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
@@ -795,7 +799,7 @@ if ($tops)
           $element="$table.expanded_links";
           $condition=$condition." AND has_link=1 AND $table.expanded_links<>''";
         }
-      if ($retweeted) $order="sum($table.retweets)"; else $order="count(tweet_id)";
+      if ($include_retweets) $order="sum($table.retweets)"; else $order="count(tweet_id)";
 
       $qry1="SELECT $element,$order from $table $condition ";
       if ($point>1)
@@ -1069,6 +1073,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             }
 if ($retweets)
 	{
+	    if ($include_retweets) $addretweets="sum(retweets)"; else $addretweets="count(tweet_id)";
 	    $cnd=$condition;
             if ($point>1)
             {
@@ -1085,7 +1090,7 @@ if ($retweets)
               elseif ($drill_level=="seconds")
                 $cnd="$cnd and $table.date_time='$point' ";
             }
-	   $qry="SELECT sum(retweets) from $table $cnd AND is_protected_or_deleted is null and date_time is not null";
+	   $qry="SELECT $addretweets from $table $cnd AND is_protected_or_deleted is null and date_time is not null";
 	   if ($result = $link->query($qry))
 	     { $row=$result->fetch_array(); $total_retweets=$row[0]; }
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$qry - retweets: $total_retweets <br>\n"; }
@@ -1103,8 +1108,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
                       $url=preg_replace('/\&p=[\d]+\&pp=[\d]+/','',$url);
                       $results= $results."<br><p align=right><a href='$url&export=1')><b>Export</b></a> all $total_rows records to CSV file</p>";
                       $results=$results."<b>Showing results $p - $total_rows of $total_rows";
-                      if ($retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
-                      elseif ($retweets) $results=$results." [".($total_rows)." with retweets] ";
+                      if (!$include_retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
 
                       if ($p>$per_page)
 			{
@@ -1122,8 +1126,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "qry:$q
                     $url=preg_replace('/\&p=[\d]+\&pp=[\d]+/','',$url);
                     $results= $results."<br><p align=right><a href='$url&export=1')><b>Export</b></a> all $total_rows records to CSV file</p>";
                     $results=$results."<b>Showing results $p - $pp of $total_rows ";
-                    if ($retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
-                    elseif ($retweets) $results=$results." [".($total_rows)." with retweets] ";
+                    if (!$include_retweets) $results=$results." [".($total_retweets+$total_rows)." with retweets] ";
                     if (!(($p-$per_page==1) && ($pp-$per_page==$per_page))) $ppstr="&p=".($p-$per_page)."&pp=".($pp-$per_page); else $ppstr="";
                     if ($p>$per_page) $results=$results."<center> <a href='#' onclick=javascript:GetDetails('$url$ppstr')> &lt; </a>  &nbsp;&nbsp; <a href='#' onclick=javascript:GetDetails('$url')><small>Back to first page</small></a> ";
                     $results=$results."	&nbsp;&nbsp; <a href='#' onclick=javascript:GetDetails('$url&p=".($p+$per_page)."&pp=".($pp+$per_page)."')> 	&gt; </a>	 </center><br>";
