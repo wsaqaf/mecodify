@@ -73,7 +73,7 @@ if (!$argv[4]) $include_referenced=$cases[$table]['top_only'];
 $dates=array();
 $c=0;
 
-if (!$include_retweets) { $keywords=($keywords)."%20-is:retweet%20-is:quote"; }
+if (!$include_retweets) { $keywords=($keywords)."%20-is:retweet"; }
 
 if ($argv[2]!="step4") { get_tweet_ids($table,$keywords); }
 get_hashtag_cloud($table);
