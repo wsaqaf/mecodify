@@ -1,4 +1,4 @@
-# Welcome to Mecodify 2
+# Mecodify tool for Twitter data analysis and visualisation (v2)
 ![N|Solid](https://mecodify.org/images/logo3.png)
 
 Mecodify is an open-source tool created as part of the Media Conflict and Democratization Project (http://mecodem.eu) to help gather, analyse and visualise Twitter data for use by social science scholars. The name describes what it does, i.e., Message Codification by converting messages to systematic structures, tables, graphs and quantifiable content.
