@@ -443,7 +443,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
 	   switch($rtw->type)
             {
       	      case "retweeted":
-		  if (!$include_retweets) continue 2;
       		  $tw['is_retweet']=1;
                   $tw['retweeted_tweet_id']=$rtw->id;
                   $tw['retweets']=0;
@@ -473,7 +472,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                 }
       	      continue 2;
               case "quoted":
-                if (!$include_retweets) continue 2;
                 $tw['is_quote']=1;
 		$tw['quoted_tweet_id']=$rtw->id;
 		$tw['retweeted_tweet_id']=$rtw->id;
@@ -491,7 +489,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
                   }
               continue 2;
               case "replied_to":
-                if (!$include_referenced) continue 2;
                 $tw['is_reply']=1;
                 $tw['in_reply_to_tweet']=$rtw->id;
                 foreach ($parent->includes->tweets as $subt)
