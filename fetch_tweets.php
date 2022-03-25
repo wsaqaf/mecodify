@@ -797,7 +797,7 @@ if ($tops)
           $element="$table.expanded_links";
           $condition=$condition." AND has_link=1 AND $table.expanded_links<>''";
         }
-      if ($include_retweets) $order="sum($table.retweets)"; else $order="count(tweet_id)";
+      if (!$include_retweets) $order="sum($table.retweets)"; else $order="count(tweet_id)";
 
       $qry1="SELECT $element,$order from $table $condition ";
       if ($point>1)
@@ -1071,7 +1071,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             }
 if ($retweets)
 	{
-	    if ($include_retweets) $addretweets="sum(retweets)"; else $addretweets="count(tweet_id)";
+	    if (!$include_retweets) $addretweets="sum(retweets)"; else $addretweets="count(tweet_id)";
 	    $cnd=$condition;
             if ($point>1)
             {
