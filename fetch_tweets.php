@@ -237,7 +237,7 @@ $name=$name." (other sources)";
           if ($_GET['link_tweets']) { $condition=$condition." $bool_op has_link=1 "; $name=$name." (with link only)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['original_tweets']) { $condition=$condition." $bool_op (is_retweet<>1)";  $name=$name." (are original tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op (is_retweet=1) ";  $name=$name." (are retweets)"; $bool_op=$_GET['bool_op'];}
-          if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
+          if ($_GET['response_tweets']) { $condition=$condition." $bool_op (is_reply=1 OR in_reply_to_user is not null)";  $name=$name." (are replies)"; $bool_op=$_GET['bool_op'];}
 	  if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (are referenced tweets)"; $bool_op=$_GET['bool_op'];}
           if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quotes another tweet)"; $bool_op=$_GET['bool_op'];}
 
@@ -643,7 +643,7 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
     if ($_GET['link_tweets']) { $condition=$condition." $bool_op $table.has_link=1 ";$bool_op=$_GET['bool_op'];}
     if ($_GET['original_tweets']) { $condition=$condition." $bool_op ($table.is_retweet<>1) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['retweet_tweets']) { $condition=$condition." $bool_op ($table.is_retweet=1) ";$bool_op=$_GET['bool_op'];}
-    if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND is_reply=1) ";$bool_op=$_GET['bool_op'];}
+    if ($_GET['response_tweets']) { $condition=$condition." $bool_op (($table.in_reply_to_tweet is not null OR $table.in_reply_to_user is not null) AND (is_reply=1 OR in_reply_to_user is not null)) ";$bool_op=$_GET['bool_op'];}
     if ($_GET['quoting_tweets']) { $condition=$condition." $bool_op (is_quote=1) ";  $name=$name." (quoting a tweet)"; $bool_op=$_GET['bool_op'];}
     if ($_GET['referenced_tweets']) { $condition=$condition." $bool_op (is_referenced=1) ";  $name=$name." (referenced by another tweet)"; $bool_op=$_GET['bool_op'];}
 
