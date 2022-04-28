@@ -351,8 +351,8 @@ $name=$name." (other sources)";
                   $c=""; $started=false;
                   foreach ($tmp as $k)
                     {
-                      if (!$started) { $c="$bool_op (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'"; $bool_op=$_GET['bool_op']; }
-                      else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
+                      if (!$started) { $c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."') "; $bool_op=$_GET['bool_op']; }
+                      else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."') ";
                   $started=true;
                     }
                   $condition=$condition." $c) ";
@@ -459,6 +459,7 @@ $name=$name." (other sources)";
       	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
         $started=true;
         $query=$query." order by date_time";
+
         if ($result = $link->query($query))
           {
             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
@@ -746,8 +747,8 @@ echo "Using cached table created at ($file_updated) - <a href='#' onclick=javasc
             foreach ($tmp as $k)
               {
                 $k=ltrim($k,'@');
-                if (!$started) {$c="$bool_op (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."' ";$bool_op=$_GET['bool_op'];}
-                else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."'  OR lower($table.user_name) like '%".$link->real_escape_string(trim($k))."%') ";
+                if (!$started) {$c="$bool_op ((LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."') ";$bool_op=$_GET['bool_op'];}
+                else $c=$c." OR (LOWER($table.user_screen_name)='".$link->real_escape_string(trim($k))."') ";
                   $started=true;
               }
             $condition=$condition." $c) ";
