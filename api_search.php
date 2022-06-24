@@ -279,7 +279,6 @@ function extract_and_store_data($tweet,$parent,$save_to_db,$is_referenced)
     $tw['is_referenced']=$is_referenced;
     if (not_blank($tweet->created_at))
       {
-	if (!$include_referenced && (($start_time && $tweet->created_at<$start_time) || ($end_time && $tweet->created_at>$end_time))) return;
         $tw['date_time']=str_replace("T"," ",substr($tweet->created_at,0,19));
         $tw['tweet_date']=date('Y-m-d',strtotime($tw['date_time']));
       }
