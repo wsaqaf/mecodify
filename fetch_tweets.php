@@ -462,7 +462,7 @@ $name=$name." (other sources)";
         $started=true;
         $query=$query." order by date_time";
 
-i	if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
+	if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
         if ($result = $link->query($query))
           {
