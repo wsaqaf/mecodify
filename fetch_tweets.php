@@ -441,24 +441,28 @@ $name=$name." (other sources)";
 
         $graph_data="{ color: '<!--color-->', name: '<!--name-->', data: [ <!--data--> ], id : '<!--hashkey-->' } ,";
 
+        if (!$include_retweets) $tweet_count="count(tweet_id)+sum(retweets)"; else $tweet_count="count(tweet_id)";
+
         if ($unique_tweeters)
-	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(distinct user_id) from $table $condition group by $param2";
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(distinct user_id) from $table $condition group by $param2";
         elseif ($normalized_retweets)
-           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id)+sum(retweets))/(count(distinct user_id))) from $table $condition group by $param2";
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND(($tweet_count)/(count(distinct user_id))) from $table $condition group by $param2";
         elseif ($normalized_tweets)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,ROUND((count(tweet_id))/(count(distinct user_id))) from $table $condition group by $param2";
         elseif ($relative_tweeters)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(distinct user_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition  group by $param2";
         elseif ($relative_retweets)
-           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*((count(tweet_id)+sum(retweets))/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(($tweet_count)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($relative_tweets)
            $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,100*(count(tweet_id)/Nr_Twitter_Users(YEAR(date_time))) from $table $condition group by $param2";
         elseif ($retweets)
-	         $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id)+sum(retweets) from $table $condition group by $param2";
-      	else
-      	   $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
+                 $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,$tweet_count from $table $condition group by $param2";
+        else
+           $query=$query.$link2."SELECT UNIX_TIMESTAMP($param1, '+00:00', @@session.time_zone))*1000,count(tweet_id) from $table $condition group by $param2";
         $started=true;
         $query=$query." order by date_time";
+
+i	if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$query.")";
 
         if ($result = $link->query($query))
           {
