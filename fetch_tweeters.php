@@ -382,7 +382,7 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
           {
            if ($row[0])
 	    {
-	      $data=$data."{name:'${row[0]}', y:".$row[1].", case:'$table', rank:'$j', sec:'$type', drilldown:null},\n";
+	      $data=$data."{name:'$j. ${row[0]}', y:".$row[1].", case:'$table', rank:'$j', sec:'$type', drilldown:null},\n";
               array_push($user_names,$row[0]);
 	    }
             if ($limit) { if ($i==1) break; }
