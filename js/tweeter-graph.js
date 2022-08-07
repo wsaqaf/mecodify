@@ -3,7 +3,8 @@ $(function () {
     // Create the chart
     $('#chartcontainer<!--type-->').highcharts({
         chart: {
-            type: 'bar'
+            type: 'bar',
+            height: '<!--height-->'
         },
         title: {
             text: '<!--title-->'
@@ -33,7 +34,7 @@ $(function () {
                 point: {
                     events: {
                         click: function (event) {
-                              GetDetails(this.options.sec,'fetch_tweeters.php?profile=1&i='+this.options.rank+'&sec='+this.options.sec+'&user='+this.options.name+'&table='+this.options.case);
+                              GetDetails(this.options.sec,'fetch_tweeters.php?profile=1&i='+this.options.rank+'&sec='+this.options.sec+'&user='+this.options.name.split(" ")[1]+'&table='+this.options.case);
                         } //this.options.sec
                     }
                 }

@@ -565,6 +565,7 @@ function showkumu()
 	            complete: function (response)
 	              {
 	                    $('#loading').html(response.responseText);
+			    $(window).scrollTop(0);
 	              },
 	            error: function () {$('#'+section).html('error!');jQuery("#loading").hide(); }
 	           });

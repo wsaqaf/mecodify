@@ -224,8 +224,8 @@ function get_top($type,$limit)
     $condition=preg_replace('/^\s*AND /','WHERE ',$condition);
     if ($type=="followers")
         {
-          $title="Top $limit followed tweeters for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
-          $subtitle="Total number of followers as of November 2015";
+          $title="Top $limit followed tweeters for ".$cases[$table]['name'];
+          $subtitle="Total number of followers";
           $yaxis="followers";
           $name="Top followed tweeters";
           if ($_GET['export'])
@@ -238,7 +238,7 @@ function get_top($type,$limit)
         }
     elseif ($type=="retweets")
         {
-          $title="Top retweeted tweeters for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top retweeted tweeters for ".$cases[$table]['name'];
           $subtitle="Total number of retweets";
           $yaxis="retweets";
           $name="Top retweeted tweeters";
@@ -252,7 +252,7 @@ function get_top($type,$limit)
         }
     elseif ($type=="responses")
         {
-          $title="Top tweeters who responded to others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top tweeters who responded to others for ".$cases[$table]['name'];
           $subtitle="Total number of responses sent";
           $yaxis="responses sent";
           $name="Top responding tweeters";
@@ -266,7 +266,7 @@ function get_top($type,$limit)
         }
     elseif ($type=="responders")
         {
-          $title="Top tweeters with highest responses from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top tweeters with highest responses from others for ".$cases[$table]['name'];
           $subtitle="Total total number of responses received";
           $yaxis="responses received";
           $name="Top responded to tweeters ";
@@ -281,7 +281,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
         }
     elseif ($type=="mention")
         {
-          $title="Top tweeters (active) with highest number of mentions from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top tweeters (active) with highest number of mentions from others for ".$cases[$table]['name'];
           $subtitle="Total total number of  mentions";
           $yaxis="number of mentions";
           $name="Top mentioned tweeters (active)";
@@ -295,7 +295,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
       }
     elseif ($type=="all_mentions")
         {
-          $title="Top accounts (all) with highest number of mentions from others for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top accounts (all) with highest number of mentions from others for ".$cases[$table]['name'];
           $subtitle="Total total number of  mentions";
           $yaxis="number of mentions";
           $name="Top mentioned tweeters (all)";
@@ -310,7 +310,7 @@ responses_to_tweeter AS repliers,mentions_of_tweeter,user_verified,user_location
       }
     elseif ($type=="quotes")
         {
-          $title="Top tweeters with highest number of quoted tweets for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+          $title="Top tweeters with highest number of quoted tweets for ".$cases[$table]['name'];
           $subtitle="Total total number of quoted tweets";
           $yaxis="quoted tweets";
           $name="Top tweeters with quoted tweets";
@@ -325,7 +325,7 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
         }
     elseif ($type=="tweets")
           {
-            $title="Top $limit tweeting tweeters for for ".$cases[$table]['name']." (".$cases[$table]['query'].")";
+            $title="Top $limit tweeting tweeters for for ".$cases[$table]['name'];
             $subtitle="Total number of tweets ".get_period($table);
             $yaxis="tweets";
             $name="Top tweeters";
@@ -389,7 +389,11 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
             $i--; $j++;
           }
 
+      if ($limit==5) $height=300; elseif ($limit==10) $height=400; elseif ($limit==25) $height=600; 
+      elseif ($limit==50) $height=900; elseif ($limit==100) $height=1600; 
+
       $graph_data=file_get_contents("js/tweeter-graph.js");
+      $graph_data=str_replace("<!--height-->",$height,$graph_data);
       $graph_data=str_replace("<!--type-->",$type,$graph_data);
       $graph_data=str_replace("<!--title-->",addslashes($title)." from a total of ".number_format($total),$graph_data);
       $graph_data=str_replace("<!--subtitle-->",addslashes($subtitle),$graph_data);
@@ -404,6 +408,12 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
       if ($limit>sizeof($user_names)) $limit=sizeof($user_names);
 
       echo "<br><center><a href='".$_SERVER['REQUEST_URI']."&export=1'>Export to CSV file (full list of <b>$total</b> tweeters)</a></center><br>";
+
+      echo "<table style='font-size:10pt; width:600px; background-color:#FFFFFF; border:1px; margin-left:30px'><tr><td><b>Search query:</b></td><td> ".$cases[$table]['query']."</td></tr>";
+      if ($cases[$table]['from'] || $cases[$table]['to']) echo "<tr><td><b>Period:</b> </td><td> From: ".$cases[$table]['from']."<br>To: ".$cases[$table]['to']."</td></tr>";
+      echo "</table><br>";
+
+      echo "<big><b>Tweeters' details:</b></big><br>";
 
       for ($i=1; $i<=$limit; $i++)
         {
