@@ -325,7 +325,7 @@ twitter.com/',k1.user_screen_name) AS user_twitter_page FROM $table k1 inner joi
         }
     elseif ($type=="tweets")
           {
-            $title="Top $limit tweeting tweeters for for ".$cases[$table]['name'];
+            $title="Top $limit tweeters for ".$cases[$table]['name'];
             $subtitle="Total number of tweets ".get_period($table);
             $yaxis="tweets";
             $name="Top tweeters";
