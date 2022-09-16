@@ -871,7 +871,7 @@ if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) echo "<hr>(".$
             {
 if ($debug && $_SESSION[basename(__DIR__).'email']==$admin_email) { echo "(${row[0]},${row[1]},${row[2]})<br>\n"; }
 	            $temp_list=explode(" ",trim($row[1])); $links="";
-	            foreach ($temp_list as $temp_link) { if (strlen($temp_link)>15) $links=$links."<a href='".$row[0]."' target=_blank><<img src='$temp_link' height=250></a><br> <br>"; }
+	            foreach ($temp_list as $temp_link) { if (strlen($temp_link)>15) $links=$links."<a href='".$row[0]."' target=_blank><img src='$temp_link' height=250></a><br> <br>"; }
               $data=$data."$links</td><td><center><a href='#' onclick=javascript:GetDetails('$url&image=".rawurlencode($temp_link)."&')>${row[2]}</a></center></td></tr>\n";
             }
           elseif ($top_videos)
