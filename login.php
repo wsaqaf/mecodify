@@ -39,7 +39,7 @@ $submit_case_form = <<<END
 <font size=+1>Add a new case</font><br>
 <form id='add_case'><table>
 <span class='tip'></span>
-<tr><td style="border: none !important;"> ID<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input maxlength=20 type='text' size=20 id='case_id'>  <img src='images/info.png'  onclick=showtip('id'); > (maximum 20 characters)</td></tr>
+<tr><td style="border: none !important;"> ID<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input maxlength=20 type='text' size=20  onblur='javascript:check_id()' id='case_id'>  <img src='images/info.png'  onclick=showtip('id'); > (maximum 20 characters)<span id='case_id_comment'></span></td></tr>
 <tr><td style="border: none !important;">Name<sup><font color=red>*</font></sup></td><td style="border: none !important;">  <input  maxlength=100 type='text' size=35 id='case_name'> <img src='images/info.png'  onclick=showtip('name');> (maximum 100 characters)</td></tr>
 <tr><td style="border: none !important;">Platform<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <select id='case_platform'><option value=1 id='twitter' selected>Twitter</option><option value=2 id='facebook' disabled>Facebook</option><option value=3 id='YouTube' disabled>Youtube</option></select> <img src='images/info.png'  onclick=showtip('platform'); ></td></tr>
 <tr><td style="border: none !important;">Include retweets</td><td style="border: none !important;"> <input type='checkbox' id='case_include_retweets'> If checked, retweets matching the criteria will be included. <img src='images/info.png' onclick=showtip('include_retweets'); ></td></tr>
@@ -375,8 +375,9 @@ echo "Creating users table ...<br>\n";
           if ($_POST['case_from']=="0000-00-00 00:00:00") $_POST['case_from']="";
           if ($_POST['case_to']=="0000-00-00 00:00:00") $_POST['case_to']="";
 
-          $_POST['case_query']=preg_replace_callback('/([A-Z]+\:)/', 'lower', $_POST['case_query']);
+          $_POST['case_query']=preg_replace_callback('/([A-Za-z]+\:)/', 'lower', $_POST['case_query']);
           $_POST['case_query']=str_replace(" AND "," ",$_POST['case_query']);
+          $_POST['case_query']=str_replace(" or "," OR ",$_POST['case_query']);
 
           $query="INSERT INTO cases (id, name, creator, platform, include_retweets, top_only, query, from_date, to_date, details, details_url, flags, private) values ".
           "('${_POST['case_id']}', '".$link->real_escape_string($_POST['case_name'])."', '${_POST['email']}', '${_POST['case_platform']}', '${_POST['case_include_retweets']}', '${_POST['case_top_only']}', '".$link->real_escape_string($_POST['case_query'])."', '${_POST['case_from']}', '${_POST['case_to']}', '".$link->real_escape_string($_POST['case_details'])."', '".$link->real_escape_string($_POST['case_details_url'])."', '".$link->real_escape_string($_POST['case_flags'])."', '${_POST['case_private']}')";

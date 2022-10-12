@@ -77,7 +77,11 @@ if (!$_GET['overlimit'])
 		}
 	    elseif ($last_process_started!='0000-00-00 00:00:00' && $last_process_completed=='0000-00-00 00:00:00')
 		{
-            	  $status="<font color=red>Stopped (<a href='fetch_process.php?id=$table'>Resume Now</a>)</font>";
+		  $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log");
+		  $line = `tail -n 1 $file`;
+		  if ($line=="The search returned no results.") 
+		       $status="<font color=green>Completed with no results (<a href='fetch_process.php?id=$table'>Process again</a>)</font>"; 
+		  else $status="<font color=red>Stopped (<a href='fetch_process.php?id=$table'>Resume Now</a>)</font>";
 		}
 	    else
 		{
@@ -120,8 +124,21 @@ if (!$_GET['overlimit'])
                     }
   echo $html;
   echo "<table border=1><tr><td>Created</td><td>Status</td><td>Last process started</td><td>Last activity</td><td>Period covered</td><td>Records fetched</td></tr>";
-    echo "<tr><td>$date_created</td><td>$status</td><td>$last_process_started</td><td>$last_process_updated</td><td>$period_covered</td><td>$step1</td></tr></table>";
-    echo "<br><br>You can always review the results of the extraction on <a href='$website_url'>the main page</a></BODY></HTML>";
+  echo "<tr><td>$date_created</td><td>$status</td><td>$last_process_started</td><td>$last_process_updated</td><td>$period_covered</td><td>$step1</td></tr></table>";
+
+  $message="";
+  $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log"); 
+  $lines = `tail -n 40 $file`;
+
+  if (preg_match("/\nThe search returned no results\.$/",$lines))
+    $message="<br><table style='background-color:pink;width:700px;padding:10px'><tr><td>Your query returned no results</td></tr></table>";
+  elseif (preg_match("/\nError getapi_record\:.+\n([^\n]+?)\n\s*$/s",$lines,$msg))
+    $message="<br><table style='background-color:pink;width:700px;padding:10px'><tr><td>".$msg[1]."</td></tr></table>";
+  elseif (preg_match("/\nStatus error getapi_record:.+\[title\] \=\> ([^\n]+)\n/s",$lines,$msg))
+    $message="<table style='background-color:pink;width:700px;padding:10px'><tr><td>".$msg[1]."</td></tr></table>";
+
+  if (!$message) echo "$message<br><br>You can always review the results on <a href='$website_url'>the main page</a></BODY></HTML>";
+  else  echo "$message<br><br>You can always go to <a href='$website_url'>the main page</a>, select the case, click on 'More info...' then on 'Edit' to delete/edit the case.</BODY></HTML>";
 
   function time_elapsed_string($ptime)
   {

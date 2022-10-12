@@ -32,6 +32,22 @@ function showtip(field)
  			 });
   }
 
+function check_id()
+  {
+    var id = document.getElementById('case_id');
+    var id_comment = document.getElementById('case_id_comment');
+    if (!id.value.match(/^[0-9a-zA-Z_]+$/))
+       {
+         id_comment.innerHTML="<br><font color='red'><small>The ID can only be an alphanumeric value (with no spaces and special characters)</small></font>";
+         id.style.backgroundColor='pink';
+       }
+    else
+        {
+         id_comment.innerHTML="";
+         id.style.backgroundColor='white';
+        }
+  }
+
 function hidetip(field) { $('.tip').html(''); }
 
 		$(document).ready(function(){
