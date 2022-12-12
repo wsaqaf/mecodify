@@ -8,7 +8,8 @@ use phpmailer\PHPMailer\SMTP;
 use phpmailer\PHPMailer\Exception;
 
 $add_demo_details="";
-$sign_up="<a href='#' onclick=case_proc('signup'); >Sign up</a>";
+if ($enable_new_accounts) $sign_up="<a href='#' onclick=case_proc('signup'); >Sign up</a>";
+else $sign_up="";
 
 if ($demo_config['enabled']) 
   { 
@@ -239,13 +240,13 @@ elseif (!empty($_POST) && $_POST['action']=='login')
              echo "Incorrect email or password. Please try again.<br><br> $login_str";
          }
      }
-elseif (!empty($_POST) && $_POST['action']=='create_account')
+elseif (!empty($_POST) && $_POST['action']=='create_account' && $enable_new_accounts)
      {
        connect_mysql();
        echo create_account("");
        exit;
     }
-elseif ($_GET['action']=='signup')
+elseif ($_GET['action']=='signup' && $enable_new_accounts)
     {
         echo $create_account_form;
         exit;
