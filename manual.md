@@ -45,7 +45,7 @@ ___
 
 ## 1. Getting started
 
-This section is meant for allowing users to use a fully installed and functional Mecodify instance. For installation instructions, go to http://github.com/wsaqaf/mecodify/install.md
+This section is meant for allowing users to use a fully installed and functional Mecodify instance. For installation instructions, go to http://github.com/wsaqaf/mecodify/blob/master/install.md
 
 ### 1.1 Creating a new account
 Only if you are registered as a user can you use Mecodify. To register, simply click on 'Sign up' and enter the requested information as shown.
