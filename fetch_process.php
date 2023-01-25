@@ -79,8 +79,11 @@ if (!$_GET['overlimit'])
 		{
 		  $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log");
 		  $line = `tail -n 1 $file`;
-		  if ($line=="The search returned no results.") 
-		       $status="<font color=green>Completed with no results (<a href='fetch_process.php?id=$table'>Process again</a>)</font>"; 
+                  if ($line=="The search returned no results.")
+                    {
+                       if (!$step1) $status="<font color=green>Completed with no results (<a href='fetch_process.php?id=$table'>Process again</a>)</font>";
+                       else $status="<font color=green>Completed (<a href='fetch_process.php?id=$table'>Process again</a>)</font>";
+                    }
 		  else $status="<font color=red>Stopped (<a href='fetch_process.php?id=$table'>Resume Now</a>)</font>";
 		}
 	    else
@@ -130,7 +133,7 @@ if (!$_GET['overlimit'])
   $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log"); 
   $lines = `tail -n 40 $file`;
 
-  if (preg_match("/\nThe search returned no results\.$/",$lines))
+  if (preg_match("/\nThe search returned no results\.$/",$lines) && !$step1)
     $message="<br><table style='background-color:pink;width:700px;padding:10px'><tr><td>Your query returned no results</td></tr></table>";
   elseif (preg_match("/\nError getapi_record\:.+\n([^\n]+?)\n\s*$/s",$lines,$msg))
     $message="<br><table style='background-color:pink;width:700px;padding:10px'><tr><td>".$msg[1]."</td></tr></table>";
