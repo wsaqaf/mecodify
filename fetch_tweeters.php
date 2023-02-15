@@ -103,7 +103,7 @@ function show_profile($rank,$table,$user_screen_name)
      $query="$qry $condition";
      if ($result = $link->query($query))
            {
-             if (!$result->num_rows) die("No results in the database matched your query.<br>\n");
+             if (!$result->num_rows) echo "<tr><td>The account [$user_screen_name] may have been suspended or deleted.</tr></td>";
              $total=$result->num_rows;
            }
          else die("Error in query: ". $link->error.": $query");
