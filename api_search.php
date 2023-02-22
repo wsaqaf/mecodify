@@ -648,7 +648,7 @@ function update_response_mentions()
 
 function update_kumu_files($table)
       {
-       global $link;
+       global $link; global $include_retweets;
        $maximum_strength=5;
        $minimum_strength=0;
        $top_limit=array("1000","5000","10000");
@@ -899,6 +899,78 @@ function update_kumu_files($table)
   	     }
       fclose($fp);
       echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."mentions.csv'>file ($table"."_"."mentions.csv)</a><br>\n";
+
+#####################
+
+    if ($include_retweets)
+     {
+      echo "\nKumu: Creating connections for retweets (including quote tweets)...";
+      $first_line=array("From","To","Type","Date","Position","Link","From_Verified_User","Is_Image","Is_Video",
+      "Is_Link","Media_Link","Other_Links","Source","Location","Language","Content","Tags",
+      "Mentions","Retweets","Quotes","Replies","Favorites","Tweet_ID");
+      $fp=fopen("tmp/kumu/$table"."_"."retweets.csv",'w');
+      fputcsv($fp, $first_line);
+
+      $query= "SELECT LOWER(t.user_screen_name) as screen_name,LOWER(u.user_screen_name) AS retweeted_user_name,t.date_time,t.is_retweet,t.is_quote,".
+      "t.is_reply,t.tweet_permalink_path,t.user_verified,t.has_image,t.has_video,".
+      "t.has_link,t.media_link,t.expanded_links,t.source,t.location_name,t.country,".
+      "t.tweet_language,t.raw_text,t.hashtags,t.user_mentions,t.retweets,t.quotes,t.replies,t.favorites,t.tweet_id ".
+      "FROM $table t INNER JOIN users_"."$table u ON t.retweeted_user_id=u.user_id AND (t.is_retweet OR t.is_quote) AND t.user_screen_name is not null ".
+      "AND t.is_protected_or_deleted is null AND t.date_time is not null order by t.retweets DESC";
+
+      if ($result = $link->query($query))
+          {
+            if (!$result->num_rows) { echo "No results in the database matched your query.<br>\n";  }
+            $total=$result->num_rows;
+          }
+      else die("Error in query: ". $link->error.": $query");
+
+      while ($row = $result->fetch_assoc())
+        {
+          $new_row=array(); foreach ($first_line as $item) { $new_row[$item]=""; }
+          $new_row['From']=ltrim($row['screen_name'],'@');
+          $new_row['To']=ltrim($row['retweeted_user_name'],'@');
+          if (!not_blank($valid_users[$row['screen_name']])) { continue; }
+          if (!not_blank($valid_users[$row['retweeted_user_name']])) { continue; }
+          if ($row['is_retweet']) { $new_row['Type']="Retweet"; }
+          elseif ($row['is_quote']) { $new_row['Type']="Quote of a tweet"; }
+          elseif ($row['is_reply']) { $new_row['Type']="Reply to tweet"; }
+          else $new_row['Type']="Regular tweet";
+          if ($row['location_name'] || $row['country'])
+            { $new_row['Location']=trim($row['location_name'].", ".$row['country']); }
+          $new_row['Content']=str_replace("\"","'",preg_replace("/[\r\n]+/"," ",$row['raw_text']));
+          if ($row['hashtags']) $new_row['Tags']=preg_replace("/\s+/","|",$row['hashtags']);
+          if ($row['user_mentions']) $new_row['Mentions']=preg_replace("/\s+/","|",$row['user_mentions']);
+          if (!not_blank($all_users[$row['screen_name']])) $all_users[$row['screen_name']]=1;
+          if (!not_blank($all_users[$row['retweeted_user_name']])) $all_users[$row['retweeted_user_name']]=1;
+
+          $new_row['Date']=$row['date_time'];
+          $new_row['Link']=$row['tweet_permalink_path'];
+          $new_row['From_Verified_User']=$row['user_verified'];
+          $new_row['Is_Image']=$row['has_image'];
+          $new_row['Is_Video']=$row['has_video'];
+          $new_row['Is_Link']=$row['has_link'];
+          $new_row['Media_Link']=$row['media_link'];
+          $new_row['Other_Links']=$row['expanded_links'];
+          $new_row['Source']=$row['source'];
+          $new_row['Location']=$row['location_name'];
+          $new_row['Language']=$row['tweet_language'];
+          $new_row['Tags']=$row['hashtags'];
+          $new_row['Retweets']=$row['retweets'];
+          $new_row['Quotes']=$row['quotes'];
+          $new_row['Replies']=$row['replies'];
+          $new_row['Favorites']=$row['favorites'];
+          $new_row['Tweet_ID']=$row['tweet_id'];
+
+          fputcsv($fp, $new_row);
+                $indx++;
+                if ($indx>=$max_kumu_size) break;
+
+        }
+     fclose($fp);
+     echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."retweets.csv'>file ($table"."_"."retweets.csv)</a><br>\n";
+    }
+####################
 
       echo "\nKumu: Creating elements for users...";
       $first_line=array("Label","Image","User Verified","Link","Bio","Language","Location","Tweets","Followers",
@@ -1198,7 +1270,7 @@ function put_user_in_database($user)
 
 function draw_network($table)
   {
-    global $link;
+    global $link; global $include_retweets;
     $maximum_strength=5;
     $minimum_strength=0;
     $limit=10;
@@ -1220,7 +1292,7 @@ function draw_network($table)
         }
     else die("Error in query: ". $link->error.": $query");
 
-    $nodes=""; $i=0; $all_nodes=array();
+    $nodes=""; $i=0; $all_nodes=array(); $all_nodes1=array();
     while ($row = $result->fetch_array())
       {
         $tmpnode=strtolower($link->real_escape_string($row[1]));
@@ -1305,7 +1377,7 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
         foreach ($edges_keys as $edg)
          {
           for ($i=$maximum_strength; $i>$minimum_strength; $i--)
-             { if ($edges[$edg]>$i) $edge_arr[$i]=$edge_arr[$i].$edg.",".$edges[$edg]."\n"; }
+             { if ($edges[$edg]>=$i) $edge_arr[$i]=$edge_arr[$i].$edg.",".$edges[$edg]."\n"; }
          }
 
         for ($i=$maximum_strength; $i>$minimum_strength; $i--)
@@ -1316,6 +1388,51 @@ echo "\n\nSTEP 1 (users) DONE\n\n";
          }
        }
   echo "\n\nSTEP 3 (mentions) DONE\n\n";
+  if ($include_retweets)
+    {
+      $query= "SELECT LOWER(t.user_screen_name) as screen_name,LOWER(u.user_screen_name) AS retweeted_user_name ".
+      "FROM $table t INNER JOIN users_"."$table u ON t.retweeted_user_id=u.user_id AND (t.is_retweet OR t.is_quote) AND t.user_screen_name is not null ".
+      "AND t.is_protected_or_deleted is null AND t.date_time is not null order by t.retweets DESC";
+
+      if ($result = $link->query($query))
+        {
+          if (!$result->num_rows) echo "No results in the database matched your query.<br>\n";
+          $total=$result->num_rows;
+        }
+      else die("Error in query: ". $link->error.": $query");
+      if ($result->num_rows)
+       {
+         $header="source,target,value\n";
+         $edges=array();
+         $connected_nodes=array();
+         $ii=0;
+
+         while ($row = $result->fetch_array())
+          {
+              if (!$edges[$row[0].",".$row[1]]) $edges[$row[0].",".$row[1]]=0;
+              $edges[$row[0].",".$row[1]]++;
+          }
+
+        $edge_arr=array();
+        for ($i=$maximum_strength; $i>$minimum_strength; $i--) { $edge_arr[$i]=$header; }
+        $edges_keys=array_keys($edges);
+
+        foreach ($edges_keys as $edg)
+         {
+          for ($i=$maximum_strength; $i>$minimum_strength; $i--)
+             { if ($edges[$edg]>=$i) $edge_arr[$i]=$edge_arr[$i].$edg.",".$edges[$edg]."\n"; }
+         }
+
+        for ($i=$maximum_strength; $i>$minimum_strength; $i--)
+         {
+            if (!$edge_arr[$i]) { echo "No $i-level connections\n<br>"; continue; }
+            file_put_contents("tmp/network/$table"."_retweets_"."$i.csv",$edge_arr[$i]);
+            echo "Saved CSV <a href='tmp/network/$table"."_retweets_"."$i.csv'>file ($table"."_retweets_"."$i.csv)</a>";
+         }
+       }
+     echo "\n\nSTEP 4 (retweets) DONE\n\n";
+   }
+
   echo "\n\nALL DONE\n\n";
   update_cases_table("completed");
   }

@@ -19,6 +19,7 @@ $user_screen_name=$_GET['user'];
 $rank=$_GET['i'];
 $responses=$_GET['responses2'];
 $mentions=$_GET['mentions'];
+$retweets=$_GET['retweets'];
 $level=$_GET['level'];
 if ($_GET['limit']) $limit=$_GET['limit'];
 else $limit=10;
@@ -47,7 +48,7 @@ if ($responses)
         else echo "The results don't have enough connections to form network graphs. Try fetching more records...";
       }
   }
-if ($mentions)
+elseif ($mentions)
   {
     if ($table)
       {
@@ -60,6 +61,25 @@ if ($mentions)
             $graph_data=str_replace("<!--w-->",$w,$graph_data);
             $graph_data=str_replace("<!--h-->",$h,$graph_data);
             $graph_data=str_replace("<!--table-->",$table."_mentions_"."$level",$graph_data);
+            $graph_data=str_replace("<!--case-->",$table,$graph_data);
+            echo "$graph_data";
+          }
+        else echo "The results don't have enough connections to form network graphs. Try fetching more records...";
+      }
+  }
+elseif ($retweets)
+  {
+    if ($table)
+      {
+        if (file_exists("tmp/network/$table"."_retweets_"."$level.csv"))
+          {
+            $size=filesize("tmp/network/$table"."_retweets_"."$level.csv");
+            if ($size>10000) { $w=(6-$level)*1000; $h=(7-$level)*1000; }
+            else { $w=1800; $h=1200; }
+            $graph_data=file_get_contents("templates/template-nodes.html");
+            $graph_data=str_replace("<!--w-->",$w,$graph_data);
+            $graph_data=str_replace("<!--h-->",$h,$graph_data);
+            $graph_data=str_replace("<!--table-->",$table."_retweets_"."$level",$graph_data);
             $graph_data=str_replace("<!--case-->",$table,$graph_data);
             echo "$graph_data";
           }

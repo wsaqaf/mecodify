@@ -505,55 +505,75 @@ function showkumu()
       $.ajax({type:'POST',url:url,
               complete: function (response)
                 {
-									if (response.status == 200)
-                   {   $('#kumu_users').html("<a href='"+url+"'>Tweeter CSV file</a>"); }
+		if (response.status == 200)
+                   {   $('#kumu_users').html("<a href='"+url+"'>Tweeter CSV file</a><br>"); }
                 },
-              error: function () { $('#kumu_users').html("No Kumu tweeter data."); }
+              error: function () { $('#kumu_users').html("No Kumu tweeter data.<br>"); }
              });
+      var url0='tmp/kumu/'+case_id+'_retweets.csv';
+      $.ajax({type:'POST',url:url0,
+              complete: function (response)
+                {
+                  if (response.status == 200)
+                    {  $('#kumu_retweets').html("<a href='"+url0+"'>Retweets CSV file</a><br>"); }
+                },
+              error: function () { $('#kumu_retweets').hide();}
+             });
+
+      var url0n='tmp/network/'+case_id+'_retweets_1.csv';
+      $.ajax({type:'POST',url:url0n,
+              complete: function (response)
+                {
+                  if (response.status == 200)
+                    {  $('.network_retweets').show(); }
+                },
+              error: function () { $('.network_retweets').hide();}
+             });
+
       var url1='tmp/kumu/'+case_id+'_responses.csv';
       $.ajax({type:'POST',url:url1,
               complete: function (response)
                 {
                   if (response.status == 200)
-                    {  $('#kumu_responses').html("<a href='"+url1+"'>Response CSV file</a>"); }
+                    {  $('#kumu_responses').html("<a href='"+url1+"'>Response CSV file</a><br>"); }
                 },
-              error: function () { $('#kumu_responses').html("No Kumu response data.");}
+              error: function () { $('#kumu_responses').html("No Kumu response data.<br>");}
              });
       var url2='tmp/kumu/'+case_id+'_mentions.csv';
       $.ajax({type:'POST',url:url2,
               complete: function (response)
                 {
                   if (response.status == 200)
-  									{ $('#kumu_mentions').html("<a href='"+url2+"'>Mentions CSV file</a>");  }
+  			{ $('#kumu_mentions').html("<a href='"+url2+"'>Mentions CSV file</a><br>");  }
                 },
-              error: function () { $('#kumu_mentions').html("No Kumu mention data.");}
+              error: function () { $('#kumu_mentions').html("No Kumu mention data.<br>");}
              });
 			 var url3='tmp/kumu/'+case_id+'_top_tweets_10000.csv';
        $.ajax({type:'POST',url:url3,
                complete: function (response)
                  {
                    if (response.status == 200)
-	  									{ $('#kumu_top_10000').html("<a href='"+url3+"'>Top 10000 tweets CSV file</a>");  }
+	  		{ $('#kumu_top_10000').html("<a href='"+url3+"'>Top 10000 tweets CSV file</a><br>");  }
                  },
-               error: function () { $('#kumu_top_10000').html("No Kumu top 10000 tweets data.");}
+               error: function () { $('#kumu_top_10000').html("No Kumu top 10000 tweets data.<br>");}
               });
 			var url4='tmp/kumu/'+case_id+'_top_tweets_5000.csv';
       $.ajax({type:'POST',url:url4,
               complete: function (response)
                 {
                   if (response.status == 200)
-  									{ $('#kumu_top_5000').html("<a href='"+url4+"'>Top 5000 CSV file for Kumu import</a>");  }
+  			{ $('#kumu_top_5000').html("<a href='"+url4+"'>Top 5000 CSV file for Kumu import</a><br>");  }
                 },
-              error: function () { $('#kumu_top_5000').html("No Kumu top 5000 tweets data.");}
+              error: function () { $('#kumu_top_5000').html("No Kumu top 5000 tweets data.<br>");}
              });
 		 var url5='tmp/kumu/'+case_id+'_top_tweets_1000.csv';
      $.ajax({type:'POST',url:url5,
              complete: function (response)
                {
                  if (response.status == 200)
-  									{ $('#kumu_top_1000').html("<a href='"+url5+"'>Top 1000 CSV file for Kumu import</a>");  }
+  		{ $('#kumu_top_1000').html("<a href='"+url5+"'>Top 1000 CSV file for Kumu import</a><br>");  }
                },
-             error: function () { $('#kumu_top_1000').html("No Kumu top 1000 tweets data.");}
+             error: function () { $('#kumu_top_1000').html("No Kumu top 1000 tweets data.<br>");}
             });
 	  }
 
