@@ -990,10 +990,10 @@ function update_kumu_files($table)
       while ($row = $result->fetch_array(MYSQLI_NUM))
         {
           if (!not_blank($all_users[$row[0]])) continue;
-      		$row[13]="https://twitter.com/".$row[0];
+      	  $row[13]="https://twitter.com/".$row[0];
           $row[4]=preg_replace("/[\r\n]+/"," ",$row[4]);
-  		    $row[4]=str_replace("\"","'",$row[4]);
-                fputcsv($fp,$row);
+  	  $row[4]=str_replace("\"","'",$row[4])." ";
+          fputcsv($fp,$row);
         }
      fclose($fp);
      echo "Kumu: Saved CSV <a href='tmp/kumu/$table"."_"."users.csv'>file ($table"."_"."users.csv)</a><br>\n";
