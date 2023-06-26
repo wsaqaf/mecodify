@@ -1,6 +1,9 @@
 # Mecodify tool for Twitter data analysis & visualisation (v2)
 ![N|Solid](https://mecodify.org/images/logo3.png)
 
+**`Recently, Twitter appears to have ended its free GET SEARCH API feature as part of the academic license to access premium API services. If your search does not yield results on Mecodify, your account may have been affected by this change.`**
+
+##
 Mecodify is an open-source tool created as part of the Media Conflict and Democratization Project (http://mecodem.eu) to help gather, analyse and visualise Twitter data for use by social science scholars. The name describes what it does, i.e., Message Codification by converting messages to systematic structures, tables, graphs and quantifiable content.
 
 The platform remains in constant development and the first version (1.0) has been used for the research purposes indicated in the website above. This new version (V2.0) is adapted to use Twitter's new V2 API.
