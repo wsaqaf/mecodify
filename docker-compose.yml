@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=mecodify_user
+      - MYSQL_PASSWORD=mecodify_pass
+      - MYSQL_DATABASE=mecodify
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_pass
+      - MYSQL_DATABASE=mecodify
+      - MYSQL_USER=mecodify_user
+      - MYSQL_PASSWORD=mecodify_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=db
+      - MYSQL_ROOT_PASSWORD=root_pass
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
