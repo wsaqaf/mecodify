@@ -12,6 +12,8 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 
 ### What's new in Mecodify 2.0
 
+- **Docker Support (New!)**: Easily install and run Mecodify locally using Docker and Docker Compose. No more complex server setups!
+- **xscraper Integration**: Since Twitter API access has become restricted, Mecodify now seamlessly integrates with the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper) to allow uploading case datasets directly via CSV imports.
 - Compatible with the next generation Twitter API (2.0), which has a rich set of new functions and features
 - Allows using API credentials for sandbox or premium API access
 - Removed the web-based search mechanism in favor of sticking exclusively to the API data for enhanced reliability

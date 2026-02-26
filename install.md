@@ -4,6 +4,20 @@
 
 # Installation
 
+## Local Computer (Docker - Recommended!)
+
+The easiest way to install and run Mecodify locally without configuring PHP or MySQL manually is by using Docker.
+
+1. **Install Docker Desktop:** Make sure you have Docker Desktop installed on your machine.
+2. **Download the repository:** Clone the repo or download the ZIP file and extract it.
+3. **Run Docker Compose:** Open your terminal, navigate to the extracted Mecodify folder, and execute:
+   ```bash
+   docker-compose up -d
+   ```
+4. **Access the application:** Mecodify will now be running at `http://localhost:8080`. You can also access phpMyAdmin at `http://localhost:8081` to manage your database (default username `root`, password `root_pass`).
+
+_Note: You do not need to configure `configurations.php` for local Docker setups as `docker-compose.yml` automatically seeds the database credentials environment variables for you._
+
 ## AWS and DigitalOcean
 
 If you do not have a server and have little to no experience in managing servers, then you could opt for pre-configured servers on two of the most popular cloud services, namely AWS and DigitalOcean. To learn more on how that can be done, you can use [this guide](https://github.com/wsaqaf/mecodify/blob/master/cloud_configs/README.md).
@@ -107,11 +121,14 @@ Depending on how extensively you use the service, you may consider removing old 
 ### Your own logo
 Mecodify comes with a default logo available at `./images/logo.png`. However, you can of course replace it with any logo you like provided that it is of a size that could fit the upper left corner (preferably 120x750 px or smaller).
 
-### 3- Configure Twitter API credentials:
-Since Mecodify relies heavily on the Twitter API, you need to set up its credentials. If you haven't yet created a Twitter API credentials before, then you are recommended to check the API tutorial here:
+### 3- Configure Twitter API credentials (or use xscraper Chrome Extension):
+Since Mecodify historically relies heavily on the Twitter API, you can set up its credentials. If you haven't yet created a Twitter API credentials before, then you are recommended to check the API tutorial here:
 [https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens)
 
-Once ready, you will need to fill in the values for the following variables:
+**Alternative: xscraper Chrome Extension**
+If you do not have or cannot get Twitter API credentials anymore, you can use the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper). Enabling csv file uploads in `configurations.php` (`$upload_csv_files = 1;`) allows you to scrape data natively using the extension and upload the produced CSV files directly to Mecodify!
+
+Once ready (if using the API), you will need to fill in the values for the following variables:
 'bearer' and 'is_premium'
 
 ```sh
