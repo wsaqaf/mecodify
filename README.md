@@ -14,14 +14,14 @@ The software mainly uses PHP and Javascript and has used several open-source lib
 
 - **Enhanced Mentions Analysis**: Redesigned mentions logic to accurately track account mentions across the entire dataset, distinguishing between accounts with and without tweets in the local database.
 - **Improved Verification Metrics**: Updated the parsing engine to correctly extract and display `user_verified` status, distinguishing between legacy verification and the "blue check" status.
-- **Optimized Data Ingestion**: Major performance improvements in handled large CSV/JSON imports from the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper).
+- **xscraper Live Extraction**: Full support for data extracted directly from live web sessions using the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper), with optimized handling for large CSV and JSON imports.
 - **Core Engine Refactoring**: Massive cleanup and optimization of `fetch_tweets.php` and associated frontend logic (`tweets.js`, `tweeters.js`) for faster data visualization.
 - **Extended Docker Support**: Improved Docker configurations for smoother local environment setup.
 
 ### What's new in Mecodify 2.0
 
 - **Docker Support (New!)**: Easily install and run Mecodify locally using Docker and Docker Compose. No more complex server setups!
-- **xscraper Integration**: Since Twitter API access has become restricted, Mecodify now seamlessly integrates with the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper) to allow uploading case datasets directly via CSV imports.
+- **xscraper Integration**: Since Twitter API access has become restricted, Mecodify now seamlessly integrates with the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper) to allow extracting data directly from a live web session and uploading case datasets via CSV/JSON imports.
 - Compatible with the next generation Twitter API (2.0), which has a rich set of new functions and features
 - Allows using API credentials for sandbox or premium API access
 - Removed the web-based search mechanism in favor of sticking exclusively to the API data for enhanced reliability
