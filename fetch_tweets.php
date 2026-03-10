@@ -1341,7 +1341,7 @@ else {
       if ($show_relative_impact > 1)
         $ri = "<td width=70><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_ri=1')>relative impact" . arrowdir($oppasc, 'ri') . "</a></td>";
 
-      $heading = $heading . "<table style='font-size:8pt; background-color:#FFFFFF; width: 1100px; table-layout: fixed;'><tr><td width=30>#</td><td width=80 style='white-space: nowrap;'><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time (GMT)" . arrowdir($oppasc, 'd') . "</a></td>" .
+      $heading = $heading . "<table style='font-size:8pt; background-color:#FFFFFF; width: 1100px; table-layout: fixed;'><tr><td width=30>#</td><td width=80 style='white-space: nowrap;'><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_d=1')>Date & Time" . arrowdir($oppasc, 'd') . "</a></td>" .
         "<td width=120 style='white-space: nowrap;'><a href='#' onclick=javascript:GetDetails('$url&asc=" . $oppasc . "&order_u=1')>Tweeter's details " . arrowdir($oppasc, 'u') . "</a></td><td width=150><a href='#' onclick=javascript:GetDetails('$url&asc=" . $oppasc . "&order_t=1')>" .
         "Tweet text" . arrowdir($oppasc, 't') . "</a></td><td width=75 style='white-space: nowrap;'><a href='#' onclick=javascript:GetDetails('$url&asc=" . proper_order("min_retweets") . "&order_r=1')>Retweets" . arrowdir($oppasc, 'r') . "</a></td>" .
         "<td width=65 style='white-space: nowrap;'><a href='#' onclick=javascript:GetDetails('$url&asc=$oppasc&order_q=1')>Quotes" . arrowdir($oppasc, 'q') . "</a>" .
