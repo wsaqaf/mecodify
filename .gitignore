@@ -1,0 +1,6 @@
+configurations.php
+/tmp/*
+!/tmp/.gitkeep
+!/tmp/*/
+/tmp/*/*
+!/tmp/*/.gitkeep

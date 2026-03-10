@@ -27,7 +27,7 @@ if (!$_GET['progress'] && $table && !$_GET['stop'] && !$_GET['overlimit'])
   {
     kill_process(0);
       if ($status) $status="status='$status',";
-      $query="update cases set $status last_process_started='".gmdate("Y-m-d H:i:s")."', last_process_updated='".gmdate("Y-m-d H:i:s")."' where id='${_GET['id']}'";
+      $query="update cases set $status last_process_started='".gmdate("Y-m-d H:i:s")."', last_process_updated='".gmdate("Y-m-d H:i:s")."' where id='{$_GET['id']}'";
       $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
 
     shell_exec($cmd);
@@ -77,7 +77,7 @@ if (!$_GET['overlimit'])
 		}
 	    elseif ($last_process_started!='0000-00-00 00:00:00' && $last_process_completed=='0000-00-00 00:00:00')
 		{
-		  $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log");
+		  $file = escapeshellarg("tmp/log/{$_GET['id']}-$search_meth.log");
 		  $line = `tail -n 1 $file`;
                   if ($line=="The search returned no results.")
                     {
@@ -130,7 +130,7 @@ if (!$_GET['overlimit'])
   echo "<tr><td>$date_created</td><td>$status</td><td>$last_process_started</td><td>$last_process_updated</td><td>$period_covered</td><td>$step1</td></tr></table>";
 
   $message="";
-  $file = escapeshellarg("tmp/log/${_GET['id']}-$search_meth.log"); 
+  $file = escapeshellarg("tmp/log/{$_GET['id']}-$search_meth.log"); 
   $lines = `tail -n 40 $file`;
 
   if (preg_match("/\nThe search returned no results\.$/",$lines) && !$step1)
@@ -221,7 +221,7 @@ function process_status($table)
 function update_status($status)
     {
       global $link;
-      $query="update cases set status='$status',last_process_updated='".gmdate("Y-m-d H:i:s")."',last_process_completed='0000-00-00 00:00:00' where id='${_GET['id']}'";
+      $query="update cases set status='$status',last_process_updated='".gmdate("Y-m-d H:i:s")."',last_process_completed='0000-00-00 00:00:00' where id='{$_GET['id']}'";
       $result=$link->query($query);if (!$result) die("Invalid query: " . $link->sqlstate. "\n$query\n");
     }
 ?>

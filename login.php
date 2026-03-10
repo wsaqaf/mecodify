@@ -9,31 +9,43 @@ use phpmailer\PHPMailer\Exception;
 
 $add_demo_details = "";
 if ($enable_new_accounts)
-  $sign_up = "<a href='#' onclick=case_proc('signup'); >Sign up</a>";
+  $sign_up = "<a href='javascript:void(0)' onclick=case_proc('signup'); >Sign up</a>";
 else
   $sign_up = "";
 
 if ($demo_config['enabled']) {
-  $add_demo_details = "Use email: <b>${demo_config['email']}</b> and password <b>${demo_config['pw']}</b> to try out the demo.<br>";
+  $add_demo_details = "Use email: <b>{$demo_config['email']}</b> and password <b>{$demo_config['pw']}</b> to try out the demo.<br>";
   $sign_up = "";
 }
 
 $login_str = <<<END
      <font size=+1><b>Login to your account:</b></font><br><br>$add_demo_details
      <form id='login'><table>
-     <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' ></td><td style='border: none !important;'><span class='email'></span></td></tr>
-     <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password'  name='password' ></td><td style='border: none !important;'></td></tr>
-     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' value='Login' onclick=case_proc('login'); > $sign_up 
+     <tr><td style='border: none !important;'>Email</td><td style='border: none !important;'><input type='text' id='email' name='email' oninput='validateLogin()'></td><td style='border: none !important;'><span class='email'></span></td></tr>
+     <tr><td style='border: none !important;'>Password</td><td style='border: none !important;'> <input type='password' id='password' name='password' oninput='validateLogin()'></td><td style='border: none !important;'></td></tr>
+     <tr><td style='border: none !important;'></td><td style='border: none !important;'><input type='button' id='login_btn' value='Login' onclick=case_proc('login'); disabled> $sign_up
 </td></tr></table><br>
      </form>
      <script>
+      function validateLogin() {
+        var e = document.getElementById('email').value;
+        var p = document.getElementById('password').value;
+        var btn = document.getElementById('login_btn');
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (re.test(e) && p.length > 0) {
+          btn.disabled = false;
+        } else {
+          btn.disabled = true;
+        }
+      }
       document.getElementById('password')
         .addEventListener('keyup', function (event) {
-          if (event.code === 'Enter') {
+          if (event.code === 'Enter' && !document.getElementById('login_btn').disabled) {
             event.preventDefault();
             case_proc('login');
           }
         });
+      setTimeout(validateLogin, 100);
     </script>
 END;
 if ($upload_csv_files) {
@@ -47,16 +59,18 @@ else {
   $csv_message = "";
 }
 
+$curr_email = $_SESSION[basename(__DIR__) . 'email'];
+
 $submit_case_form = <<<END
 <font size=+1>Add a new case</font><br>$csv_message
 <form id='add_case'><table>
 <span class='tip'></span>
-<tr><td style="border: none !important;"> ID<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input maxlength=20 type='text' size=20  onblur='javascript:check_id()' id='case_id'>  <img src='images/info.png'  onclick=showtip('id'); > (maximum 20 characters)<span id='case_id_comment'></span></td></tr>
-<tr><td style="border: none !important;">Name<sup><font color=red>*</font></sup></td><td style="border: none !important;">  <input  maxlength=100 type='text' size=35 id='case_name'> <img src='images/info.png'  onclick=showtip('name');> (maximum 100 characters)</td></tr>
+<tr><td style="border: none !important;"> ID<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input maxlength=20 type='text' size=20  onblur='javascript:check_id()' oninput='validateCase()' id='case_id'>  <img src='images/info.png'  onclick=showtip('id'); > (maximum 20 characters)<span id='case_id_comment'></span></td></tr>
+<tr><td style="border: none !important;">Name<sup><font color=red>*</font></sup></td><td style="border: none !important;">  <input  maxlength=100 type='text' size=35 id='case_name' oninput='validateCase()'> <img src='images/info.png'  onclick=showtip('name');> (maximum 100 characters)</td></tr>
 <tr $hidden_style><td style="border: none !important;">Platform<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <select id='case_platform'><option value=1 id='twitter' selected>Twitter</option><option value=2 id='facebook' disabled>Facebook</option><option value=3 id='YouTube' disabled>Youtube</option></select> <img src='images/info.png'  onclick=showtip('platform'); ></td></tr>
 <tr $hidden_style><td style="border: none !important;">Include retweets</td><td style="border: none !important;"> <input type='checkbox' id='case_include_retweets'> If checked, retweets matching the criteria will be included. <img src='images/info.png' onclick=showtip('include_retweets'); ></td></tr>
 <tr $hidden_style><td style="border: none !important;">Include referenced tweets</td><td style="border: none !important;"> <input type='checkbox' id='case_top_only'> If checked, tweets referenced by matched tweets will be included (even if they are outside the specified search period).<img src='images/info.png'  onclick=showtip('top_only'); ></td></tr>
-<tr $hidden_style><td style="border: none !important;">Case search query<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input type='search' size=50 id='case_query' value='$blank_values'> <img src='images/info.png'  onclick=showtip('query'); ></td></tr>
+<tr $hidden_style><td style="border: none !important;">Case search query<sup><font color=red>*</font></sup></td><td style="border: none !important;"> <input type='search' size=50 id='case_query' value='$blank_values' oninput='validateCase()'> <img src='images/info.png'  onclick=showtip('query'); ></td></tr>
 <tr $hidden_style><td style="border: none !important;">From (<small>e.g. 2016-12-20 23:55:30</small>) in UTC</td><td style="border: none !important;">  <input maxlength=20  onfocusout=ValidateDateTime('case_from') id='case_from'><span class='case_from'></span><img src='images/info.png'  onclick=showtip('from'); ></td></tr>
 <tr $hidden_style><td style="border: none !important;">To (<small>e.g. 2016-12-31 23:55:30</small>) in UTC</td><td style="border: none !important;">  <input type=20 onfocusout=ValidateDateTime('case_to') id='case_to'><span class='case_to'></span><img src='images/info.png' onclick=showtip('to'); ></td></tr>
 <tr><td style="border: none !important;">Details</td><td style="border: none !important;"><textarea  rows='5' cols='50' id='case_details'></textarea> <img src='images/info.png'  onclick=showtip('details'); ></td></tr>
@@ -64,23 +78,58 @@ $submit_case_form = <<<END
 <tr><td style="border: none !important;">Flags</td><td style="border: none !important;"><textarea  rows='5' cols='50' id='case_flags'></textarea> <img src='images/info.png'  onclick=showtip('flags'); ></td></tr>
 <tr><td style="border: none !important;">Privacy: <select id='case_private'><option value="1">Private</option><option value="0">Public</option></select> <img src='images/info.png'  onclick=showtip('private'); ></td></tr></table>
 <input type='hidden' id='email' value='$curr_email'>
-<input type='button' value='Submit case' onclick=case_proc('submit_case');>
+<input type='button' id='submit_case_btn' value='Submit case' onclick=case_proc('submit_case'); disabled>
 </form>
+<script>
+  function validateCase() {
+    var id_el = document.getElementById('case_id');
+    var name_el = document.getElementById('case_name');
+    var query_el = document.getElementById('case_query');
+    var btn = document.getElementById('submit_case_btn');
+    if (!id_el || !name_el || !query_el || !btn) return;
+
+    if (id_el.value.match(/^[0-9a-zA-Z_]+$/) && name_el.value.trim() !== '' && query_el.value.trim() !== '') {
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
+  }
+  setTimeout(validateCase, 100);
+</script>
 <br><b>NOTE:</b> This platform has a limit of <b>($max_tweets_per_case)</b> tweets per case.
 END;
 
 $create_account_form = "<font size=+1><b>Sign up for an account:</b></font><br><br>
 <form id='login'><table><tr><td style='border: none !important;'>
-Full Name<sup><font color=red>*</font></sup> </td><td style='border: none !important;'> <input type='text' id='name' size=40 name='name'><span class='name'></span></td></tr><td style='border: none !important;'>
+Full Name<sup><font color=red>*</font></sup> </td><td style='border: none !important;'> <input type='text' id='name' size=40 name='name' oninput='validateReg()'><span class='name'></span></td></tr><td style='border: none !important;'>
 Title</td><td style='border: none !important;'> <input type='text' id='title' size=40 name='title'></td></tr><td style='border: none !important;'>
 Institution</td><td style='border: none !important;'> <input type='text' id='institution' size=40 name='institution'></td></tr><td style='border: none !important;'>
 Country</td><td style='border: none !important;'> <input type='text' id='country' size=40 name='country'></td></tr><td style='border: none !important;'>
-Email<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='text' id='email' size=40 name='email'><span class='email'></span></td></tr><td style='border: none !important;'>
-Password<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='password' id='password' size=40 name='password'><span class='password'></span></td></tr><td style='border: none !important;'>
-Verify password<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='password' id='password2' size=40 name='password2'><span class='password2'></span></td></tr><td style='border: none !important;'>
-<td colspan=2 style='border: none !important;'><input type='checkbox' id='terms' name='terms' > I agree to <a href='terms.htm' target=_blank>the terms and conditions of use</a><sup><font color=red>*</font></sup><span class='terms'></span></td></tr><td style='border: none !important;'>
-<td colspan=2 style='border: none !important;'><input type='button' value='Signup' onclick=case_proc(\"create_account\"); ></td></tr></table>
+Email<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='text' id='email' size=40 name='email' oninput='validateReg()'><span class='email'></span></td></tr><td style='border: none !important;'>
+Password<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='password' id='password' size=40 name='password' oninput='validateReg()'><span class='password'></span></td></tr><td style='border: none !important;'>
+Verify password<sup><font color=red>*</font></sup></td><td style='border: none !important;'> <input type='password' id='password2' size=40 name='password2' oninput='validateReg()'><span class='password2'></span></td></tr><td style='border: none !important;'>
+<td colspan=2 style='border: none !important;'><input type='checkbox' id='terms' name='terms' onchange='validateReg()'> I agree to <a href='terms.htm' target=_blank>the terms and conditions of use</a><sup><font color=red>*</font></sup><span class='terms'></span></td></tr><td style='border: none !important;'>
+<td colspan=2 style='border: none !important;'><input type='button' id='reg_btn' value='Signup' onclick=case_proc('create_account'); disabled></td></tr></table>
 </form>
+<script>
+  function validateReg() {
+    var n = document.getElementById('name');
+    var e = document.getElementById('email');
+    var p1 = document.getElementById('password');
+    var p2 = document.getElementById('password2');
+    var t = document.getElementById('terms');
+    var btn = document.getElementById('reg_btn');
+    if (!n || !e || !p1 || !p2 || !t || !btn) return;
+
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (n.value.trim() !== '' && re.test(e.value) && p1.value.length > 0 && p1.value === p2.value && t.checked) {
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
+  }
+  setTimeout(validateReg, 100);
+</script>
 <sup><font color=red>*</font></sup> Required field.";
 
 if ($_GET['action'] == 'toggle_login') {
@@ -99,7 +148,7 @@ if ($_SESSION[basename(__DIR__)]) {
   elseif ($_GET['action'] == 'login') {
     clear_cases();
     if ($allow_new_cases)
-      echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+      echo "<a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
     else
       echo "Select one of the cases to visualise.";
     exit;
@@ -108,7 +157,7 @@ if ($_SESSION[basename(__DIR__)]) {
     echo get_from_db($_SESSION[basename(__DIR__) . 'email']);
     clear_cases();
     if ($allow_new_cases)
-      echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+      echo "<a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
     else
       echo "Select one of the cases to visualise.";
     exit;
@@ -206,7 +255,7 @@ if ($_SESSION[basename(__DIR__)]) {
   else {
     clear_cases();
     if ($allow_new_cases)
-      echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+      echo "<a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
     else
       echo "Select one of the cases to visualise.";
     exit;
@@ -215,17 +264,31 @@ if ($_SESSION[basename(__DIR__)]) {
 elseif (!empty($_POST) && $_POST['action'] == 'login') {
   $email = empty($_POST['email']) ? null : $_POST['email'];
   $password = empty($_POST['password']) ? null : $_POST['password'];
-  if (correct_credentials($email, $password)) {
-    if (!session_id())
-      @session_start();
-    $_SESSION[basename(__DIR__)] = true;
-    $_SESSION[basename(__DIR__) . 'email'] = $_POST['email'];
-    clear_cases();
-    if ($allow_new_cases)
-      echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
-    else
-      echo "Select one of the cases to visualise.";
-    exit;
+  connect_mysql();
+  $query = "SELECT password, verified FROM members WHERE email = '" . $link->real_escape_string($email) . "'";
+  $result = $link->query($query);
+  if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    if (!$require_verification || $row['verified'] == 1) {
+      if (password_verify($password, $row['password'])) {
+        if (!session_id())
+          @session_start();
+        $_SESSION[basename(__DIR__)] = true;
+        $_SESSION[basename(__DIR__) . 'email'] = $_POST['email'];
+        clear_cases();
+        if ($allow_new_cases)
+          echo "<a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
+        else
+          echo "Select one of the cases to visualise.";
+        exit;
+      }
+      else {
+        echo "Incorrect email or password. Please try again.<br><br> $login_str";
+      }
+    }
+    else {
+      echo "Your account is not verified. Please check your email for the verification link.<br><br> $login_str";
+    }
   }
   else {
     echo "Incorrect email or password. Please try again.<br><br> $login_str";
@@ -317,10 +380,10 @@ function submit_case($replace)
   if (!isValidTime($_POST['case_from'], $_POST['case_to']))
     die();
 
-  $query = "SELECT id,from_date,to_date from cases where id='${_POST['case_id']}'";
+  $query = "SELECT id,from_date,to_date from cases where id='{$_POST['case_id']}'";
   if ($result = $link->query($query)) {
     if ($result->num_rows && !$replace)
-      die("There is already a case with the same id (${_POST['case_id']}).<br> Please delete the old case if it is yours or choose another id.<br>");
+      die("There is already a case with the same id ({$_POST['case_id']}).<br> Please delete the old case if it is yours or choose another id.<br>");
     $row = $result->fetch_assoc();
   }
   else
@@ -334,23 +397,28 @@ function submit_case($replace)
       }
     }
     $query = "UPDATE cases set name='" . $link->real_escape_string($_POST['case_name']) . "', " .
-      "include_retweets='${_POST['case_include_retweets']}', top_only='${_POST['case_top_only']}', from_date='${_POST['case_from']}', to_date='${_POST['case_to']}', details='" .
-      $link->real_escape_string($_POST['case_details']) . "',$new_status details_url='" . $link->real_escape_string($_POST['case_details_url']) . "', flags='" . $link->real_escape_string($_POST['case_flags']) . "', private='${_POST['case_private']}' WHERE id='${_POST['case_id']}'";
-    $returned = "Your case has now been updated successfully.<br><br><a href='fetch_process.php?id=" . $_POST['case_id'] . "' target=_blank>Click here</a> to use the new settings to populate the database in the background. <br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>It will continue until all the results are fetched or when the maximum number of retreived (one million) record is reached. <br><br>You will receive an email once the process is completed.";
+      "include_retweets='{$_POST['case_include_retweets']}', top_only='{$_POST['case_top_only']}', from_date='{$_POST['case_from']}', to_date='{$_POST['case_to']}', details='" .
+      $link->real_escape_string($_POST['case_details']) . "',$new_status details_url='" . $link->real_escape_string($_POST['case_details_url']) . "', flags='" . $link->real_escape_string($_POST['case_flags']) . "', private='{$_POST['case_private']}' WHERE id='{$_POST['case_id']}'";
+    if (isset($GLOBALS['upload_csv_files']) && $GLOBALS['upload_csv_files']) {
+      $returned = "Your case has now been updated successfully.<br><br><iframe src='csv_upload.php?id=" . $_POST['case_id'] . "' style='width:100%; height:500px; border:none; border-radius:10px;'></iframe>";
+    }
+    else {
+      $returned = "Your case has now been updated successfully.<br><br><a href='fetch_process.php?id=" . $_POST['case_id'] . "' target=_blank>Click here</a> to use the new settings to populate the database in the background. <br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>It will continue until all the results are fetched or when the maximum number of retreived (one million) record is reached. <br><br>You will receive an email once the process is completed.";
+    }
   }
   else {
-    $query = "CREATE TABLE ${_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_case";
+    $query = "CREATE TABLE {$_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_case";
     if (!($result = $link->query($query)))
-      die("Could not create new table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a> Error in query: " . $link->error . ": $query");
+      die("Could not create new table. Please contact admin! <a href='javascript:void(0)' onclick=javascript:case_proc('add_case');>Try again</a> Error in query: " . $link->error . ": $query");
     echo "Creating users table ...<br>\n";
 
-    $query = "CREATE TABLE users_" . "${_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_users";
+    $query = "CREATE TABLE users_" . "{$_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_users";
     if (!($result = $link->query($query)))
-      die("Could not create new users table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
+      die("Could not create new users table. Please contact admin! <a href='javascript:void(0)' onclick=javascript:case_proc('add_case');>Try again</a>");
 
-    $query = "CREATE TABLE user_mentions_" . "${_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_user_mentions";
+    $query = "CREATE TABLE user_mentions_" . "{$_POST['case_id']} LIKE " . $_POST['case_platform'] . "_empty_user_mentions";
     if (!($result = $link->query($query)))
-      die("Could not create new user_mentions table. Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
+      die("Could not create new user_mentions table. Please contact admin! <a href='javascript:void(0)' onclick=javascript:case_proc('add_case');>Try again</a>");
 
     if ($_POST['case_from'] == "0000-00-00 00:00:00")
       $_POST['case_from'] = "";
@@ -362,12 +430,19 @@ function submit_case($replace)
     $_POST['case_query'] = str_replace(" or ", " OR ", $_POST['case_query']);
 
     $query = "INSERT INTO cases (id, name, creator, platform, include_retweets, top_only, query, from_date, to_date, details, details_url, flags, private) values " .
-      "('${_POST['case_id']}', '" . $link->real_escape_string($_POST['case_name']) . "', '${_POST['email']}', '${_POST['case_platform']}', '${_POST['case_include_retweets']}', '${_POST['case_top_only']}', '" . $link->real_escape_string($_POST['case_query']) . "', '${_POST['case_from']}', '${_POST['case_to']}', '" . $link->real_escape_string($_POST['case_details']) . "', '" . $link->real_escape_string($_POST['case_details_url']) . "', '" . $link->real_escape_string($_POST['case_flags']) . "', '${_POST['case_private']}')";
+      "('{$_POST['case_id']}', '" . $link->real_escape_string($_POST['case_name']) . "', '{$_POST['email']}', '{$_POST['case_platform']}', '{$_POST['case_include_retweets']}', '{$_POST['case_top_only']}', '" . $link->real_escape_string($_POST['case_query']) . "', '{$_POST['case_from']}', '{$_POST['case_to']}', '" . $link->real_escape_string($_POST['case_details']) . "', '" . $link->real_escape_string($_POST['case_details_url']) . "', '" . $link->real_escape_string($_POST['case_flags']) . "', '{$_POST['case_private']}')";
   }
-  if (!($result = $link->query($query)))
-    die("Could not insert new case with query ($query). Please contact admin! <a href='#' onclick=javascript:case_proc('add_case');>Try again</a>");
+  if (!($result = $link->query($query))) {
+    die("Could not update/insert case. Please contact admin! <a href='javascript:void(0)' onclick=javascript:case_proc('add_case');>Try again</a>");
+  }
+
+  if ($replace) {
+    echo $returned;
+    exit();
+  }
+
   $_SESSION[basename(__DIR__) . 'created'] = $_POST['case_id'];
-  echo '<script type="text/javascript"> location.reload(); </script>';
+  echo '<script type="text/javascript"> window.location.href = "index.php?table=' . urlencode($_POST['case_id']) . '"; </script>';
   email_admin(lst($_POST), "");
   exit();
 }
@@ -383,15 +458,15 @@ function toggle_login($preserve)
   $case_sec = "";
   if ($_GET['login']) {
     if (!$_SESSION[basename(__DIR__)])
-      return "<li class=''><center><a href='#' onclick=javascript:case_proc('');>Login</a></center></li><li><small><center><a href='#' onclick=\"javascript:window.open('?check_updates=1','Checking updates','width=400,height=200')\">Check updates</a></center></small></li>";
+      return "<div style='text-align: center; padding: 15px 0;'><a href='javascript:void(0)' onclick=javascript:case_proc('');>Login</a></div><div style='text-align: center; margin-bottom: 10px;'><small><a href='javascript:void(0)' onclick=\"javascript:window.open('?check_updates=1','Checking updates','width=400,height=200')\">Check updates</a></small></div>";
     else
-      return "<li class=''><center><a href='#' onclick=case_proc('logout');>Logout</a> - <font size=-2><a href='#' onclick=javascript:case_proc('edit_profile');>Profile</a></font></center></li><hr>";
+      return "<div style='text-align: center; padding: 15px 0; font-weight: 600;'><a href='javascript:void(0)' onclick=case_proc('logout');>Logout</a> <span style='color: #ccc; margin: 0 5px;'>|</span> <small><a href='javascript:void(0)' onclick=javascript:case_proc('edit_profile');>Profile</a></small></div><hr style='margin:0; border-top: 1px solid #e5e7eb;'>";
   }
   $case_sec = get_from_db('', 1);
   if ($case_sec == "<font size=-1 color=red>There are no cases available.</font>") {
     clear_cases();
     if ($allow_new_cases)
-      echo "<a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+      echo "<a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
     else
       echo "Select one of the cases to visualise.";
   }
@@ -425,7 +500,7 @@ function get_from_db($email = "", $menu = false, $case = "")
     if (!$result->num_rows) {
       $output = "<font size=-1 color=red>There are no cases available.</font>";
       if ($allow_new_cases)
-        $output = $output . "<br><a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+        $output = $output . "<br><a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
       return $output;
     }
     $total = $result->num_rows;
@@ -439,21 +514,33 @@ function get_from_db($email = "", $menu = false, $case = "")
     $list = "<select id='case'>\n";
   while ($row = $result->fetch_assoc()) {
     if (!$menu) {
-      $updated = "<td style='border: none !important;'>In progress (started: ${row['last_process_started']})</td>";
-      if ($row['last_process_completed']) {
-        $updated = "<td style='border: none !important;'>${row['last_process_completed']}";
+      $updated = "<td style='border: none !important;'>In progress (started: {$row['last_process_started']})</td>";
+      if ($row['last_process_completed'] && $row['last_process_completed'] != '0000-00-00 00:00:00') {
+        $updated = "<td style='border: none !important;'>{$row['last_process_completed']}";
       }
-      elseif (!$row['last_process_completed'])
-        $updated = "<td style='border: none !important;'>Not completed <a href='fetch_process.php?id=$case&progress=1' target=_blank>See progress</a></td>";
+      elseif (!$row['last_process_completed'] || $row['last_process_completed'] == '0000-00-00 00:00:00') {
+        if (isset($GLOBALS['upload_csv_files']) && $GLOBALS['upload_csv_files']) {
+          $updated = "<td style='border: none !important;'>No data <a href='javascript:void(0)' onclick='this.outerHTML=\"<iframe src=\\\"csv_upload.php?id=$case\\\" style=\\\"width:100%; height:900px; border:1px solid #ddd; border-radius:10px; margin-top:10px;\\\"></iframe>\"'>Upload CSV inline</a></td>";
+        }
+        else {
+          $updated = "<td style='border: none !important;'>Not completed <a href='fetch_process.php?id=$case&progress=1' target=_blank>See progress</a></td>";
+        }
+      }
       if ($_SESSION[basename(__DIR__) . 'email'] == $row['creator'] || $_SESSION[basename(__DIR__) . 'email'] == $admin_email) {
         $action = "<tr><td style='border: none !important;'>Action</td>";
-        $public = "<td style='border: none !important;'><a href='#' onclick=javascript:case_proc('toggle_access','${row['id']}');>" . ispublic($row['private']) . "</a> </td></tr>";
+        $public = "<td style='border: none !important;'><a href='javascript:void(0)' onclick=javascript:case_proc('toggle_access','{$row['id']}');>" . ispublic($row['private']) . "</a> </td></tr>";
         $action .= "<td style='border: none !important;'>";
-        $action .= "<a href='#' onclick=javascript:case_proc('edit_case','${row['id']}','${row['creator']}');> Edit</a> (<a href='fetch_process.php?id=${row['id']}&progress=1' target=_blank>more info</a>)";
+        if (isset($GLOBALS['upload_csv_files']) && $GLOBALS['upload_csv_files']) {
+          $action .= "<a href='javascript:void(0)' onclick=javascript:case_proc('edit_case','{$row['id']}','{$row['creator']}');> Edit</a> (<a href='javascript:void(0)' onclick='this.outerHTML=\"</tr><tr><td colspan=2><iframe src=\\\"csv_upload.php?id={$row['id']}\\\" style=\\\"width:100%; height:900px; border:1px solid #ddd; border-radius:10px; margin-top:10px;\\\"></iframe></td></tr>\"'>update data inline</a>)";
+        }
+        else {
+          $action .= "<a href='javascript:void(0)' onclick=javascript:case_proc('edit_case','{$row['id']}','{$row['creator']}');> Edit</a> (<a href='fetch_process.php?id={$row['id']}&progress=1' target=_blank>more info</a>)";
+        }
         $action .= "</td></tr>";
       }
-      else
+      else {
         $public = "<td style='border: none !important;'>" . ispublic($row['private']) . "</td><td style='border: none !important;'></td></tr>";
+      }
 
       if (!$case)
         $list .= "\n<br><b>$cnt</b>";
@@ -463,20 +550,20 @@ function get_from_db($email = "", $menu = false, $case = "")
         $row['to_date'] = "";
 
       $list .= "<br><table><tr><td style='border: none !important;'>Platform</td><td style='border: none !important;'>" . platform($row['platform']) . "</td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important; width:150px'>ID</td><td style='border: none !important;'><b>${row['id']}</b></td></tr>" .
-        "<tr><td style='border: none !important;'>Name</td><td style='border: none !important;'>${row['name']}</td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important; width:150px'>ID</td><td style='border: none !important;'><b>{$row['id']}</b></td></tr>" .
+        "<tr><td style='border: none !important;'>Name</td><td style='border: none !important;'>{$row['name']}</td></tr>" .
         "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Platform</td><td style='border: none !important;'>" . platform($row['platform']) . "</td></tr>" .
         "<tr><td style='border: none !important;'>Include retweets?</td><td style='border: none !important;'>" . top_only($row['include_retweets']) . "</td></tr>" .
         "<tr><td style='border: none !important;'>Include referenced tweets?</td><td style='border: none !important;'>" . top_only($row['top_only']) . "</td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Search query</td><td style='border: none !important;'>${row['query']}</td></tr>" .
-        "<tr><td style='border: none !important;'>From</td><td style='border: none !important;'>${row['from_date']}</td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>To</td><td style='border: none !important;'>${row['to_date']}</td>" .
-        "<tr><td style='border: none !important;'>Created by</td><td style='border: none !important;'>${row['creator']}</td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Created date</td><td style='border: none !important;'>${row['date_created']}</td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Search query</td><td style='border: none !important;'>{$row['query']}</td></tr>" .
+        "<tr><td style='border: none !important;'>From</td><td style='border: none !important;'>{$row['from_date']}</td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>To</td><td style='border: none !important;'>{$row['to_date']}</td>" .
+        "<tr><td style='border: none !important;'>Created by</td><td style='border: none !important;'>{$row['creator']}</td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Created date</td><td style='border: none !important;'>{$row['date_created']}</td></tr>" .
         "<tr><td style='border: none !important;'>Is public?</td><td style='border: none !important;'>" . ispublic($row['private']) . "</td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Details</td><td style='border: none !important;'>${row['details']}</td></tr>" .
-        "<tr><td style='border: none !important;'>URL reference</td><td style='border: none !important;'><a href='${row['details_url']}' target=_blank>${row['details_url']}</a></td></tr>" .
-        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Flags</td><td style='border: none !important;'>${row['flags']}</td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Details</td><td style='border: none !important;'>{$row['details']}</td></tr>" .
+        "<tr><td style='border: none !important;'>URL reference</td><td style='border: none !important;'><a href='{$row['details_url']}' target=_blank>{$row['details_url']}</a></td></tr>" .
+        "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Flags</td><td style='border: none !important;'>{$row['flags']}</td></tr>" .
 
         "<tr style='background-color:#f2f2f2'><td style='border: none !important;'>Last update</td>$updated</tr>$action</table><br>\n";
     }
@@ -484,12 +571,12 @@ function get_from_db($email = "", $menu = false, $case = "")
       $is_yours = isyours($row['creator'], $_SESSION[basename(__DIR__) . 'email']);
       if ($is_yours == "*")
         $is_yours1 = 1;
-      $list .= "<option value='${row['id']}' id='${row['id']}'>${row['name']}<sup>$is_yours</sup>";
+      $list .= "<option value='{$row['id']}' id='{$row['id']}'>{$row['name']}<sup>$is_yours</sup>";
     }
     $cnt++;
   }
   if ($menu) {
-    $list .= "</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br><br><a href='#' onclick=case_proc('add_case');>";
+    $list .= "</select><br><i><font size=-1><a href='javascript:void(0)' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br><br><a href='javascript:void(0)' onclick=case_proc('add_case');>";
     if ($allow_new_cases)
       $list .= "<div style='text-align:center'>Add a new case </a></div><br>";
     else
@@ -520,7 +607,7 @@ function edit_from_db($email, $menu, $case)
     if (!$result->num_rows) {
       $output = "<font size=-1 color=red>There are no cases available.</font>";
       if ($allow_new_cases)
-        $output = $output . "<br><a href='#' onclick=case_proc('add_case');> Add a new case</a> ";
+        $output = $output . "<br><a href='javascript:void(0)' onclick=case_proc('add_case');> Add a new case</a> ";
       return $output;
     }
     $total = $result->num_rows;
@@ -534,11 +621,11 @@ function edit_from_db($email, $menu, $case)
   if ($row['to_date'] == "0000-00-00 00:00:00")
     $row['to_date'] = "";
   $template = str_replace("Add a new case", "Edit case", $template);
-  $template = str_replace("'case_id'>", "'case_id' value='${row['id']}' readonly><i> <font size=-2>The id cannot be changed. You can add a new case with a new id</font></i>", $template);
-  $template = str_replace("'case_name'>", "'case_name' value='" . htmlspecialchars($row['name']) . "'>", $template);
+  $template = str_replace("'case_id'>", "'case_id' value='{$row['id']}' readonly><i> <font size=-2>The id cannot be changed. You can add a new case with a new id</font></i>", $template);
+  $template = str_replace("'case_name' oninput='validateCase()'>", "'case_name' oninput='validateCase()' value='" . htmlspecialchars($row['name']) . "'>", $template);
   $template = str_replace("'case_query'>", "'case_query' style='background-color:#f2f2f2' value='" . htmlspecialchars($row['query']) . "' readonly><br><i> <font size=-2>The query and search category cannot be changed. You can add a new case with a different settings</font></i>", $template);
-  $template = str_replace("id='case_from'>", "id='case_from' value='${row['from_date']}'>", $template);
-  $template = str_replace("id='case_to'>", "id='case_to' value='${row['to_date']}'>", $template);
+  $template = str_replace("id='case_from'>", "id='case_from' value='{$row['from_date']}'>", $template);
+  $template = str_replace("id='case_to'>", "id='case_to' value='{$row['to_date']}'>", $template);
   $template = str_replace("'case_details'>", "'case_details'>" . htmlentities($row['details']), $template);
   $template = str_replace("'case_flags'>", "'case_flags'>" . htmlentities($row['flags']), $template);
   $template = str_replace("'case_details_url'>", "'case_details_url' value='" . htmlentities($row['details_url']) . "'>", $template);
@@ -551,9 +638,9 @@ function edit_from_db($email, $menu, $case)
   $template = str_replace("'case_private'>", "'case_private' " . ischecked($row['private']) . ">", $template);
   $template = str_replace("'case_include_retweets'>", "'case_include_retweets' " . ischecked($row['include_retweets']) . ">", $template);
   $template = str_replace("'case_top_only'>", "'case_top_only' " . ischecked($row['top_only']) . ">", $template);
-  $template = str_replace("value='Submit case' onclick=case_proc('submit_case');>", "value='Save changes' onclick=case_proc('resubmit_case');>", $template);
-  $template .= "<br><br><center><big><a href='#' onclick=javascript:case_proc('empty_case','${row['id']}','${row['creator']}');> Empty data from the case</a> ";
-  $template .= " - <a href='#' onclick=javascript:case_proc('delete_case','${row['id']}','${row['creator']}');> Delete from database</a></big></center><br>";
+  $template = str_replace("id='submit_case_btn' value='Submit case' onclick=case_proc('submit_case'); disabled>", "id='submit_case_btn' value='Save changes' onclick=case_proc('resubmit_case');>", $template);
+  $template .= "<br><br><center><big><a href='javascript:void(0)' onclick=\"case_proc('empty_case','{$row['id']}','{$row['creator']}'); return false;\"> Empty data from the case</a> ";
+  $template .= " - <a href='javascript:void(0)' onclick=\"case_proc('delete_case','{$row['id']}','{$row['creator']}'); return false;\"> Delete from database</a></big></center><br>";
   return $template;
 }
 
@@ -587,9 +674,9 @@ function edit_profile($email)
   $template = str_replace("'title'>", "'title' value='" . htmlspecialchars($row['title']) . "'>", $template);
   $template = str_replace("'institution'>", "'institution' value='" . htmlspecialchars($row['institution']) . "'>", $template);
   $template = str_replace("'country'>", "'country' value='" . htmlspecialchars($row['country']) . "'>", $template);
-  $template = str_replace("name='email'>", "name='email' value='${row['email']}' readonly><i> <font size=-2>Your email cannot be changed. You can delete this account and create another with the new one if you wish </font></i>", $template);
-  $template = str_replace("value='Signup' onclick=case_proc('create_account'); >", "value='Update profile' onclick=case_proc('update_account');>", $template);
-  $template .= "<br><hr><a href='#' onclick=javascript:case_proc('delete_account','${row['email']}'> Delete account</a><br><br>";
+  $template = str_replace("name='email'>", "name='email' value='{$row['email']}' readonly><i> <font size=-2>Your email cannot be changed. You can delete this account and create another with the new one if you wish </font></i>", $template);
+  $template = str_replace("id='reg_btn' value='Signup' onclick=case_proc('create_account'); disabled>", "id='reg_btn' value='Update profile' onclick=case_proc('update_account');>", $template);
+  $template .= "<br><hr><a href='javascript:void(0)' onclick=\"case_proc('delete_account','{$row['email']}');\"> Delete account</a><br><br>";
   return $template;
 }
 
@@ -670,7 +757,7 @@ function del_from_db($creator, $case_id)
   if (!$link->query($query))
     die("Error in query: " . $link->error . ": Contact admin $admin_email for help.");
   $_SESSION[basename(__DIR__) . 'deleted'] = $case_id;
-  echo '<script type="text/javascript"> location.reload(); </script>';
+  echo '<script type="text/javascript"> window.location.href = "index.php"; </script>';
 }
 
 function empty_if_exists($table)
@@ -716,7 +803,7 @@ function empty_from_db($creator, $case_id)
   if (!$link->query($query))
     die("Error in query: " . $link->error . ": Contact admin $admin_email for help. (q:$query)");
   $_SESSION[basename(__DIR__) . 'emptied'] = $case_id;
-  echo '<script type="text/javascript"> location.reload(); </script>';
+  echo '<script type="text/javascript"> window.location.href = "index.php?table=' . urlencode($case_id) . '"; </script>';
 }
 
 function del_account($creator)
@@ -787,23 +874,24 @@ function create_account($replace)
 {
   global $link;
   global $login_str;
-  $query = "SELECT email from members where email='${_POST['email']}' AND verified=1";
+  global $admin_email;
+  $query = "SELECT email from members where email='{$_POST['email']}' AND verified=1";
   if ($result = $link->query($query)) {
     if ($result->num_rows && !$replace)
-      die("There is already an account under (${_POST['email']}).<br>Login using your credentials below or email <a href='mailto:$admin_email'>$admin_email</a> for support.<br><br>$login_str");
+      die("There is already an account under ({$_POST['email']}).<br>Login using your credentials below or email <a href='mailto:$admin_email'>$admin_email</a> for support.<br><br>$login_str");
   }
   else
     die("Error in query: " . $link->error . ": $query");
   $code = md5(uniqid($_POST['email'], true));
   $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
   if ($replace) {
-    $query = "UPDATE members SET name='${_POST['name']}', password='$hash', title='${_POST['title']}', " .
-      "institution='${_POST['institution']}', country='${_POST['country']}' WHERE email='${_POST['email']}' ";
+    $query = "UPDATE members SET name='{$_POST['name']}', password='$hash', title='{$_POST['title']}', " .
+      "institution='{$_POST['institution']}', country='{$_POST['country']}' WHERE email='{$_POST['email']}' ";
     $returned = "You have now updated your profile successfully.";
   }
   else {
     $query = "INSERT INTO members (email, name, password, title, institution, country, verified, verification_str) values " .
-      "('${_POST['email']}', '${_POST['name']}', '$hash', '${_POST['title']}', '${_POST['institution']}', '${_POST['country']}', 1, '$code')";
+      "('{$_POST['email']}', '{$_POST['name']}', '$hash', '{$_POST['title']}', '{$_POST['institution']}', '{$_POST['country']}', 1, '$code')";
     $returned = "You have now signed up. Proceed to log in with your email and chosen password below:<br>$login_str";
   }
   if (!($result = $link->query($query)))
@@ -848,7 +936,7 @@ function email_admin($case, $user)
   if ($case) {
     $mail->Subject = "New case added to $website_title";
     $mail->Body = "A new case was added to $website_title at $website_url with the below details:\n\n" .
-      "Case details: $case\n\n--\n\nAdded By account: ${_SESSION[basename(__DIR__) . 'email']}\n";
+      "Case details: $case\n\n--\n\nAdded By account: {$_SESSION[basename(__DIR__) . 'email']}\n";
   }
   else {
     $mail->Subject = "New user registered on $website_title";
@@ -872,15 +960,20 @@ function lst($array)
 function clear_cases()
 {
   if ($_SESSION[basename(__DIR__) . 'deleted']) {
-    echo "Case <b>${_SESSION[basename(__DIR__) . 'deleted']}</b> deleted successfully.<br><hr><br>";
+    echo "Case <b>{$_SESSION[basename(__DIR__) . 'deleted']}</b> deleted successfully.<br><hr><br>";
     $_SESSION[basename(__DIR__) . 'deleted'] = "";
   }
   if ($_SESSION[basename(__DIR__) . 'emptied']) {
-    echo "Case <b>${_SESSION[basename(__DIR__) . 'emptied']}</b> emptied successfully.<br><hr><br>";
+    echo "Case <b>{$_SESSION[basename(__DIR__) . 'emptied']}</b> emptied successfully.<br><hr><br>";
     $_SESSION[basename(__DIR__) . 'emptied'] = "";
   }
   if ($_SESSION[basename(__DIR__) . 'created']) {
-    echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>.<br><br><a href='fetch_process.php?id=" . $_SESSION[basename(__DIR__) . 'created'] . "' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
+    if (isset($GLOBALS['upload_csv_files']) && $GLOBALS['upload_csv_files']) {
+      echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>.<br><br><iframe src='csv_upload.php?id=" . $_SESSION[basename(__DIR__) . 'created'] . "' style='width:100%; height:900px; border:1px solid #ddd; border-radius:10px; margin-top:10px;'></iframe><br><hr><br>";
+    }
+    else {
+      echo "Your new case has just been added successfull <font color=red><b>but is not yet populated</b></font>.<br><br><a href='fetch_process.php?id=" . $_SESSION[basename(__DIR__) . 'created'] . "' target=_blank>Click here</a> to start populating the database in the background.<br><br>The process may take a while depending on your query and amount of data to be populated.<br><br>The process will continue until all the results are fetched or when the maximum number (half a million records) is fetched. <br><hr><br>";
+    }
     $_SESSION[basename(__DIR__) . 'created'] = "";
   }
 }

@@ -2,7 +2,7 @@
 ![N|Solid](images/logo3.png?)
 
 
-**User Manual for V 2.0**
+**User Manual for V 3.0**
 
 Mecodify is an open-source tool to extract, analyse and visualise the usage of Twitter for particular queries (e.g., a hashtag, a user account, keywords, etc.) It remains under development and the plan is to add other data sources (e.g., Facebook, YouTube, and other API-enabled websites and services).
 

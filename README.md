@@ -1,14 +1,22 @@
-# Mecodify tool for Twitter data analysis & visualisation (v2)
+# Mecodify tool for Twitter data analysis & visualisation (v3)
 ![N|Solid](https://mecodify.org/images/logo3.png)
 
 `In June 2023, Twitter appears to have ended its free GET SEARCH API feature as part of the academic license to access premium API services. If your search does not yield results on Mecodify, your account may have been affected by this change.`
 
-##
+## 
 Mecodify is an open-source tool created as part of the Media Conflict and Democratization Project (http://mecodem.eu) to help gather, analyse and visualise Twitter data for use by social science scholars. The name describes what it does, i.e., Message Codification by converting messages to systematic structures, tables, graphs and quantifiable content.
 
-The platform remains in constant development and the first version (1.0) has been used for the research purposes indicated in the website above. This new version (V2.0) is adapted to use Twitter's new V2 API.
+The platform remains in constant development and the previous version (2.0) has been adapted to use Twitter's new V2 API and xscraper integration. This current version (V3.0) introduces significant stability and analysis improvements.
 
 The software mainly uses PHP and Javascript and has used several open-source libraries including but not limited to HighCharts, D3Js for various components of the platform.
+
+### What's new in Mecodify 3.0 (Latest)
+
+- **Enhanced Mentions Analysis**: Redesigned mentions logic to accurately track account mentions across the entire dataset, distinguishing between accounts with and without tweets in the local database.
+- **Improved Verification Metrics**: Updated the parsing engine to correctly extract and display `user_verified` status, distinguishing between legacy verification and the "blue check" status.
+- **Optimized Data Ingestion**: Major performance improvements in handled large CSV/JSON imports from the [xscraper Chrome Extension](https://github.com/wsaqaf/xscraper).
+- **Core Engine Refactoring**: Massive cleanup and optimization of `fetch_tweets.php` and associated frontend logic (`tweets.js`, `tweeters.js`) for faster data visualization.
+- **Extended Docker Support**: Improved Docker configurations for smoother local environment setup.
 
 ### What's new in Mecodify 2.0
 

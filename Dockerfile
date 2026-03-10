@@ -19,6 +19,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Copy custom PHP configuration
+COPY php.ini "$PHP_INI_DIR/conf.d/custom.ini"
+
 # Setup working directory and proper permissions
 WORKDIR /var/www/html
 

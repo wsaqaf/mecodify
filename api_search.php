@@ -1296,7 +1296,7 @@ function draw_network($table)
     while ($row = $result->fetch_array())
       {
         $tmpnode=strtolower($link->real_escape_string($row[1]));
-        $nodes=$nodes."g.nodes.push({ id: '${row[0]}', label: '$tmpnode', x: Math.random(), y: Math.random(), size: ".($row[3]).", color: 'FF8000' });\n";
+        $nodes=$nodes."g.nodes.push({ id: '{$row[0]}', label: '$tmpnode', x: Math.random(), y: Math.random(), size: ".($row[3]).", color: 'FF8000' });\n";
         $all_nodes1[$row[0]]=$tmpnode;
         $i++;
       }

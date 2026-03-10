@@ -48,7 +48,7 @@ function get_cases_db($case)
           $is_yours=isyours($row['creator'],$_SESSION[basename(__DIR__).'email']);
           if ($is_yours=="*") $is_yours1=1; else $is_yours1=0;
 	  if (!$row['private'] || $is_yours1)
-            { $list.="<option value='${row['id']}' id='${row['id']}' style='color:blacki; background-color:white' $sel>".tops($row['top_only'])."${row['name']}<sup>$is_yours</sup>"; }
+            { $list.="<option value='{$row['id']}' id='{$row['id']}' style='color:blacki; background-color:white' $sel>".tops($row['top_only'])."{$row['name']}<sup>$is_yours</sup>"; }
           $cnt++;
         }
       $list.="</select><br><i><font size=-1><a href='#' onclick=javascript:case_proc('more_info');>More info about the selected case</a></font></i><br>";
