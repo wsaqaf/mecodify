@@ -1369,10 +1369,11 @@ else {
     $cnt = 0;
     $inserted = 0;
     $dataset = "";
+    $cloud_text = "";
     while ($row = $result->fetch_assoc()) {
       if (!$_GET['export']) {
         if ($_GET['hashtag_cloud'])
-          $hashtag_cloud = $hashtag_cloud . " " . $row['hashtags'];
+          $cloud_text = $cloud_text . " " . $row['hashtags'];
         if ($cnt + 1 >= $p && $cnt < $pp) {
           $ri = "";
           if ($show_relative_impact)
@@ -1498,9 +1499,9 @@ else {
           $part1_data = $part1_data . "<center><small><a href='tmp/cache/$table-hashcloud.html' target=_blank>Download raw text file containing hashtags used in the below tweets</a></small></center><br><br>";
         }
         else {
-          file_put_contents("tmp/cache/$table" . "-" . "$hashkey2-hashcloud.html", $hashtag_cloud);
+          file_put_contents("tmp/cache/$table" . "-" . "$hashkey2-hashcloud.html", $cloud_text);
           $cloud = new PTagCloud(50);
-          $cloud->addTagsFromText($hashtag_cloud);
+          $cloud->addTagsFromText($cloud_text);
           $cloud->setWidth("900px");
           $hashtag_cloud2 = $cloud->emitCloud();
           $part1_data = $part1_data . "<br><b>Hashtag cloud:</b> <center>$hashtag_cloud2</center>";
