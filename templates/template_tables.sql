@@ -61,10 +61,10 @@ BEGIN
 --
 
 CREATE TABLE IF NOT EXISTS `1_empty_all_mentions` (
-  `tweet_id` bigint(20) unsigned DEFAULT NULL,
+  `tweet_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `replies` int(10) unsigned NOT NULL DEFAULT '0',
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `user_screen_name` varchar(20) CHARACTER SET ascii DEFAULT NULL,
+  `user_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_screen_name` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `responses_to_tweeter` int(10) unsigned NOT NULL DEFAULT '0',
   `mentions_of_tweeter` int(10) unsigned NOT NULL DEFAULT '0',
   `mention1` int(10) unsigned NOT NULL DEFAULT '0',
@@ -102,14 +102,14 @@ COMMIT;
 
 CREATE TABLE IF NOT EXISTS `1_empty_case` (
   `index_on_page` int(10) unsigned NOT NULL DEFAULT '0',
-  `tweet_id` bigint(10) unsigned NOT NULL,
-  `tweet_permalink_path` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `in_reply_to_user` bigint(20) unsigned DEFAULT NULL,
-  `full_source` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `in_reply_to_tweet` bigint(20) unsigned DEFAULT NULL,
+  `tweet_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `tweet_permalink_path` mediumtext CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `in_reply_to_user` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `full_source` mediumtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `in_reply_to_tweet` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `quoted_tweet_id` bigint(20) unsigned DEFAULT NULL,
-  `user_screen_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` bigint(10) unsigned NOT NULL,
+  `user_screen_name` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `user_name` tinytext,
   `user_location` tinytext,
   `user_timezone` tinytext,
@@ -220,8 +220,8 @@ ALTER TABLE `members`
 --
 
 CREATE TABLE IF NOT EXISTS `1_empty_users` (
-  `user_id` bigint(10) unsigned NOT NULL DEFAULT '0',
-  `user_screen_name` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `user_screen_name` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_name` tinytext COLLATE utf8_unicode_ci,
   `user_lang` text COLLATE utf8_unicode_ci,
   `user_geo_enabled` tinyint(1) DEFAULT NULL,
@@ -256,17 +256,17 @@ CREATE TABLE IF NOT EXISTS `1_empty_users` (
 --
 
 CREATE TABLE IF NOT EXISTS `1_empty_user_mentions` (
-  `tweet_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `tweet_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `tweet_datetime` datetime DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `user_screen_name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_name` tinytext COLLATE utf8mb4_unicode_ci,
+  `user_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_screen_name` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `user_name` tinytext COLLATE utf8_unicode_ci,
   `user_verified` tinyint(1) DEFAULT NULL,
-  `in_response_to_tweet` bigint(11) unsigned DEFAULT NULL,
+  `in_response_to_tweet` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_followers` int(10) unsigned DEFAULT NULL,
-  `in_response_to_user_id` bigint(11) unsigned DEFAULT NULL,
-  `in_response_to_user_screen_name` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `in_response_to_user_name` tinytext COLLATE utf8mb4_unicode_ci,
+  `in_response_to_user_id` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `in_response_to_user_screen_name` varchar(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `in_response_to_user_name` tinytext COLLATE utf8_unicode_ci,
   `in_response_to_user_followers` int(10) unsigned DEFAULT NULL,
   `in_response_to_user_verified` tinyint(1) DEFAULT NULL,
   `responses_to_tweet` int(10) unsigned DEFAULT NULL,
