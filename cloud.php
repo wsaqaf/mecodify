@@ -97,14 +97,19 @@ class PTagCloud
         $text = preg_replace('/\s+/',' ',$text);
 
         $text = trim($text);
+        if ($text === '') {
+            return [];
+        }
         $words = explode(" ", $text);
         foreach ($words as $value)
         {
             $temp = trim($value);
-            $keywords[] = $temp;
+            if ($temp !== '') {
+                $keywords[] = $temp;
+            }
         }
 
-        return $keywords;
+        return $keywords ?? [];
     }
 
     function addTagsFromText($SeedText)
@@ -155,6 +160,10 @@ class PTagCloud
 	    $arTopTags = array_slice($this->m_arTags, 0, $this->m_displayedElementsCount);
 
 	    /* randomize the order of elements */
+
+		if (empty($this->m_arTags)) {
+			return $bHTML ? '' : [];
+		}
 
 		$this->maxCount = max($this->m_arTags);
 		if (is_array($this->m_arTags))
