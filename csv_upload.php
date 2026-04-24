@@ -39,7 +39,7 @@ function log_message($message, $type = 'info')
 
 function debug_log($message)
 {
-    $file = 'tmp/debug_log.txt';
+    $file = __DIR__ . '/tmp/debug_log.txt';
     $timestamp = date("Y-m-d H:i:s");
     file_put_contents($file, "[$timestamp] $message" . PHP_EOL, FILE_APPEND);
 }
@@ -114,17 +114,30 @@ function insert_csv_into_db($file, $table, $link, $is_users_table = false)
         $col_type = "TEXT";
 
         // 1. Force VARCHAR(191) for keys/IDs/Usernames to allow indexing
-        // 191 is the safe max length for utf8mb4 indexes
         if (
-        strpos($clean_col, 'id') !== false ||
-        strpos($clean_col, 'screen_name') !== false ||
-        $clean_col === 'in_reply_to_user' ||
-        $clean_col === 'in_reply_to_tweet' ||
-        $clean_col === 'reply_to'
+            strpos($clean_col, 'id') !== false ||
+            strpos($clean_col, 'screen_name') !== false ||
+            $clean_col === 'in_reply_to_user' ||
+            $clean_col === 'in_reply_to_tweet' ||
+            $clean_col === 'reply_to'
         ) {
             $col_type = "VARCHAR(191)";
         }
-        // 2. Force LONGTEXT for content that might be huge
+        // 2. Detect Numeric Columns
+        elseif (
+            strpos($clean_col, 'count') !== false ||
+            $clean_col === 'retweets' ||
+            $clean_col === 'favorites' ||
+            $clean_col === 'quotes' ||
+            $clean_col === 'replies' ||
+            strpos($clean_col, 'followers') !== false ||
+            strpos($clean_col, 'following') !== false ||
+            $clean_col === 'user_tweets' ||
+            $clean_col === 'user_lists'
+        ) {
+            $col_type = "INT UNSIGNED DEFAULT 0";
+        }
+        // 3. Force LONGTEXT for content that might be huge
         elseif ($clean_col === 'user_mentions' || $clean_col === 'raw_text' || $clean_col === 'clear_text') {
             $col_type = "LONGTEXT";
         }
@@ -132,8 +145,7 @@ function insert_csv_into_db($file, $table, $link, $is_users_table = false)
         $column_definitions[] = "`$col` $col_type";
         $column_types_map[$col] = $col_type;
 
-        // 3. Only index if it's a safe type (VARCHAR/INT)
-        // This PREVENTS the "BLOB/TEXT key without length" crash
+        // 4. Only index if it's a safe type (VARCHAR/INT)
         if ($col_type === "VARCHAR(191)" || strpos($col_type, "INT") !== false) {
             $index_columns[] = "`$col`";
         }
@@ -415,8 +427,68 @@ function get_hashtag_cloud($table)
 
 function tweeter_data($table)
 {
+    harden_schema($table);
     update_response_mentions();
     draw_network($table);
+}
+
+function harden_schema($table)
+{
+    global $link;
+    log_message("Hardening database schema for performance...", 'info');
+
+    $tables = [$table, "users_" . $table];
+    foreach ($tables as $t) {
+        $res = $link->query("SHOW TABLES LIKE '$t'");
+        if (!$res || $res->num_rows == 0) continue;
+
+        log_message("Optimizing table: $t", 'light');
+        $cols = $link->query("SHOW FULL COLUMNS FROM `$t` ");
+        if (!$cols) continue;
+
+        $existing = [];
+        while ($c = $cols->fetch_assoc()) $existing[$c['Field']] = $c;
+
+        $to_int = ['retweets', 'favorites', 'quotes', 'replies', 'user_followers', 'user_following', 'user_tweets', 'user_favorites', 'user_lists'];
+        $to_varchar = ['user_id', 'tweet_id', 'user_screen_name', 'in_reply_to_user', 'in_reply_to_tweet'];
+        $to_index = ['date_time'];
+
+        foreach ($to_int as $col) {
+            if (isset($existing[$col])) {
+                if (strpos($existing[$col]['Type'], 'int') === false) {
+                    log_message("Converting $col to INT in $t...", 'light');
+                    $link->query("ALTER TABLE `$t` MODIFY `$col` INT UNSIGNED DEFAULT 0");
+                }
+                $idx_res = $link->query("SHOW INDEX FROM `$t` WHERE Key_name = 'idx_$col'");
+                if ($idx_res && $idx_res->num_rows == 0) {
+                    $link->query("ALTER TABLE `$t` ADD INDEX `idx_$col` (`$col`)");
+                }
+            }
+        }
+        foreach ($to_varchar as $col) {
+            if (isset($existing[$col])) {
+                if (strpos($existing[$col]['Type'], 'varchar') === false || !isset($existing[$col]['Collation']) || $existing[$col]['Collation'] != 'utf8_unicode_ci') {
+                    log_message("Converting $col to VARCHAR(191) with utf8_unicode_ci in $t...", 'light');
+                    $link->query("ALTER TABLE `$t` MODIFY `$col` VARCHAR(191) CHARACTER SET utf8 COLLATE utf8_unicode_ci");
+                }
+                $idx_res = $link->query("SHOW INDEX FROM `$t` WHERE Key_name = 'idx_$col'");
+                if ($idx_res && $idx_res->num_rows == 0) {
+                    $link->query("ALTER TABLE `$t` ADD INDEX `idx_$col` (`$col`)");
+                }
+            }
+        }
+        foreach ($to_index as $col) {
+            if (isset($existing[$col])) {
+                $idx_res = $link->query("SHOW INDEX FROM `$t` WHERE Key_name = 'idx_$col'");
+                if ($idx_res && $idx_res->num_rows == 0) {
+                    log_message("Indexing $col in $t...", 'light');
+                    $link->query("ALTER TABLE `$t` ADD INDEX `idx_$col` (`$col`)");
+                }
+            }
+        }
+        $link->query("OPTIMIZE TABLE `$t` ");
+    }
+    log_message("Database schema hardened successfully.", 'success');
 }
 
 function update_response_mentions()
@@ -427,9 +499,13 @@ function update_response_mentions()
     $u_m = "user_mentions_" . $table;
 
     log_message("Analyzing interactions...", 'primary');
-
-    // 1. Mark missing users
-    $link->query("UPDATE `users_" . $table . "` SET `users_" . $table . "`.`not_in_search_results`=1 WHERE NOT EXISTS (SELECT 1 FROM `" . $table . "` WHERE LOWER(`" . $table . "`.`user_screen_name`)=LOWER(`users_" . $table . "`.`user_screen_name`))");
+    log_message("Step 1: Marking missing users...", 'light');
+    $q1 = "UPDATE `users_" . $table . "` u LEFT JOIN `$table` t ON u.`user_screen_name` = t.`user_screen_name` SET u.`not_in_search_results` = 1 WHERE t.`user_screen_name` IS NULL";
+    if ($link->query($q1)) {
+        log_message("Step 1 complete.", 'light');
+    } else {
+        log_message("Step 1 failed: " . $link->error, 'danger');
+    }
 
     // 2. Mentions Table (All IDs are VARCHAR(191) to match)
     $link->query("DROP TABLE IF EXISTS $all_m");
@@ -440,38 +516,103 @@ function update_response_mentions()
       `user_screen_name` varchar(191) DEFAULT NULL,
       `responses_to_tweeter` int UNSIGNED NOT NULL DEFAULT '0',
       `mentions_of_tweeter` int UNSIGNED NOT NULL DEFAULT '0',
-      `mention1` VARCHAR(191) DEFAULT NULL,
-      `mention2` VARCHAR(191) DEFAULT NULL,
-      `mention3` VARCHAR(191) DEFAULT NULL,
-      `mention4` VARCHAR(191) DEFAULT NULL,
-      `mention5` VARCHAR(191) DEFAULT NULL,
-      `mention6` VARCHAR(191) DEFAULT NULL,
-      `mention7` VARCHAR(191) DEFAULT NULL,
-      `mention8` VARCHAR(191) DEFAULT NULL,
-      `mention9` VARCHAR(191) DEFAULT NULL,
-      `mention10` VARCHAR(191) DEFAULT NULL,
-      `mention11` VARCHAR(191) DEFAULT NULL,
-      `mention12` VARCHAR(191) DEFAULT NULL,
-      `mention13` VARCHAR(191) DEFAULT NULL,
-      `mention14` VARCHAR(191) DEFAULT NULL,
-      `mention15` VARCHAR(191) DEFAULT NULL,
-      `mention16` VARCHAR(191) DEFAULT NULL,
-      `mention17` VARCHAR(191) DEFAULT NULL,
-      `mention18` VARCHAR(191) DEFAULT NULL,
-      `mention19` VARCHAR(191) DEFAULT NULL,
-      `mention20` VARCHAR(191) DEFAULT NULL,
-      UNIQUE KEY `user_screen_name` (`user_screen_name`),
+      `mention1` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention2` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention3` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention4` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention5` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention6` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention7` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention8` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention9` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention10` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention11` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention12` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention13` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention14` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention15` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention16` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention17` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention18` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention19` int UNSIGNED NOT NULL DEFAULT '0',
+      `mention20` int UNSIGNED NOT NULL DEFAULT '0',
+      KEY `user_screen_name` (`user_screen_name`),
       KEY `tweet_id` (`tweet_id`),
       KEY `user_id` (`user_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
-    $link->query($create_all_m);
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+    log_message("Step 2: Creating all_mentions table...", 'light');
+    $link->query("DROP TABLE IF EXISTS $all_m");
+    if ($link->query($create_all_m)) {
+        log_message("Step 2 complete.", 'light');
+    } else {
+        log_message("Step 2 failed: " . $link->error, 'danger');
+    }
 
     // 3. Insert Replies
-    $query = "INSERT INTO $all_m (tweet_id,replies) (SELECT $table.in_reply_to_tweet, count($table.tweet_id) FROM $table WHERE ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.in_reply_to_tweet IS NOT NULL GROUP BY $table.in_reply_to_tweet ORDER BY count($table.tweet_id) DESC)";
-    $link->query($query);
+    log_message("Step 3: Calculating replies...", 'light');
+    $query_replies = "INSERT INTO $all_m (tweet_id,replies) (SELECT $table.in_reply_to_tweet, count($table.tweet_id) FROM $table WHERE ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.in_reply_to_tweet IS NOT NULL GROUP BY $table.in_reply_to_tweet ORDER BY count($table.tweet_id) DESC)";
+    if ($link->query($query_replies)) {
+        log_message("Step 3 complete.", 'light');
+    } else {
+        log_message("Step 3 failed: " . $link->error, 'danger');
+    }
 
-    $link->query("UPDATE IGNORE $all_m,$table SET $all_m.user_screen_name = LOWER($table.user_screen_name), $all_m.user_id = $table.user_id WHERE $all_m.tweet_id = $table.tweet_id");
-    $link->query("UPDATE $all_m, $table SET $all_m.responses_to_tweeter=(SELECT count($table.tweet_id) FROM $table WHERE $table.in_reply_to_user IS NOT NULL AND ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $all_m.user_screen_name=LOWER($table.in_reply_to_user) GROUP BY $table.in_reply_to_user) WHERE $all_m.user_screen_name=LOWER($table.in_reply_to_user)");
+    log_message("Step 3.1: Updating user info in all_mentions (Chunked)...", 'light');
+    
+    $ids = [];
+    if ($res = $link->query("SELECT tweet_id FROM $all_m")) {
+        while ($r = $res->fetch_assoc()) {
+            $ids[] = $r['tweet_id'];
+        }
+    }
+    
+    $total_ids = count($ids);
+    log_message("Total IDs to process: $total_ids", 'light');
+    
+    $chunks = array_chunk($ids, 1000);
+    $processed = 0;
+    
+    foreach ($chunks as $index => $chunk) {
+        $id_list = "'" . implode("','", array_map([$link, 'real_escape_string'], $chunk)) . "'";
+        
+        // Fetch valid author info for these IDs from the main table
+        $q_fetch = "SELECT tweet_id, user_screen_name, user_id FROM $table WHERE tweet_id IN ($id_list)";
+        $res = $link->query($q_fetch);
+        $count_in_chunk = 0;
+        
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $u_sn = $link->real_escape_string($row['user_screen_name']);
+                $u_id = $link->real_escape_string($row['user_id']);
+                $t_id = $link->real_escape_string($row['tweet_id']);
+                
+                $link->query("UPDATE $all_m SET user_screen_name = '$u_sn', user_id = '$u_id' WHERE tweet_id = '$t_id'");
+                $count_in_chunk++;
+            }
+        }
+        
+        $processed += count($chunk);
+        log_message("Chunk " . ($index + 1) . "/" . count($chunks) . " complete ($processed/$total_ids). Found $count_in_chunk matches.", 'light');
+    }
+    log_message("Step 3.1 complete.", 'light');
+    
+    log_message("Step 4: Calculating responses (Optimized)...", 'light');
+    
+    $query_select = "SELECT in_reply_to_user, count(tweet_id) as cnt FROM $table WHERE in_reply_to_user IS NOT NULL AND in_reply_to_user != '' AND (is_protected_or_deleted IS NULL OR is_protected_or_deleted<>1) GROUP BY in_reply_to_user";
+    $res = $link->query($query_select);
+    
+    if ($res) {
+        $count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $user = $link->real_escape_string($row['in_reply_to_user']);
+            $cnt = (int)$row['cnt'];
+            $link->query("UPDATE $all_m SET responses_to_tweeter = $cnt WHERE user_screen_name = '$user'");
+            $count++;
+        }
+        log_message("Step 4 complete. Updated $count users.", 'light');
+    } else {
+        log_message("Step 4 failed: " . $link->error, 'danger');
+    }
 
     // 5. Parse Mentions
     $link->query("DROP TABLE IF EXISTS $u_m");
@@ -510,7 +651,9 @@ function update_response_mentions()
       `mention19` varchar(191) DEFAULT NULL,
       `mention20` varchar(191) DEFAULT NULL,
       PRIMARY KEY (`tweet_id`),
-      KEY `user_screen_name` (`user_screen_name`)
+      KEY `user_id` (`user_id`),
+      KEY `user_screen_name` (`user_screen_name`),
+      KEY `in_response_to_user_screen_name` (`in_response_to_user_screen_name`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
     $link->query($create_u_m);
 
@@ -568,23 +711,93 @@ function update_response_mentions()
         log_message("Extracted mentions from raw_text for " . ($result ? $result->num_rows : 0) . " tweets.", 'success');
     }
 
+    log_message("Parsing mentions in 20 cycles...", 'info');
     for ($i = 1; $i <= 20; $i++) {
         $query = "INSERT INTO `$all_m` (user_screen_name,mention$i) (SELECT SUBSTR($u_m.mention$i,2), count($u_m.tweet_id) AS counts FROM $u_m WHERE $u_m.mention$i<>'' GROUP BY $u_m.mention$i ORDER BY count($u_m.tweet_id) DESC) ON DUPLICATE KEY UPDATE $all_m.mention$i=VALUES(mention$i)";
         $link->query($query);
+        if ($i % 5 == 0) log_message("Mention cycle $i/20 completed...", 'light');
     }
 
-    $sum_mentions = implode("+", array_map(fn($n) => "sum(mention$n)", range(1, 20)));
-    $link->query("UPDATE $all_m r JOIN (SELECT user_screen_name, $sum_mentions as mt FROM $all_m GROUP BY user_screen_name) u ON r.user_screen_name=u.user_screen_name SET r.mentions_of_tweeter=u.mt");
+    $sum_mentions = implode("+", array_map(fn($n) => "mention$n", range(1, 20)));
+    $link->query("UPDATE $all_m SET mentions_of_tweeter = ($sum_mentions)");
 
-    $link->query("UPDATE $table, $all_m SET $table.replies=$all_m.replies WHERE $table.tweet_id=$all_m.tweet_id AND $all_m.tweet_id IS NOT NULL");
+    log_message("Updating tweet reply counts (Optimized)...", 'info');
+    $q_replies = "SELECT tweet_id, replies FROM $all_m WHERE tweet_id IS NOT NULL AND replies > 0";
+    if ($res = $link->query($q_replies)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $t_id = $link->real_escape_string($row['tweet_id']);
+            $replies = (int)$row['replies'];
+            $link->query("UPDATE $table SET replies = $replies WHERE tweet_id = '$t_id'");
+            $upd_count++;
+        }
+        log_message("Updated reply counts for $upd_count tweets.", 'light');
+    }
 
-    $link->query("UPDATE user_mentions_" . $table . ", $table SET user_mentions_" . $table . ".in_response_to_tweet=$table.in_reply_to_tweet, user_mentions_" . $table . ".in_response_to_user_screen_name=LOWER($table.in_reply_to_user) WHERE user_mentions_" . $table . ".tweet_id=$table.tweet_id");
+    log_message("Mapping responses to users (Optimized)...", 'info');
+    $u_m = "user_mentions_" . $table;
+    $q_map = "SELECT tweet_id FROM $u_m";
+    if ($res = $link->query($q_map)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $t_id = $link->real_escape_string($row['tweet_id']);
+            
+            // Fetch the corresponding data from the main table
+            $q_fetch = "SELECT in_reply_to_tweet, in_reply_to_user FROM $table WHERE tweet_id = '$t_id'";
+            if ($t_res = $link->query($q_fetch)) {
+                if ($t_row = $t_res->fetch_assoc()) {
+                    $in_rep_t = $link->real_escape_string($t_row['in_reply_to_tweet']);
+                    $in_rep_u = $link->real_escape_string($t_row['in_reply_to_user']);
+                    $link->query("UPDATE $u_m SET in_response_to_tweet = '$in_rep_t', in_response_to_user_screen_name = '$in_rep_u' WHERE tweet_id = '$t_id'");
+                    $upd_count++;
+                }
+            }
+        }
+        log_message("Mapped responses for $upd_count tweets.", 'light');
+    }
 
-    $link->query("UPDATE user_mentions_" . $table . ", users_" . $table . " SET user_mentions_" . $table . ".user_name=users_" . $table . ".user_name, user_mentions_" . $table . ".user_verified=users_" . $table . ".user_verified, user_mentions_" . $table . ".user_followers=users_" . $table . ".user_followers WHERE user_mentions_" . $table . ".user_id=users_" . $table . ".user_id");
+    log_message("Enriching mention data with user profiles (Optimized)...", 'info');
+    $q_enrich1 = "SELECT user_id, user_name, user_verified, user_followers FROM users_$table";
+    if ($res = $link->query($q_enrich1)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $u_id = $link->real_escape_string($row['user_id']);
+            $u_name = $link->real_escape_string($row['user_name']);
+            $u_ver = (int)$row['user_verified'];
+            $u_foll = (int)$row['user_followers'];
+            $link->query("UPDATE $u_m SET user_name='$u_name', user_verified=$u_ver, user_followers=$u_foll WHERE user_id='$u_id'");
+            $upd_count++;
+        }
+        log_message("Enriched mention data using $upd_count user profiles.", 'light');
+    }
 
-    $link->query("UPDATE user_mentions_" . $table . ", users_" . $table . " SET user_mentions_" . $table . ".in_response_to_user_name=users_" . $table . ".user_name, user_mentions_" . $table . ".in_response_to_user_verified=users_" . $table . ".user_verified, user_mentions_" . $table . ".in_response_to_user_followers=users_" . $table . ".user_followers WHERE LOWER(user_mentions_" . $table . ".in_response_to_user_screen_name)=LOWER(users_" . $table . ".user_screen_name)");
+    log_message("Enriching response data with user profiles (Optimized)...", 'info');
+    $q_enrich2 = "SELECT user_screen_name, user_name, user_verified, user_followers FROM users_$table";
+    if ($res = $link->query($q_enrich2)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $u_sn = $link->real_escape_string($row['user_screen_name']);
+            $u_name = $link->real_escape_string($row['user_name']);
+            $u_ver = (int)$row['user_verified'];
+            $u_foll = (int)$row['user_followers'];
+            $link->query("UPDATE $u_m SET in_response_to_user_name='$u_name', in_response_to_user_verified=$u_ver, in_response_to_user_followers=$u_foll WHERE in_response_to_user_screen_name='$u_sn'");
+            $upd_count++;
+        }
+        log_message("Enriched response data using $upd_count user profiles.", 'light');
+    }
 
-    $link->query("UPDATE `user_mentions_" . $table . "`,`" . $table . "` SET `user_mentions_" . $table . "`.`tweet_datetime`=`" . $table . "`.`date_time` WHERE `user_mentions_" . $table . "`.`tweet_id`=`" . $table . "`.`tweet_id`");
+    log_message("Syncing interaction timestamps (Optimized)...", 'info');
+    $q_time = "SELECT tweet_id, date_time FROM $table WHERE tweet_id IN (SELECT tweet_id FROM $u_m)";
+    if ($res = $link->query($q_time)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $t_id = $link->real_escape_string($row['tweet_id']);
+            $d_time = $link->real_escape_string($row['date_time']);
+            $link->query("UPDATE $u_m SET tweet_datetime='$d_time' WHERE tweet_id='$t_id'");
+            $upd_count++;
+        }
+        log_message("Synced timestamps for $upd_count tweets.", 'light');
+    }
 
     log_message("User mentions and replies updated.", 'success');
 }
@@ -604,43 +817,72 @@ function update_kumu_files($table)
         mkdir('tmp/network', 0755, true);
 
     log_message("Generating Kumu Files...", 'primary');
+    // --- 1. Top Tweets (Optimized: Unbuffered streaming) ---
+    log_message("Exporting top tweets to Kumu files (unbuffered)...", 'info');
+    $max_limit = max($top_limit);
+    // Note: We avoid ordering by TEXT columns if possible. 
+    // harden_schema should have converted retweets to INT.
+    $query = "SELECT user_screen_name as screen_name, user_image_url, '' as profile_link, '' as tweet_type, date_time, raw_text, tweet_permalink_path, hashtags, tweet_language, source, retweets, quotes, favorites, replies, user_mentions, user_name, user_location, user_lang, user_bio, user_verified, in_reply_to_user, is_retweet, is_quote, is_reply, has_image, has_video, has_link, location_name, country FROM $table WHERE (is_protected_or_deleted is null OR is_protected_or_deleted<>1) and date_time is not null ORDER BY retweets DESC LIMIT $max_limit";
+    
+    // Use MYSQLI_USE_RESULT to start streaming immediately without buffering 10k rows in memory
+    $result = $link->query($query, MYSQLI_USE_RESULT);
 
-    // --- 1. Top Tweets ---
-    foreach ($top_limit as $toplimit) {
-        $query = "SELECT LOWER($table.user_screen_name) as screen_name, $table.user_image_url, '' as profile_link, '' as tweet_type, $table.date_time, $table.raw_text, $table.tweet_permalink_path, $table.hashtags, $table.tweet_language, $table.source, $table.retweets, $table.quotes, $table.favorites, $table.replies, LOWER($table.user_mentions) as user_mentions, $table.user_name, $table.user_location, $table.user_lang, $table.user_bio, $table.user_verified, $table.in_reply_to_user, $table.is_retweet, $table.is_quote, $table.is_reply, $table.has_image, $table.has_video, $table.has_link, $table.location_name, $table.country FROM $table WHERE ($table.is_protected_or_deleted is null OR $table.is_protected_or_deleted<>1) and $table.date_time is not null ORDER BY retweets DESC";
-        $result = $link->query($query);
-
-        if ($result && $result->num_rows > 0) {
+    if ($result) {
+        $fps = [];
+        log_message("Writing to: " . realpath('tmp/kumu'), 'info');
+        foreach ($top_limit as $toplimit) {
             $filename = $table . "_top_tweets_" . $toplimit . ".csv";
-            $fp = fopen("tmp/kumu/" . $filename, 'w');
-            fputcsv($fp, array("Label", "Image", "Profile Link", "Type", "Date", "Tweet Text", "Tweet Link", "Tags", "Tweet Language", "Source", "Retweets", "Favorites", "Quotes", "Replies", "User Mentions", "User Full Name", "User Location", "User Language", "User Bio", "User Verified", "In Reply to User", "Is a Retweet", "Has an Image", "Has a Video", "Has a Link", "Media Link", "Other Links", "Tweeted From Location", "Tweeted from Country"));
-
-            $ind = 0;
-            while ($row = $result->fetch_assoc()) {
-                if ($ind == $toplimit)
-                    break;
-                $row['profile_link'] = "https://twitter.com/" . $row['screen_name'];
-                $row['tweet_type'] = $row['is_retweet'] ? "Retweet" : ($row['is_reply'] ? "Tweet with reply" : "Regular tweet");
-                $row['raw_text'] = preg_replace("/[\r\n]+/", " ", $row['raw_text']);
-                fputcsv($fp, $row);
-                $ind++;
+            $filepath = "tmp/kumu/" . $filename;
+            $fps[$toplimit] = fopen($filepath, 'w');
+            if (!$fps[$toplimit]) {
+                log_message("FAILED to open $filepath for writing. Check permissions.", 'error');
             }
-            fclose($fp);
-            log_message("Saved: <a href='tmp/kumu/$filename' target='_blank' class='fw-bold'>$filename</a>", 'light');
+            fputcsv($fps[$toplimit], array("Label", "Image", "Profile Link", "Type", "Date", "Tweet Text", "Tweet Link", "Tags", "Tweet Language", "Source", "Retweets", "Favorites", "Quotes", "Replies", "User Mentions", "User Full Name", "User Location", "User Language", "User Bio", "User Verified", "In Reply to User", "Is a Retweet", "Has an Image", "Has a Video", "Has a Link", "Media Link", "Other Links", "Tweeted From Location", "Tweeted from Country"));
+        }
+
+        $count = 0;
+        while ($row = $result->fetch_assoc()) {
+            $row['profile_link'] = "https://twitter.com/" . $row['screen_name'];
+            $row['tweet_type'] = $row['is_retweet'] ? "Retweet" : ($row['is_reply'] ? "Tweet with reply" : "Regular tweet");
+            $row['raw_text'] = preg_replace("/[\r\n]+/", " ", $row['raw_text'] ?? '');
+
+            foreach ($top_limit as $toplimit) {
+                if ($count < $toplimit && $fps[$toplimit]) {
+                    fputcsv($fps[$toplimit], $row);
+                }
+            }
+            $count++;
+            if ($count % 500 == 0) {
+                log_message("Exported $count top tweets...", 'light');
+            }
+        }
+        $result->free(); 
+
+        foreach ($fps as $toplimit => $fp) {
+            if ($fp) {
+                fclose($fp);
+                $filename = $table . "_top_tweets_" . $toplimit . ".csv";
+                if (file_exists("tmp/kumu/$filename")) {
+                    log_message("Saved: <a href='tmp/kumu/$filename' target='_blank' class='fw-bold'>$filename</a> (Size: " . filesize("tmp/kumu/$filename") . " bytes)", 'light');
+                } else {
+                    log_message("ERROR: $filename was not found after saving!", 'error');
+                }
+            }
         }
     }
 
     $valid_users = array();
-    $result = $link->query("SELECT LOWER(user_screen_name) FROM users_" . $table);
+    $result = $link->query("SELECT user_screen_name FROM users_" . $table);
     while ($row = $result->fetch_array()) {
         $valid_users[$row[0]] = 1;
     }
 
     $all_users_to_graph = array();
 
-    // --- 2. Responses ---
+    // --- 2. Responses (Optimized) ---
+    log_message("Processing responses for Kumu...", 'info');
     $t = "user_mentions_" . $table;
-    $query = "SELECT LOWER($t.user_screen_name) as screen_name, LOWER($t.in_response_to_user_screen_name) as response_screen_name, '' as tweet_type, $t.in_response_to_tweet, $table.is_retweet, $table.is_quote, $table.is_reply, $t.tweet_datetime, $table.tweet_permalink_path, $table.user_verified, $table.has_image, $table.has_video, $table.has_link, $table.media_link, $table.expanded_links, $table.source, $table.location_name, $table.country, $table.tweet_language, $table.raw_text, $table.hashtags, $table.user_mentions, $table.retweets, $table.quotes, $table.replies, $table.favorites, $t.tweet_id FROM $t, $table WHERE $t.in_response_to_user_screen_name IS NOT NULL AND $t.user_screen_name IS NOT NULL AND ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.date_time IS NOT NULL AND $t.tweet_id=$table.tweet_id ORDER BY $table.retweets DESC";
+    $query = "SELECT $t.user_screen_name as screen_name, $t.in_response_to_user_screen_name as response_screen_name, '' as tweet_type, $t.in_response_to_tweet, $table.is_retweet, $table.is_quote, $table.is_reply, $t.tweet_datetime, $table.tweet_permalink_path, $table.user_verified, $table.has_image, $table.has_video, $table.has_link, $table.media_link, $table.expanded_links, $table.source, $table.location_name, $table.country, $table.tweet_language, $table.raw_text, $table.hashtags, $table.user_mentions, $table.retweets, $table.quotes, $table.replies, $table.favorites, $t.tweet_id FROM $t JOIN $table ON $t.tweet_id=$table.tweet_id WHERE $t.in_response_to_user_screen_name IS NOT NULL AND $t.user_screen_name IS NOT NULL AND ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.date_time IS NOT NULL ORDER BY $table.retweets DESC";
 
     $result = $link->query($query);
     if ($result && $result->num_rows > 0) {
@@ -694,12 +936,13 @@ function update_kumu_files($table)
         log_message("Saved: <a href='tmp/kumu/$filename' target='_blank' class='fw-bold'>$filename</a>", 'light');
     }
 
-    // --- 3. Mentions ---
+    // --- 3. Mentions (Optimized) ---
+    log_message("Processing mentions for Kumu...", 'info');
     $mentions_sql = "mention1";
     for ($i = 2; $i <= 20; $i++) {
         $mentions_sql .= ",$t.mention$i";
     }
-    $query = "SELECT LOWER($t.user_screen_name) as screen_name, $mentions_sql, $t.tweet_datetime, $table.is_retweet, $table.is_quote, $table.is_reply, $table.tweet_permalink_path, $table.user_verified, $table.has_image, $table.has_video, $table.has_link, $table.media_link, $table.expanded_links, $table.source, $table.location_name, $table.country, $table.tweet_language, $table.raw_text, $table.hashtags, $table.user_mentions, $table.retweets, $table.quotes, $table.replies, $table.favorites, $t.tweet_id FROM $t,$table WHERE $t.mention1>'' AND $t.user_screen_name IS NOT NULL AND $t.tweet_id=$table.tweet_id AND ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.date_time IS NOT NULL ORDER BY $table.retweets DESC";
+    $query = "SELECT $t.user_screen_name as screen_name, $mentions_sql, $t.tweet_datetime, $table.is_retweet, $table.is_quote, $table.is_reply, $table.tweet_permalink_path, $table.user_verified, $table.has_image, $table.has_video, $table.has_link, $table.media_link, $table.expanded_links, $table.source, $table.location_name, $table.country, $table.tweet_language, $table.raw_text, $table.hashtags, $table.user_mentions, $table.retweets, $table.quotes, $table.replies, $table.favorites, $t.tweet_id FROM $t JOIN $table ON $t.tweet_id=$table.tweet_id WHERE $t.mention1>'' AND $t.user_screen_name IS NOT NULL AND ($table.is_protected_or_deleted IS NULL OR $table.is_protected_or_deleted<>1) AND $table.date_time IS NOT NULL ORDER BY $table.retweets DESC";
 
     $result = $link->query($query);
     if ($result && $result->num_rows > 0) {
@@ -770,12 +1013,13 @@ function update_kumu_files($table)
     }
 
     // --- 4. Users ---
+    log_message("Exporting users for Kumu...", 'info');
     $filename = $table . "_users.csv";
     $fp = fopen("tmp/kumu/" . $filename, 'w');
     $header = array("Label", "Image", "User Verified", "Link", "Bio", "Language", "Location", "Tweets", "Followers", "Following", "Favorites", "Lists", "Created Date");
     fputcsv($fp, $header);
 
-    $query = "SELECT LOWER(user_screen_name), user_image_url, user_verified, user_url, user_bio, user_lang, user_location, user_tweets, user_followers, user_following, user_favorites, user_lists, user_created FROM users_" . $table;
+    $query = "SELECT user_screen_name, user_image_url, user_verified, user_url, user_bio, user_lang, user_location, user_tweets, user_followers, user_following, user_favorites, user_lists, user_created FROM users_" . $table;
     $result = $link->query($query);
 
     while ($row = $result->fetch_array(MYSQLI_NUM)) {
@@ -828,8 +1072,8 @@ function draw_network($table)
     $edges = array_fill(0, 6, "source,target,value\n");
     $maximum_strength = 5;
 
-    // Step 2: Replies
-    $query = "SELECT LOWER(user_screen_name), LOWER(in_response_to_user_screen_name), count(tweet_id) FROM user_mentions_$table WHERE in_response_to_user_screen_name IS NOT NULL AND in_response_to_user_screen_name != '' GROUP BY concat(user_screen_name, ' ', in_response_to_user_screen_name) ORDER BY count(tweet_id) DESC";
+    // Step 2: Replies (Optimized)
+    $query = "SELECT user_screen_name, in_response_to_user_screen_name, count(tweet_id) FROM user_mentions_$table WHERE in_response_to_user_screen_name IS NOT NULL AND in_response_to_user_screen_name != '' GROUP BY user_screen_name, in_response_to_user_screen_name ORDER BY count(tweet_id) DESC";
     $result = $link->query($query);
     if ($result) {
         while ($row = $result->fetch_array()) {
@@ -980,7 +1224,7 @@ function update_cases_table($mode)
 
         .main-card {
             max-width: 800px;
-            margin: 50px auto;
+            margin: 20px auto;
             border-radius: 15px;
             border: none;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -1189,6 +1433,7 @@ else: ?>
         </script>
         <?php
 endif; ?>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </div>
 </body>
 
