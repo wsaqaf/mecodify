@@ -376,6 +376,15 @@ function process_data_array($rows, $table, $link, $is_users_table = false)
         $escaped_data = [];
         foreach ($columns as $col) {
             $val = $row[$col] ?? '';
+            
+            // Sanitize scraper artifacts: convert literal "0" in text fields to empty strings
+            if ($val === '0' || $val === 0) {
+                $text_columns_to_scrub = ['hashtags', 'in_reply_to_user', 'in_reply_to_tweet', 'in_reply_to_user_id', 'in_response_to_user_screen_name', 'media_link', 'expanded_links', 'urls', 'location_name', 'country'];
+                if (in_array($col, $text_columns_to_scrub)) {
+                    $val = '';
+                }
+            }
+
             if ($col === 'is_protected_or_deleted' && ($val === '0' || $val === '' || $val === null)) {
                 $escaped_data[] = "NULL";
             }
