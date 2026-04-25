@@ -1,5 +1,5 @@
 # Mecodify tool for Twitter data analysis & visualisation (v3)
-![N|Solid](https://mecodify.org/images/logo3.png)
+![Mecodify Logo](images/logo3.png)
 
 `In June 2023, Twitter appears to have ended its free GET SEARCH API feature as part of the academic license to access premium API services. If your search does not yield results on Mecodify, your account may have been affected by this change.`
 
