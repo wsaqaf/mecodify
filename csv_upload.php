@@ -720,15 +720,34 @@ function update_response_mentions()
         log_message("Extracted mentions from raw_text for " . ($result ? $result->num_rows : 0) . " tweets.", 'success');
     }
 
-    log_message("Parsing mentions in 20 cycles...", 'info');
+    log_message("Parsing mentions in 20 cycles (Optimized Temporary Aggregation)...", 'info');
+    
+    // Create a strict temporary table to accurately aggregate mentions without duplicate row bugs
+    $link->query("DROP TEMPORARY TABLE IF EXISTS temp_mentions");
+    $link->query("CREATE TEMPORARY TABLE temp_mentions (user_screen_name VARCHAR(191) PRIMARY KEY, total_mentions INT DEFAULT 0)");
+    
     for ($i = 1; $i <= 20; $i++) {
-        $query = "INSERT INTO `$all_m` (user_screen_name,mention$i) (SELECT SUBSTR($u_m.mention$i,2), count($u_m.tweet_id) AS counts FROM $u_m WHERE $u_m.mention$i<>'' GROUP BY $u_m.mention$i ORDER BY count($u_m.tweet_id) DESC) ON DUPLICATE KEY UPDATE $all_m.mention$i=VALUES(mention$i)";
-        $link->query($query);
+        $link->query("INSERT INTO temp_mentions (user_screen_name, total_mentions) 
+                      SELECT REPLACE(LOWER($u_m.mention$i), '@', ''), count($u_m.tweet_id) 
+                      FROM $u_m WHERE $u_m.mention$i != '' 
+                      GROUP BY REPLACE(LOWER($u_m.mention$i), '@', '') 
+                      ON DUPLICATE KEY UPDATE total_mentions = total_mentions + VALUES(total_mentions)");
         if ($i % 5 == 0) log_message("Mention cycle $i/20 completed...", 'light');
     }
-
-    $sum_mentions = implode("+", array_map(fn($n) => "mention$n", range(1, 20)));
-    $link->query("UPDATE $all_m SET mentions_of_tweeter = ($sum_mentions)");
+    
+    // Insert missing users into the tracking table who received mentions but didn't author a tweet
+    $link->query("INSERT INTO $all_m (user_screen_name, mentions_of_tweeter) 
+                  SELECT temp.user_screen_name, temp.total_mentions 
+                  FROM temp_mentions temp 
+                  LEFT JOIN $all_m a ON temp.user_screen_name = a.user_screen_name 
+                  WHERE a.user_screen_name IS NULL");
+                  
+    // Update the final accurately aggregated counts for users already in the tracking table
+    $link->query("UPDATE $all_m a 
+                  INNER JOIN temp_mentions temp ON a.user_screen_name = temp.user_screen_name 
+                  SET a.mentions_of_tweeter = temp.total_mentions");
+                  
+    $link->query("DROP TEMPORARY TABLE IF EXISTS temp_mentions");
 
     log_message("Updating tweet reply counts (Optimized)...", 'info');
     $q_replies = "SELECT tweet_id, replies FROM $all_m WHERE tweet_id IS NOT NULL AND replies > 0";
