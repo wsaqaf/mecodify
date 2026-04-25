@@ -743,6 +743,19 @@ function update_response_mentions()
         log_message("Updated reply counts for $upd_count tweets.", 'light');
     }
 
+    log_message("Updating tweeter mentions counts in main table (Optimized)...", 'info');
+    $q_mentions = "SELECT user_screen_name, mentions_of_tweeter FROM $all_m WHERE user_screen_name IS NOT NULL AND user_screen_name != '' AND mentions_of_tweeter > 0";
+    if ($res = $link->query($q_mentions)) {
+        $upd_count = 0;
+        while ($row = $res->fetch_assoc()) {
+            $user = $link->real_escape_string($row['user_screen_name']);
+            $mentions = (int)$row['mentions_of_tweeter'];
+            $link->query("UPDATE $table SET mentions_of_tweeter = $mentions WHERE user_screen_name = '$user'");
+            $upd_count++;
+        }
+        log_message("Updated mentions counts for $upd_count users in main table.", 'light');
+    }
+
     log_message("Mapping responses to users (Optimized)...", 'info');
     $u_m = "user_mentions_" . $table;
     $q_map = "SELECT tweet_id FROM $u_m";
